@@ -114,6 +114,7 @@ jobs:
       env:
         VCPKG_OVERLAY_PORTS: overlay/ports
         VCPKG_BINARY_SOURCES: ${{ env.VCPKG_BINARY_SOURCES }}
+        VCPKG_OSX_DEPLOYMENT_TARGET: 10.13 # minimum supported by Qt 5.15
 
     - name: Upload GitHub Actions artifacts of failed build
       if: failure()
