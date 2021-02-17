@@ -4,6 +4,7 @@
   "port-version": 0,
   "description": "TagLib Audio Meta-Data Library",
   "homepage": "https://taglib.org/",
+  "license": "LGPL-3.0 AND MPL-1.1",
   "dependencies": [
     "zlib"
   ]
