@@ -1,0 +1,10 @@
+{
+  "name": "taglib",
+  "version-string": "1.12-20210216",
+  "port-version": 0,
+  "description": "TagLib Audio Meta-Data Library",
+  "homepage": "https://taglib.org/",
+  "dependencies": [
+    "zlib"
+  ]
+}
