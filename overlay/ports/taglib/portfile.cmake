@@ -18,6 +18,8 @@ vcpkg_configure_cmake(
 
 vcpkg_install_cmake()
 
+vcpkg_fixup_pkgconfig()
+
 # remove the debug/include files
 file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
 
