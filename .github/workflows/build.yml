@@ -59,6 +59,7 @@ jobs:
         soundtouch
         taglib
         wavpack
+        winsparkle
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_OVERLAY_PORTS: overlay/ports
       MIXXX_VERSION: 2.3
