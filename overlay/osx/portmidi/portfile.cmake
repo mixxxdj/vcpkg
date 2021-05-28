@@ -10,8 +10,13 @@ vcpkg_from_sourceforge(
 # Alter path to main portmidi root
 set(SOURCE_PATH "${SOURCE_PATH}/portmidi/trunk")
 
-# Mark portmidi-static as static, disable pmjni library depending on the Java SDK
+file(READ "${SOURCE_PATH}/CMakeLists.txt" PM_CMAKE)
+string(REPLACE 
+    "set(CMAKE_OSX_ARCHITECTURES i386 ppc x86_64 CACHE STRING \"change to needed architecture for a smaller library\" FORCE)"
+    "# Removed preconfigured CMAKE_OSX_ARCHITECTURES" PM_CMAKE "${PM_CMAKE}")
+file(WRITE "${SOURCE_PATH}/CMakeLists.txt" "${PM_CMAKE}")
 
+# Mark portmidi-static as static, disable pmjni library depending on the Java SDK
 file(READ "${SOURCE_PATH}/pm_common/CMakeLists.txt" PM_CMAKE)
 string(REPLACE "add_library(portmidi-static \${LIBSRC})" "add_library(portmidi-static STATIC \${LIBSRC})" PM_CMAKE "${PM_CMAKE}")
 string(REPLACE "add_library(pmjni SHARED \${JNISRC})" "# Removed pmjni" PM_CMAKE "${PM_CMAKE}")
@@ -57,3 +62,4 @@ else()
 endif()	
 
 file(INSTALL ${SOURCE_PATH}/license.txt DESTINATION ${CURRENT_PACKAGES_DIR}/share/portmidi RENAME copyright)
+
