@@ -22,6 +22,7 @@ string(REPLACE "add_library(portmidi-static \${LIBSRC})" "add_library(portmidi-s
 string(REPLACE "add_library(pmjni SHARED \${JNISRC})" "# Removed pmjni" PM_CMAKE "${PM_CMAKE}")
 string(REPLACE "target_link_libraries(pmjni \${JNI_EXTRA_LIBS})" "# Removed pmjni" PM_CMAKE "${PM_CMAKE}")
 string(REPLACE "set_target_properties(pmjni PROPERTIES EXECUTABLE_EXTENSION \"jnilib\")" "# Removed pmjni" PM_CMAKE "${PM_CMAKE}")
+string(REPLACE "INSTALL(TARGETS portmidi-static pmjni" "INSTALL(TARGETS portmidi-static" PM_CMAKE "${PM_CMAKE}")
 file(WRITE "${SOURCE_PATH}/pm_common/CMakeLists.txt" "${PM_CMAKE}")
 
 # Run cmake configure step
