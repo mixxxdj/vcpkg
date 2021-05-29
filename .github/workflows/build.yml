@@ -85,8 +85,10 @@ jobs:
 
     - name: "[macOS] Bootstrap vcpkg"
       if: runner.os == 'macOS'
-      run: brew install yasm automake
-
+      run: |
+          brew install yasm automake
+          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.app/Contents/Developer"
+          xcrun --show-sdk-version
     - name: Set up cache
       uses: actions/cache@v2
       with:
