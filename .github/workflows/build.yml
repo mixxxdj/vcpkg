@@ -62,6 +62,7 @@ jobs:
         wavpack
         ${{ matrix.vcpkg_packages_extras }}
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
+      VCPKG_OVERLAY_TRIPLETS: overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
       DEPS_BASE_NAME: mixxx-deps
       DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
