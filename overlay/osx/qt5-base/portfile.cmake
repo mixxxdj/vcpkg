@@ -57,7 +57,7 @@ set(CORE_OPTIONS
     # ENV ANGLE_DIR to external angle source dir. (Will always be compiled with Qt)
     #-optimized-tools
     #-force-debug-info
-    #-verbose
+    -verbose
 )
 
 ## 3rd Party Libs
@@ -183,7 +183,8 @@ elseif(VCPKG_TARGET_IS_OSX)
             "HARFBUZZ_LIBS=${HARFBUZZ_DEBUG} -framework ApplicationServices"
         )
     list(APPEND CORE_OPTIONS
-       -device-option QMAKE_MACOSX_DEPLOYMENT_TARGET=${VCPKG_OSX_DEPLOYMENT_TARGET})       
+       -device-option QMAKE_MACOSX_DEPLOYMENT_TARGET=${VCPKG_OSX_DEPLOYMENT_TARGET}
+       -device-option QMAKE_CXXFLAGS=-mmacosx-version-min=${VCPKG_OSX_DEPLOYMENT_TARGET})       
 endif()
 
 ## Do not build tests or examples
