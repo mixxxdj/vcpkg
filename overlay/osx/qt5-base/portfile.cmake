@@ -152,9 +152,7 @@ elseif(VCPKG_TARGET_IS_LINUX)
             "HARFBUZZ_LIBS=${HARFBUZZ_DEBUG}"
         )
 elseif(VCPKG_TARGET_IS_OSX)
-    if(DEFINED VCPKG_OSX_DEPLOYMENT_TARGET)
-        set(ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET} ${VCPKG_OSX_DEPLOYMENT_TARGET})
-    else()
+    if(NOT DEFINED VCPKG_OSX_DEPLOYMENT_TARGET)
         execute_process(COMMAND xcrun --show-sdk-version
                             OUTPUT_FILE OSX_SDK_VER.txt
                             WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR})
@@ -167,12 +165,12 @@ elseif(VCPKG_TARGET_IS_OSX)
             message(STATUS "Qt ${QT_MAJOR_MINOR_VER}.${QT_PATCH_VER} only support OSX_DEPLOYMENT_TARGET up to 10.15")
             set(VCPKG_OSX_DEPLOYMENT_TARGET "10.15")
         endif()
-        set(ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET} ${VCPKG_OSX_DEPLOYMENT_TARGET})
-        message(STATUS "Enviromnent OSX SDK Version: $ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET}")
-        FILE(READ "${SOURCE_PATH}/mkspecs/common/macx.conf" _tmp_contents)
-        string(REPLACE "QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13" "QMAKE_MACOSX_DEPLOYMENT_TARGET = ${VCPKG_OSX_DEPLOYMENT_TARGET}" _tmp_contents ${_tmp_contents})
-        FILE(WRITE "${SOURCE_PATH}/mkspecs/common/macx.conf" ${_tmp_contents})
     endif()
+    set(ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET} ${VCPKG_OSX_DEPLOYMENT_TARGET})
+    message(STATUS "Enviromnent OSX SDK Version: $ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET}")
+    FILE(READ "${SOURCE_PATH}/mkspecs/common/macx.conf" _tmp_contents)
+        string(REPLACE "QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12" "QMAKE_MACOSX_DEPLOYMENT_TARGET = ${VCPKG_OSX_DEPLOYMENT_TARGET}" _tmp_contents ${_tmp_contents})
+    FILE(WRITE "${SOURCE_PATH}/mkspecs/common/macx.conf" ${_tmp_contents})
     #list(APPEND QT_PLATFORM_CONFIGURE_OPTIONS HOST_PLATFORM ${TARGET_MKSPEC})
     list(APPEND RELEASE_OPTIONS
             "PSQL_LIBS=${PSQL_RELEASE} ${SSL_RELEASE} ${EAY_RELEASE} -ldl -lpthread"
@@ -184,6 +182,8 @@ elseif(VCPKG_TARGET_IS_OSX)
             "SQLITE_LIBS=${SQLITE_DEBUG} -ldl -lpthread"
             "HARFBUZZ_LIBS=${HARFBUZZ_DEBUG} -framework ApplicationServices"
         )
+    list(APPEND CORE_OPTIONS
+       -device-option QMAKE_MACOSX_DEPLOYMENT_TARGET=${VCPKG_OSX_DEPLOYMENT_TARGET})       
 endif()
 
 ## Do not build tests or examples
