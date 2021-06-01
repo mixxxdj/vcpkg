@@ -169,8 +169,17 @@ elseif(VCPKG_TARGET_IS_OSX)
     set(ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET} ${VCPKG_OSX_DEPLOYMENT_TARGET})
     message(STATUS "Enviromnent OSX SDK Version: $ENV{QMAKE_MACOSX_DEPLOYMENT_TARGET}")
     FILE(READ "${SOURCE_PATH}/mkspecs/common/macx.conf" _tmp_contents)
-        string(REPLACE "QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12" "QMAKE_MACOSX_DEPLOYMENT_TARGET = ${VCPKG_OSX_DEPLOYMENT_TARGET}" _tmp_contents ${_tmp_contents})
-    FILE(WRITE "${SOURCE_PATH}/mkspecs/common/macx.conf" ${_tmp_contents})
+        string(REPLACE 
+            "QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12" 
+            "QMAKE_MACOSX_DEPLOYMENT_TARGET = ${VCPKG_OSX_DEPLOYMENT_TARGET}" 
+            _tmp_contents "${_tmp_contents}")
+    FILE(WRITE "${SOURCE_PATH}/mkspecs/common/macx.conf" "${_tmp_contents}")
+    FILE(READ "${SOURCE_PATH}/src/corelib/configure.json" _tmp_contents)
+        string(REPLACE 
+            "darwin: QMAKE_CXXFLAGS += -Werror=unguarded-availability\"" 
+            "darwin: QMAKE_CXXFLAGS += -Werror=unguarded-availability -Werror=unguarded-availability-new\", \"CONFIG += warn_on\"" 
+            _tmp_contents "${_tmp_contents}")
+    FILE(WRITE "${SOURCE_PATH}/src/corelib/configure.json" "${_tmp_contents}")
     #list(APPEND QT_PLATFORM_CONFIGURE_OPTIONS HOST_PLATFORM ${TARGET_MKSPEC})
     list(APPEND RELEASE_OPTIONS
             "PSQL_LIBS=${PSQL_RELEASE} ${SSL_RELEASE} ${EAY_RELEASE} -ldl -lpthread"
@@ -181,10 +190,7 @@ elseif(VCPKG_TARGET_IS_OSX)
             "PSQL_LIBS=${PSQL_DEBUG} ${SSL_DEBUG} ${EAY_DEBUG} -ldl -lpthread"
             "SQLITE_LIBS=${SQLITE_DEBUG} -ldl -lpthread"
             "HARFBUZZ_LIBS=${HARFBUZZ_DEBUG} -framework ApplicationServices"
-        )
-    list(APPEND CORE_OPTIONS
-       -device-option QMAKE_MACOSX_DEPLOYMENT_TARGET=${VCPKG_OSX_DEPLOYMENT_TARGET}
-       -device-option QMAKE_CXXFLAGS=-mmacosx-version-min=${VCPKG_OSX_DEPLOYMENT_TARGET})       
+        )     
 endif()
 
 ## Do not build tests or examples
