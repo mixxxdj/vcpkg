@@ -4,7 +4,7 @@ set(QT_MAJOR_MINOR_VER 5.12)
 set(QT_PATCH_VER 4)
 
 set(QT_PORT_LIST base 3d activeqt charts connectivity datavis3d declarative gamepad graphicaleffects imageformats location macextras mqtt multimedia networkauth
-                 purchasing quickcontrols quickcontrols2 remoteobjects script scxml sensors serialport speech svg tools virtualkeyboard webchannel websockets
+                 purchasing quickcontrols quickcontrols2 remoteobjects script scxml sensors serialport speech svg tools translations virtualkeyboard webchannel websockets
                  webview winextras xmlpatterns)
 
 #set(_VCPKG_INTERNAL_NO_HASH_CHECK 1)
@@ -34,6 +34,7 @@ set(QT_HASH_qt5-serialport          c51fa5eca92a16c41678eef37c3e33c6ea7f61ad881d
 set(QT_HASH_qt5-speech              85f77f32d2a3fc28262fa0af2dc1ff13c572835bff8fef3a79b4af0efdee0fc325754e1803d98ce25042fd717de28f3ecb3cc916de729cbb267c14be136007a9)
 set(QT_HASH_qt5-svg                 40d7dc82e0acde52e1258e1b1753cc93609c31cf69057c52dc2dd30dc59f2d7d434e20fa4f7f27db3fa300fd3c8f23a8fb03cc26b27cc1c02cc3bf6d97383503)
 set(QT_HASH_qt5-tools               072d09315fc73ec610d2e0d9a1380e5539a79fa1d73104a801e0f8b9afe489b735fefcc46d7c9e519ee8c1b14975386260239be24183933281dead2fec00f466)
+set(QT_HASH_qt5-translations 05046918e0e2d6377a462f034db1a4d7aeeedf952fef3db943a6e525c16d7ff3c93f2da78846e9662c85b515e46e464c81bd474e639d8c2deebe808e467e6d91)
 set(QT_HASH_qt5-virtualkeyboard     04960c475a01f65901279fdab352742e4dc77753a306c7bd9996cf32be4a63524e7be034d60b398c6862c0099b02eedcef89f28fd09b1c7fa3075f89adba5a7a)
 set(QT_HASH_qt5-webchannel          956c57c019623a2ccc4b4a7fc8ca2404a04862b7a3fdb8d1317dfd0d24d00f73db4698df22a9758667256646129163ea1b3a588435aa01f28e72e35300637458)
 set(QT_HASH_qt5-websockets          b5abd39664f07afe08805876980bc3850a83a032462a7b73e9d5c5458a2f195df85ec903e8a16bf93bde6089ec90ab9b930ea6b1ebb0d99d0955ad36de0613dd)
