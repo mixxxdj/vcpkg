@@ -13,14 +13,13 @@ jobs:
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_overlay_ports: overlay/windows;overlay/ports
-            vcpkg_packages_extras: libid3tag libmad qt5-winextras
+            vcpkg_packages_extras: libid3tag libmad
             check_disk_space: Get-PSDrive
           - os: macos-10.15
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-osx
-            vcpkg_overlay_ports: overlay/osx:overlay/ports
-            vcpkg_packages_extras: qt5-macextras
+            vcpkg_triplet: x64-osx-min10.14
+            vcpkg_overlay_ports: overlay/ports
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
@@ -50,12 +49,11 @@ jobs:
         portmidi
         protobuf
         pthreads
-        qt5-base
-        qt5-declarative
-        qt5-script
-        qt5-svg
-        qt5-translations
-        qtkeychain
+        qtbase
+        qtdeclarative
+        qtsvg
+        qttranslations
+        qtkeychain[qt6]
         rubberband
         soundtouch
         taglib
