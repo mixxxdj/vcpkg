@@ -62,7 +62,8 @@ jobs:
         wavpack
         ${{ matrix.vcpkg_packages_extras }}
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
-      VCPKG_OVERLAY_TRIPLETS: overlay/triplets
+      # Using the relative path overlay/triplets does not work (https://github.com/microsoft/vcpkg/issues/18764)
+      VCPKG_OVERLAY_TRIPLETS: ${{ matrix.vcpkg_path }}/overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
       DEPS_BASE_NAME: mixxx-deps
       DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
