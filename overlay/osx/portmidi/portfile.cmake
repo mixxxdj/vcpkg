@@ -32,6 +32,7 @@ vcpkg_configure_cmake(
         -DJAVA_INCLUDE_PATH=
         -DJAVA_INCLUDE_PATH2=
         -DJAVA_JVM_LIBRARY=
+        -DCMAKE_CACHEFILE_DIR=..
 )
 
 # Run cmake build step, nothing is installed on Windows
@@ -52,11 +53,13 @@ if(VCPKG_TARGET_IS_WINDOWS)
     endif()
 else()
     if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
-        # file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/Release/portmidi_s.a DESTINATION ${CURRENT_PACKAGES_DIR}/lib)
-        # file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/Debug/portmidi_s.a DESTINATION ${CURRENT_PACKAGES_DIR}/debug/lib)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/libportmidi_s.a DESTINATION ${CURRENT_PACKAGES_DIR}/lib)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/libportmidi_s.a DESTINATION ${CURRENT_PACKAGES_DIR}/debug/lib)
     else()
-        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/Release/portmidi.dylib DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
-        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/Debug/portmidi.dylib DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/libportmidi.a DESTINATION ${CURRENT_PACKAGES_DIR}/lib)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/libportmidi.dylib DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/libportmidi.a DESTINATION ${CURRENT_PACKAGES_DIR}/debug/lib)
+        file(INSTALL ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/libportmidi.dylib DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
     endif()
 endif()	
 
