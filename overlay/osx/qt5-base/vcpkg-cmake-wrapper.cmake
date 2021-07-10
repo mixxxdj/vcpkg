@@ -15,14 +15,14 @@ if("${_target_type}" STREQUAL "STATIC_LIBRARY")
     find_package(JPEG)
     find_package(PNG)
     find_package(Freetype)
-    find_package(sqlite3 CONFIG)
+    find_package(SQLite3)
     find_package(PostgreSQL MODULE REQUIRED)
     find_package(double-conversion CONFIG)
     find_package(OpenSSL)
     find_package(harfbuzz CONFIG)
 
     set_property(TARGET Qt5::Core APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-        ZLIB::ZLIB JPEG::JPEG PNG::PNG Freetype::Freetype sqlite3 harfbuzz::harfbuzz
+        ZLIB::ZLIB JPEG::JPEG PNG::PNG Freetype::Freetype SQLite3::SQLite3 harfbuzz::harfbuzz
         double-conversion::double-conversion OpenSSL::SSL OpenSSL::Crypto
     )
 
