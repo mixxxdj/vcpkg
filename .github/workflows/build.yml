@@ -104,6 +104,10 @@ jobs:
       run: ./vcpkg install --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
       working-directory: ${{ matrix.vcpkg_path }}
 
+    - name: Build cargo
+      run: cargo install --git https://github.com/mozilla/sccache.git
+           --root ${{ matrix.vcpkg_path }}/installed/${{ matrix.vcpkg_triplet }}/tools/sccache
+
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
       uses: actions/upload-artifact@v2
