@@ -41,6 +41,10 @@ vcpkg_configure_cmake(
         -DCMAKE_INSTALL_CMAKEDIR:STRING=share/protobuf
         -Dprotobuf_BUILD_PROTOC_BINARIES=${protobuf_BUILD_PROTOC_BINARIES}
         -Dprotobuf_BUILD_LIBPROTOC=${protobuf_BUILD_LIBPROTOC}
+        -DCMAKE_POLICY_DEFAULT_CMP0063=NEW
+        -DCMAKE_C_VISIBILITY_PRESET=hidden
+        -DCMAKE_CXX_VISIBILITY_PRESET=hidden
+        -DCMAKE_VISIBILITY_INLINES_HIDDEN=TRUE
         ${FEATURE_OPTIONS}
 )
 
