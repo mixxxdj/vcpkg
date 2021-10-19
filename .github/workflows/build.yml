@@ -39,7 +39,6 @@ jobs:
         libmodplug
         libogg
         libopusenc
-        libshout
         libsndfile
         libusb
         libvorbis
