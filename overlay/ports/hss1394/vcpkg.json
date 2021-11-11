@@ -1,0 +1,8 @@
+{
+  "name": "hss1394",
+  "version-string": "1.0.0",
+  "port-version": 1,
+  "description": "High-speed MIDI-over-Firewire device access library for Windows and macOS",
+  "homepage": "https://github.com/mixxxdj/hss1394",
+  "supports": "windows|osx"
+}
