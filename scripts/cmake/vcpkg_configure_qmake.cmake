@@ -37,7 +37,12 @@ function(vcpkg_configure_qmake)
     find_program(qmake_executable NAMES qmake PATHS "${CURRENT_HOST_INSTALLED_DIR}/tools/qt5/bin" NO_DEFAULT_PATH)
 
     if(NOT qmake_executable)
-        message(FATAL_ERROR "vcpkg_configure_qmake: unable to find qmake.")
+        message(STATUS "vcpkg_configure_qmake: unable to find qmake at ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5/bin")
+        message(STATUS "vcpkg_configure_qmake: trying to find qmake at ${CURRENT_INSTALLED_DIR}/tools/qt5/bin")
+        find_program(qmake_executable NAMES qmake PATHS "${CURRENT_INSTALLED_DIR}/tools/qt5/bin" NO_DEFAULT_PATH)
+        if(NOT qmake_executable)
+            message(FATAL_ERROR "vcpkg_configure_qmake: unable to find qmake.")
+        endif()
     endif()
 
     if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
