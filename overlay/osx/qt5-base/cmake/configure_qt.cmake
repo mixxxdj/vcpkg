@@ -80,28 +80,29 @@ function(configure_qt)
         
         set(BUILD_OPTIONS ${_csc_OPTIONS} ${_csc_OPTIONS_${_buildname}}
                 -prefix ${CURRENT_INSTALLED_DIR}
-                #-extprefix ${CURRENT_INSTALLED_DIR}
+                #-extprefix ${CURRENT_INSTALLED_DIR}  
                 ${EXT_BIN_DIR}
-                -hostprefix ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
-                #-hostprefix ${CURRENT_INSTALLED_DIR}/tools/qt5
-                -hostlibdir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/lib # could probably be move to manual-link
-                -hostbindir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/bin 
+                -hostprefix ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                #-hostprefix ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5
+                #-hostlibdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/lib # could probably be move to manual-link
+                #-hostlibdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5/lib
+                #-hostbindir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/bin 
                 #-hostbindir ${CURRENT_INSTALLED_DIR}/tools/qt5/bin 
                 # Qt VS Plugin requires a /bin subfolder with the executables in the root dir. But to use the wizard a correctly setup lib folder is also required
                 # So with the vcpkg layout there is no way to make it work unless all dll are are copied to tools/qt5/bin and all libs to tools/qt5/lib
-                -archdatadir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                -archdatadir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
                 -datadir ${CURRENT_INSTALLED_DIR}${_path_suffix}/share/qt5${_path_suffix_${_buildname}}
                 -plugindir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/plugins
                 -qmldir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/qml
                 -headerdir ${CURRENT_INSTALLED_DIR}/include/qt5
-                -libexecdir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                -libexecdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
                 -bindir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/bin
                 -libdir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib
                 -I ${CURRENT_INSTALLED_DIR}/include
                 -I ${CURRENT_INSTALLED_DIR}/include/qt5
-                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib 
+                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib
                 ${_manual_link_${_buildname}}
-                -platform ${_csc_TARGET_PLATFORM}
+                -xplatform ${_csc_TARGET_PLATFORM}
             )
         
         if(DEFINED _csc_HOST_TOOLS_ROOT) #use qmake
@@ -132,7 +133,7 @@ function(configure_qt)
         string(REPLACE "${CMAKE_CURRENT_INSTALLED_DIR_PATH}" "\${CURRENT_INSTALLED_DIR}" _contents ${_contents})
         #string(REPLACE "HostPrefix=\${CURRENT_PACKAGES_DIR}" "HostPrefix=\${CURRENT_INSTALLED_DIR}" _contents ${_contents})
         string(REPLACE "[EffectivePaths]\nPrefix=..\n" "" _contents ${_contents})
-        string(REGEX REPLACE "\\[EffectiveSourcePaths\\]\r?\nPrefix=[^\r\n]+\r?\n" "" _contents ${_contents})
+        string(REPLACE "[EffectiveSourcePaths]\nPrefix=${_csc_SOURCE_PATH}\n" "" _contents ${_contents})
         string(REPLACE "Sysroot=\n" "" _contents ${_contents})
         string(REPLACE "SysrootifyPrefix=false\n" "" _contents ${_contents})
         file(WRITE "${CURRENT_PACKAGES_DIR}/tools/qt5/qt_${_build_type_${_buildname}}.conf" "${_contents}")     
