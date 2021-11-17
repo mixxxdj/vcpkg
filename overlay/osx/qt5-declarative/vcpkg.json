@@ -1,0 +1,12 @@
+{
+  "name": "qt5-declarative",
+  "version-string": "5.12.4",
+  "port-version": 1,
+  "description": "Qt5 Declarative (Quick 2) Module. Includes QtQuick, QtQuickParticles, QtQuickWidgets, QtQml, and QtPacketProtocol.",
+  "dependencies": [
+    {
+      "name": "qt5-base",
+      "default-features": false
+    }
+  ]
+}
