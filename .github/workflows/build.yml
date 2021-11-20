@@ -10,6 +10,7 @@ jobs:
         include:
           - os: windows-2019
             vcpkg_path: C:\mixxx-vcpkg
+            exe_suffix: .exe
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
@@ -26,47 +27,6 @@ jobs:
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
-      VCPKG_PACKAGES: >-
-        ableton-link
-        benchmark
-        chromaprint
-        fdk-aac
-        ffmpeg
-        fftw3
-        grantlee
-        gtest
-        hidapi
-        hss1394
-        libdjinterop
-        libebur128
-        libflac
-        libkeyfinder
-        libmodplug
-        libogg
-        libopusenc
-        libsndfile[core]
-        libusb
-        libvorbis
-        lilv
-        mp3lame
-        ms-gsl
-        opus
-        opusfile
-        portaudio[asio]
-        portmidi
-        protobuf
-        pthreads
-        qt5compat
-        qtbase
-        qtdeclarative
-        qtsvg
-        qttranslations
-        qtkeychain-qt6
-        rubberband
-        soundtouch
-        taglib
-        wavpack
-        ${{ matrix.vcpkg_packages_extras }}
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       # Using the relative path overlay/triplets does not work (https://github.com/microsoft/vcpkg/issues/18764)
@@ -88,12 +48,30 @@ jobs:
       # to keep the build path short and work around size limits on the windows runner D: drive 
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
+       
+    - name: "Authenticate to GitHub Packages"
+      if: runner.os != 'Linux'
+      shell: bash
+      run: |
+        nuget sources add -Name mixxx-github-packages -Source https://nuget.pkg.github.com/mixxxdj/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }} -NonInteractive
+        nuget setapikey ${{ secrets.GITHUB_TOKEN }} -Source mixxx-github-packages -NonInteractive
+        echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
 
     - name: Read sha_short
       id: vars
       shell: bash
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       working-directory: ${{ matrix.vcpkg_path }}
+
+    # Cache the vcpkg executable to avoid bootstrapping each time
+    - name: "Setup vcpkg executable cache"
+      uses: actions/cache@v3
+      with:
+        path: ${{ matrix.vcpkg_path }}/vcpkg${{ matrix.exe_suffix }}
+        key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}-${{ github.run_number }}
+        restore-keys: |
+          key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}
+          key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}
 
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
@@ -105,24 +83,12 @@ jobs:
           brew update && brew install nasm automake pkg-config autoconf-archive
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
-    - name: Set up cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ matrix.vcpkg_path }}/installed
-        key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
-        restore-keys: |
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
-      
-    - name: Remove outdated packages from cache
-      run: ./vcpkg remove --vcpkg-root=${{ matrix.vcpkg_path }} --outdated --recurse
-      working-directory: ${{ matrix.vcpkg_path }}
 
-    - name: Build packages
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
+    - name: Build packages  
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Upload GitHub Actions artifacts of build logs
@@ -132,38 +98,38 @@ jobs:
         name: logs-${{ matrix.vcpkg_triplet }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
-    - name: Create buildenv archive
-      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
-      working-directory: ${{ matrix.vcpkg_path }}
+    #- name: Create buildenv archive
+    #  run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+    #  working-directory: ${{ matrix.vcpkg_path }}
 
-    - name: "[Windows] Install additional tools"
-      if: runner.os == 'Windows' && env.SSH_PASSWORD != null
-      env:
-        SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
-      run: |
-        $Env:PATH="C:\msys64\usr\bin;$Env:PATH"
-        pacman -S --noconfirm coreutils bash rsync openssh
-        Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
+    #- name: "[Windows] Install additional tools"
+    #  if: runner.os == 'Windows' && env.SSH_PASSWORD != null
+    #  env:
+    #    SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
+    #  run: |
+    #    $Env:PATH="C:\msys64\usr\bin;$Env:PATH"
+    #    pacman -S --noconfirm coreutils bash rsync openssh
+    #    Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
 
-    - name: "Upload build to downloads.mixxx.org"
-      if: github.event_name == 'push' && env.SSH_PASSWORD != null
-      run: bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
-      working-directory: ${{ matrix.vcpkg_path }}
-      env:
-        DESTDIR: public_html/downloads/dependencies
-        OS: ${{ runner.os }}
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        SSH_HOST: downloads-hostgator.mixxx.org
-        SSH_KEY: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY }}
-        SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
-        SSH_USER: mixxx
-        UPLOAD_ID: ${{ github.run_id }}
+    #- name: "Upload build to downloads.mixxx.org"
+    #  if: github.event_name == 'push' && env.SSH_PASSWORD != null
+    #  run: bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+    #  working-directory: ${{ matrix.vcpkg_path }}
+    #  env:
+    #    DESTDIR: public_html/downloads/dependencies
+    #    OS: ${{ runner.os }}
+    #    SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+    #    SSH_HOST: downloads-hostgator.mixxx.org
+    #    SSH_KEY: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY }}
+    #    SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
+    #    SSH_USER: mixxx
+    #    UPLOAD_ID: ${{ github.run_id }}
 
     - name: Upload GitHub Actions artifacts
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
-        path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+        path: ${{ matrix.vcpkg_path }}/vcpkg_installed
 
     # Workaround for https://github.com/actions/cache/issues/531
     - name: Use system tar & zstd from Chocolatey for caching
