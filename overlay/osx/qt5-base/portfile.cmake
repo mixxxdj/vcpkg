@@ -33,6 +33,7 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                                                          #the windows supplied gl.h header and the angle gl.h otherwise. 
                             patches/nsimage_qimage.patch  # add [NSImage imageFromQImage:] (required for the QCocoaDrag patch)
                             patches/QCocoaDrag-avoid-using-the-deprecated-API-if-possibl.patch # allow Apple SDK >= 10.14 
+                            patches/arm64_qcocoahelper.patch   # alow to build on arm64 
                     )
 
 # Remove vendored dependencies to ensure they are not picked up by the build
