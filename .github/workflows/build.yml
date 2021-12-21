@@ -13,7 +13,7 @@ jobs:
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_overlay_ports: overlay/windows;overlay/ports
-            vcpkg_packages_extras: libid3tag libmad qt5-winextras
+            vcpkg_packages_extras: angle libid3tag libmad qt5-winextras
             check_disk_space: Get-PSDrive
           - os: macos-10.15
             vcpkg_path: /Users/runner/mixxx-vcpkg
@@ -25,7 +25,6 @@ jobs:
             check_disk_space: df -h
     env:
       VCPKG_PACKAGES: >-
-        angle
         chromaprint
         fdk-aac
         ffmpeg
