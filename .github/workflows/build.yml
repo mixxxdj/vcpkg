@@ -12,6 +12,7 @@ jobs:
             vcpkg_path: C:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
+            vcpkg_host_triplet: x64-windows           
             vcpkg_overlay_ports: overlay/windows;overlay/ports
             vcpkg_packages_extras: angle libid3tag libmad qt5-winextras
             check_disk_space: Get-PSDrive
@@ -19,6 +20,7 @@ jobs:
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min10.12
+            vcpkg_host_triplet: x64-osx-min10.12
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras: qt5-macextras
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
@@ -61,6 +63,7 @@ jobs:
         wavpack
         ${{ matrix.vcpkg_packages_extras }}
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       # Using the relative path overlay/triplets does not work (https://github.com/microsoft/vcpkg/issues/18764)
       VCPKG_OVERLAY_TRIPLETS: ${{ matrix.vcpkg_path }}/overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
