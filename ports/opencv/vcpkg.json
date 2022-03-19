@@ -1,6 +1,6 @@
 {
   "name": "opencv",
-  "version": "4.5.4",
+  "version": "4.5.5",
   "description": "Computer vision library",
   "homepage": "https://github.com/opencv/opencv",
   "dependencies": [
@@ -118,6 +118,18 @@
           "default-features": false,
           "features": [
             "ffmpeg"
+          ]
+        }
+      ]
+    },
+    "freetype": {
+      "description": "freetype support for opencv",
+      "dependencies": [
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "freetype"
           ]
         }
       ]
@@ -286,6 +298,18 @@
           "default-features": false,
           "features": [
             "png"
+          ]
+        }
+      ]
+    },
+    "python": {
+      "description": "Python wrapper support for opencv",
+      "dependencies": [
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "python"
           ]
         }
       ]
