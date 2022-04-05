@@ -121,7 +121,7 @@ jobs:
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
-      run: ./vcpkg export ${{ env.VCPKG_PACKAGES }} --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+      run: ./vcpkg export --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: "[Windows] Install additional tools"
