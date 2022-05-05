@@ -104,9 +104,9 @@ jobs:
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
-
-    - name: Upgrade packages in cache
-      run: ./vcpkg upgrade --no-dry-run
+      
+    - name: Remove outdated packages from cache
+      run: ./vcpkg remove --outdated --recurse
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Build packages
