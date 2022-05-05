@@ -40,7 +40,7 @@ jobs:
         libmodplug
         libogg
         libopusenc
-        libsndfile
+        libsndfile[core]
         libusb
         libvorbis
         lilv
