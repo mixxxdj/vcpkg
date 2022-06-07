@@ -45,6 +45,7 @@ jobs:
         libvorbis
         lilv
         mp3lame
+        ms-gsl
         opus
         opusfile
         portaudio[asio]
