@@ -90,7 +90,7 @@ index 09433194..ab6863a4 100644
 +    Q_ASSERT(dragImage);
  
 -    QMacPasteboard dragBoard((CFStringRef) NSDragPboard, QMacInternalPasteboardMime::MIME_DND);
-+    QMacPasteboard dragBoard(CFStringRef(NSPasteboardNameDrag), QMacInternalPasteboardMime::MIME_DND);
++    QMacPasteboard dragBoard(CFStringRef(NSDragPboard), QMacInternalPasteboardMime::MIME_DND);
      m_drag->mimeData()->setData(QLatin1String("application/x-qt-mime-type-name"), QByteArray("dummy"));
      dragBoard.setMimeData(m_drag->mimeData(), QMacPasteboard::LazyRequest);
  
@@ -103,7 +103,7 @@ index 09433194..ab6863a4 100644
      event_location.y -= flippedY;
      NSSize mouseOffset_unused = NSMakeSize(0.0, 0.0);
 -    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
-+    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
++    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
  
 -    [theWindow dragImage:nsimage
 +    [theWindow dragImage:dragImage
@@ -141,7 +141,7 @@ index 09433194..ab6863a4 100644
 +    auto *sourceView = static_cast<NSView<NSDraggingSource>*>(theWindow.contentView);
 +
 +    const auto &qtUrls = m_drag->mimeData()->urls();
-+    NSPasteboard *dragBoard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
++    NSPasteboard *dragBoard = [NSPasteboard pasteboardWithName:NSDragPboard];
 +
 +    if (int(dragBoard.pasteboardItems.count) == 1 && qtUrls.size() <= 1) {
 +        // Good old -dragImage: works perfectly for this ...
