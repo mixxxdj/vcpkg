@@ -1,0 +1,177 @@
+From c1bf37971f3aef7b1da1027665ea7c06fc343718 Mon Sep 17 00:00:00 2001
+From: fwcd <fwcdmail@gmail.com>
+Date: Mon, 10 Jan 2022 19:55:42 +0100
+Subject: [PATCH] macOS: Streamline QImage to NSImage conversion
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-authored-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
+---
+ src/gui/painting/qcoregraphics.mm             | 41 ++++++++++++-------
+ src/gui/painting/qcoregraphics_p.h            |  8 +++-
+ src/plugins/platforms/cocoa/qcocoacursor.mm   | 13 ++----
+ .../platforms/cocoa/qcocoaintegration.mm      |  3 +-
+ .../platforms/cocoa/qcocoasystemtrayicon.mm   |  3 +-
+ src/plugins/platforms/cocoa/qcocoawindow.mm   |  3 +-
+ 6 files changed, 40 insertions(+), 31 deletions(-)
+
+diff --git a/src/gui/painting/qcoregraphics.mm b/src/gui/painting/qcoregraphics.mm
+index e2497eaadb..b5620535fb 100644
+--- a/src/gui/painting/qcoregraphics.mm
++++ b/src/gui/painting/qcoregraphics.mm
+@@ -47,6 +47,8 @@
+ #include <QtCore/qcoreapplication.h>
+ #include <QtCore/qoperatingsystemversion.h>
+ 
++QT_USE_NAMESPACE
++
+ QT_BEGIN_NAMESPACE
+ 
+ // ---------------------- Images ----------------------
+@@ -124,23 +126,34 @@ QImage qt_mac_toQImage(CGImageRef image)
+ 
+ #ifdef Q_OS_MACOS
+ 
+-static NSImage *qt_mac_cgimage_to_nsimage(CGImageRef image)
+-{
+-    NSImage *newImage = [[NSImage alloc] initWithCGImage:image size:NSZeroSize];
+-    return newImage;
+-}
++QT_END_NAMESPACE
+ 
+-NSImage *qt_mac_create_nsimage(const QPixmap &pm)
++@implementation NSImage (QtExtras)
+++ (instancetype)imageFromQImage:(const QImage &)image
+ {
+-    if (pm.isNull())
+-        return 0;
+-    QImage image = pm.toImage();
+-    CGImageRef cgImage = qt_mac_toCGImage(image);
+-    NSImage *nsImage = qt_mac_cgimage_to_nsimage(cgImage);
+-    nsImage.size = (pm.size() / pm.devicePixelRatioF()).toCGSize();
+-    CGImageRelease(cgImage);
+-    return nsImage;
++    if (image.isNull())
++        return nil;
++
++    QCFType<CGImageRef> cgImage = image.toCGImage();
++    if (!cgImage)
++        return nil;
++
++    // We set up the NSImage using an explicit NSBitmapImageRep, instead of
++    // [NSImage initWithCGImage:size:], as the former allows us to correctly
++    // set the size of the representation to account for the device pixel
++    // ratio of the original image, which in turn will be reflected by the
++    // NSImage.
++    auto nsImage = [[NSImage alloc] initWithSize:NSZeroSize];
++    auto *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
++    imageRep.size = (image.size() / image.devicePixelRatioF()).toCGSize();
++    [nsImage addRepresentation:[imageRep autorelease]];
++    Q_ASSERT(CGSizeEqualToSize(nsImage.size, imageRep.size));
++
++    return [nsImage autorelease];
+ }
++@end
++
++QT_BEGIN_NAMESPACE
+ 
+ NSImage *qt_mac_create_nsimage(const QIcon &icon, int defaultSize)
+ {
+diff --git a/src/gui/painting/qcoregraphics_p.h b/src/gui/painting/qcoregraphics_p.h
+index ba2cde8325..e1697b0f38 100644
+--- a/src/gui/painting/qcoregraphics_p.h
++++ b/src/gui/painting/qcoregraphics_p.h
+@@ -69,9 +69,15 @@ QT_BEGIN_NAMESPACE
+ Q_GUI_EXPORT CGBitmapInfo qt_mac_bitmapInfoForImage(const QImage &image);
+ 
+ #ifdef HAVE_APPKIT
+-Q_GUI_EXPORT NSImage *qt_mac_create_nsimage(const QPixmap &pm);
+ Q_GUI_EXPORT NSImage *qt_mac_create_nsimage(const QIcon &icon, int defaultSize = 0);
+ Q_GUI_EXPORT QPixmap qt_mac_toQPixmap(const NSImage *image, const QSizeF &size);
++
++QT_END_NAMESPACE
++@interface NSImage (QtExtras)
+++ (instancetype)imageFromQImage:(const QT_PREPEND_NAMESPACE(QImage) &)image;
++@end
++QT_BEGIN_NAMESPACE
++
+ #endif
+ Q_GUI_EXPORT CGImageRef qt_mac_toCGImage(const QImage &qImage);
+ Q_GUI_EXPORT CGImageRef qt_mac_toCGImageMask(const QImage &qImage);
+diff --git a/src/plugins/platforms/cocoa/qcocoacursor.mm b/src/plugins/platforms/cocoa/qcocoacursor.mm
+index e0d623fc4c..658a7670f0 100644
+--- a/src/plugins/platforms/cocoa/qcocoacursor.mm
++++ b/src/plugins/platforms/cocoa/qcocoacursor.mm
+@@ -340,19 +340,12 @@ NSCursor *QCocoaCursor::createCursorFromPixmap(const QPixmap pixmap, const QPoin
+         QSize layoutSize = pixmap.size() / pixmap.devicePixelRatio();
+         QPixmap scaledPixmap = pixmap.scaled(layoutSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+         scaledPixmap.setDevicePixelRatio(1.0);
+-        nsimage = static_cast<NSImage *>(qt_mac_create_nsimage(scaledPixmap));
+-        CGImageRef cgImage = qt_mac_toCGImage(pixmap.toImage());
+-        NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+-        [nsimage addRepresentation:imageRep];
+-        [imageRep release];
+-        CGImageRelease(cgImage);
++        nsimage = [NSImage imageFromQImage:scaledPixmap.toImage()];
+     } else {
+-        nsimage = static_cast<NSImage *>(qt_mac_create_nsimage(pixmap));
++        nsimage = [NSImage imageFromQImage:pixmap.toImage()];
+     }
+ 
+-    NSCursor *nsCursor = [[NSCursor alloc] initWithImage:nsimage hotSpot: hotSpot];
+-    [nsimage release];
+-    return nsCursor;
++    return [[NSCursor alloc] initWithImage:nsimage hotSpot:hotSpot];
+ }
+ 
+ QT_END_NAMESPACE
+diff --git a/src/plugins/platforms/cocoa/qcocoaintegration.mm b/src/plugins/platforms/cocoa/qcocoaintegration.mm
+index 61308d6bf9..1e578e5052 100644
+--- a/src/plugins/platforms/cocoa/qcocoaintegration.mm
++++ b/src/plugins/platforms/cocoa/qcocoaintegration.mm
+@@ -476,10 +476,9 @@ void QCocoaIntegration::setApplicationIcon(const QIcon &icon) const
+     if (!icon.isNull()) {
+         NSSize size = [[[NSApplication sharedApplication] dockTile] size];
+         QPixmap pixmap = icon.pixmap(size.width, size.height);
+-        image = static_cast<NSImage *>(qt_mac_create_nsimage(pixmap));
++        image = [NSImage imageFromQImage:pixmap.toImage()];
+     }
+     [[NSApplication sharedApplication] setApplicationIconImage:image];
+-    [image release];
+ }
+ 
+ void QCocoaIntegration::beep() const
+diff --git a/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm b/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm
+index 559188aa5f..d8caf92a5c 100644
+--- a/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm
++++ b/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm
+@@ -228,10 +228,9 @@ void QCocoaSystemTrayIcon::updateIcon(const QIcon &icon)
+         p.drawPixmap(r, pixmap);
+     }
+ 
+-    NSImage *nsimage = static_cast<NSImage *>(qt_mac_create_nsimage(fullHeightPixmap));
++    auto *nsimage = [NSImage imageFromQImage:fullHeightPixmap.toImage()];
+     [nsimage setTemplate:icon.isMask()];
+     [(NSImageView*)[[m_sys->item item] view] setImage: nsimage];
+-    [nsimage release];
+ }
+ 
+ void QCocoaSystemTrayIcon::updateMenu(QPlatformMenu *menu)
+diff --git a/src/plugins/platforms/cocoa/qcocoawindow.mm b/src/plugins/platforms/cocoa/qcocoawindow.mm
+index 2fbaec2c56..6ba0cee310 100644
+--- a/src/plugins/platforms/cocoa/qcocoawindow.mm
++++ b/src/plugins/platforms/cocoa/qcocoawindow.mm
+@@ -899,8 +899,7 @@ void QCocoaWindow::setWindowIcon(const QIcon &icon)
+         [iconButton setImage:[workspace iconForFile:m_view.window.representedFilename]];
+     } else {
+         QPixmap pixmap = icon.pixmap(QSize(22, 22));
+-        NSImage *image = static_cast<NSImage *>(qt_mac_create_nsimage(pixmap));
+-        [iconButton setImage:[image autorelease]];
++        iconButton.image = [NSImage imageFromQImage:pixmap.toImage()];
+     }
+ }
+ 
+-- 
+2.34.0
+
