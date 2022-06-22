@@ -91,7 +91,7 @@ jobs:
     - name: "[macOS] Bootstrap vcpkg"
       if: runner.os == 'macOS'
       run: |
-          brew install nasm automake
+          brew update && brew install nasm automake
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.app/Contents/Developer"
           xcrun --show-sdk-version
     - name: Set up cache
