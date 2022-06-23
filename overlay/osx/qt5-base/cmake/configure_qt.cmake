@@ -73,6 +73,11 @@ function(configure_qt)
         file(MAKE_DIRECTORY ${_build_dir})
         # These paths get hardcoded into qmake. So point them into the CURRENT_INSTALLED_DIR instead of CURRENT_PACKAGES_DIR
         # makefiles will be fixed to install into CURRENT_PACKAGES_DIR in install_qt
+        
+        if(EXISTS "${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
+            set(_manual_link_${_buildname} "-L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
+        endif()
+        
         set(BUILD_OPTIONS ${_csc_OPTIONS} ${_csc_OPTIONS_${_buildname}}
                 -prefix ${CURRENT_INSTALLED_DIR}
                 #-extprefix ${CURRENT_INSTALLED_DIR}
@@ -95,7 +100,7 @@ function(configure_qt)
                 -I ${CURRENT_INSTALLED_DIR}/include
                 -I ${CURRENT_INSTALLED_DIR}/include/qt5
                 -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib 
-                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link
+                ${_manual_link_${_buildname}}
                 -platform ${_csc_TARGET_PLATFORM}
             )
         
