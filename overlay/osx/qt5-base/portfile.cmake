@@ -39,7 +39,7 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                     )
 
 # Remove vendored dependencies to ensure they are not picked up by the build
-foreach(DEPENDENCY freetype zlib harfbuzz-ng libjpeg libpng double-conversion sqlite pcre2)
+foreach(DEPENDENCY freetype harfbuzz-ng libjpeg libpng double-conversion sqlite pcre2)
     if(EXISTS ${SOURCE_PATH}/src/3rdparty/${DEPENDENCY})
         file(REMOVE_RECURSE ${SOURCE_PATH}/src/3rdparty/${DEPENDENCY})
     endif()
