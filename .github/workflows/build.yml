@@ -19,8 +19,8 @@ jobs:
           - os: macos-10.15
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-osx-min10.12
-            vcpkg_host_triplet: x64-osx-min10.12
+            vcpkg_triplet: x64-osx-min1012
+            vcpkg_host_triplet: x64-osx-min1012
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras: qt5-macextras
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
