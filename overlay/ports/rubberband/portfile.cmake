@@ -1,40 +1,48 @@
-vcpkg_from_git(
-    OUT_SOURCE_PATH SOURCE_PATH
-    URL https://github.com/be-ing/rubberband.git
-    REF 3abe9d2ce8ada8b1d087cfc9d6f2f5199c727e14
+vcpkg_from_github(
+        OUT_SOURCE_PATH SOURCE_PATH
+        REPO breakfastquay/rubberband
+        REF v3.0.0
+        SHA512 384985e58a3fc5d9646428678ee6bcef2d232abed6d86b623302a78a4bf6e59e2fd5f5939e28bb988e82aa6f424fd1510e8e014a4ad1c96efe0010b61651a133
+        HEAD_REF default
 )
 
-# Find cross-compiler prefix
-if(VCPKG_CHAINLOAD_TOOLCHAIN_FILE)
-    include("${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
-endif()
-if(CMAKE_C_COMPILER)
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_C_COMPILER} -dumpmachine
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME dumpmachine-${TARGET_TRIPLET}
-    )
-    file(READ ${CURRENT_BUILDTREES_DIR}/dumpmachine-${TARGET_TRIPLET}-out.log RUBBERBAND_HOST)
-    string(REPLACE "\n" "" RUBBERBAND_HOST "${RUBBERBAND_HOST}")
-    message(STATUS "Cross-compiling with ${CMAKE_C_COMPILER}")
-    message(STATUS "Detected autoconf triplet --host=${RUBBERBAND_HOST}")
-    message(STATUS "Options ${RUBBERBAND_OPTIONS}")
-    set(RUBBERBAND_OPTIONS
-        --host=${RUBBERBAND_HOST}
-        ${RUBBERBAND_OPTIONS}
-    )
-endif()
-
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
-    OPTIONS ${RUBBERBAND_OPTIONS}
+vcpkg_configure_meson(
+        SOURCE_PATH "${SOURCE_PATH}"
+        OPTIONS
+        -Dfft=fftw                 # 'auto', 'builtin', 'kissfft', 'fftw', 'vdsp', 'ipp' 'FFT library to use. The default (auto) will use vDSP if available, the builtin implementation otherwise.')
+        -Dresampler=libsamplerate  # 'auto', 'builtin', 'libsamplerate', 'speex', 'ipp' 'Resampler library to use. The default (auto) simply uses the builtin implementation.'
+        -Dipp_path=                # 'Path to Intel IPP libraries, if selected for any of the other options.'
+        -Dextra_include_dirs=      # 'Additional local header directories to search for dependencies.'
+        -Dextra_lib_dirs=          # 'Additional local library directories to search for dependencies.'
 )
 
-vcpkg_install_cmake()
+vcpkg_install_meson()
+
+vcpkg_fixup_pkgconfig()
 vcpkg_copy_pdbs()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/rubberband)
 
-# Handle copyright
-file(INSTALL ${SOURCE_PATH}/COPYING DESTINATION ${CURRENT_PACKAGES_DIR}/share/rubberband RENAME copyright)
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+if(EXISTS "${CURRENT_PACKAGES_DIR}/bin/rubberband-program${VCPKG_TARGET_EXECUTABLE_SUFFIX}")
+    # Rubberband uses a different executable name when compiled with msvc
+    # Just looking for that file is faster than detecting msvc builds
+    set(RUBBERBAND_PROGRAM_NAME rubberband-program)
+else()
+    set(RUBBERBAND_PROGRAM_NAME rubberband)
+endif()
+
+# Features cli and lv2 are build whenever suficient dependencies are installed,
+# Remove them when not enabled.
+if("cli" IN_LIST FEATURES)
+    vcpkg_copy_tools(TOOL_NAMES "${RUBBERBAND_PROGRAM_NAME}" AUTO_CLEAN)
+else()
+    vcpkg_clean_executables_in_bin(FILE_NAMES "${RUBBERBAND_PROGRAM_NAME}")
+endif()
+
+# lv2 feature is not supported yet because vcpkg can't isntall to
+# %APPDATA%\LV2 or %COMMONPROGRAMFILES%\LV2 but also complains about dlls in "${CURRENT_PACKAGES_DIR}/lib/lv2"
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib/lv2" "${CURRENT_PACKAGES_DIR}/debug/lib/lv2")
+
+file(
+        INSTALL "${SOURCE_PATH}/COPYING"
+        DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}"
+        RENAME copyright
+)
