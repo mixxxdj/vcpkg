@@ -54,48 +54,58 @@ function(configure_qt)
         list(APPEND BUILDTYPES ${_buildname})
         set(_short_name_${_buildname} "dbg")
         set(_path_suffix_${_buildname} "/debug")
-        set(_build_type_${_buildname} "debug")        
+        set(_build_type_${_buildname} "debug")
     endif()
     if(NOT DEFINED VCPKG_BUILD_TYPE OR "${VCPKG_BUILD_TYPE}" STREQUAL "release")
         set(_buildname "RELEASE")
         list(APPEND BUILDTYPES ${_buildname})
         set(_short_name_${_buildname} "rel")
         set(_path_suffix_${_buildname} "")
-        set(_build_type_${_buildname} "release")        
+        set(_build_type_${_buildname} "release")
     endif()
     unset(_buildname)
-    
+   
     foreach(_buildname ${BUILDTYPES})
+        z_vcpkg_setup_pkgconfig_path(BASE_DIRS "${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}" "${CURRENT_PACKAGES_DIR}${_path_suffix_${_buildname}}")
         set(_build_triplet ${TARGET_TRIPLET}-${_short_name_${_buildname}})
         message(STATUS "Configuring ${_build_triplet}")
         set(_build_dir "${CURRENT_BUILDTREES_DIR}/${_build_triplet}")
         file(MAKE_DIRECTORY ${_build_dir})
         # These paths get hardcoded into qmake. So point them into the CURRENT_INSTALLED_DIR instead of CURRENT_PACKAGES_DIR
         # makefiles will be fixed to install into CURRENT_PACKAGES_DIR in install_qt
+        
+        if(EXISTS "${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
+            set(_manual_link_${_buildname} "-L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
+        endif()
+        
         set(BUILD_OPTIONS ${_csc_OPTIONS} ${_csc_OPTIONS_${_buildname}}
                 -prefix ${CURRENT_INSTALLED_DIR}
-                -extprefix ${CURRENT_INSTALLED_DIR}
+                #-extprefix ${CURRENT_INSTALLED_DIR}  
                 ${EXT_BIN_DIR}
-                -hostprefix ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
-                -hostlibdir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/lib # could probably be move to manual-link
-                -hostbindir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/bin 
+                -hostprefix ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                #-hostprefix ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5
+                #-hostlibdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/lib # could probably be move to manual-link
+                #-hostlibdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5/lib
+                #-hostbindir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}/bin 
+                #-hostbindir ${CURRENT_INSTALLED_DIR}/tools/qt5/bin 
                 # Qt VS Plugin requires a /bin subfolder with the executables in the root dir. But to use the wizard a correctly setup lib folder is also required
                 # So with the vcpkg layout there is no way to make it work unless all dll are are copied to tools/qt5/bin and all libs to tools/qt5/lib
-                -archdatadir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                -archdatadir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
                 -datadir ${CURRENT_INSTALLED_DIR}${_path_suffix}/share/qt5${_path_suffix_${_buildname}}
                 -plugindir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/plugins
                 -qmldir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/qml
-                -headerdir ${CURRENT_INSTALLED_DIR}/include
-                -libexecdir ${CURRENT_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
+                -headerdir ${CURRENT_INSTALLED_DIR}/include/qt5
+                -libexecdir ${CURRENT_HOST_INSTALLED_DIR}/tools/qt5${_path_suffix_${_buildname}}
                 -bindir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/bin
                 -libdir ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib
                 -I ${CURRENT_INSTALLED_DIR}/include
-                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib 
-                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link
+                -I ${CURRENT_INSTALLED_DIR}/include/qt5
+                -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib
+                ${_manual_link_${_buildname}}
                 -xplatform ${_csc_TARGET_PLATFORM}
             )
         
-        if(DEFINED _csc_HOST_TOOLS_ROOT) #use qmake          
+        if(DEFINED _csc_HOST_TOOLS_ROOT) #use qmake
             if(WIN32)
                 set(INVOKE_OPTIONS "QMAKE_CXX.QMAKE_MSC_VER=1911" "QMAKE_MSC_VER=1911")
             endif()
@@ -127,6 +137,8 @@ function(configure_qt)
         string(REPLACE "Sysroot=\n" "" _contents ${_contents})
         string(REPLACE "SysrootifyPrefix=false\n" "" _contents ${_contents})
         file(WRITE "${CURRENT_PACKAGES_DIR}/tools/qt5/qt_${_build_type_${_buildname}}.conf" "${_contents}")     
+    
+        z_vcpkg_restore_pkgconfig_path()
     endforeach()  
 
 endfunction()

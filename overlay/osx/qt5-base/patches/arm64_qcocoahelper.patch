@@ -1,0 +1,28 @@
+diff --git a/src/plugins/platforms/cocoa/qcocoahelpers.h b/src/plugins/platforms/cocoa/qcocoahelpers.h
+index 69aa7937..ac108979 100644
+--- a/src/plugins/platforms/cocoa/qcocoahelpers.h
++++ b/src/plugins/platforms/cocoa/qcocoahelpers.h
+@@ -178,7 +178,7 @@ T qt_mac_resolveOption(const T &fallback, QWindow *window, const QByteArray &pro
+ 
+ // -------------------------------------------------------------------------
+ 
+-#if !defined(Q_PROCESSOR_X86_64)
++#if QT_POINTER_SIZE == 4
+ #error "32-bit builds are not supported"
+ #endif
+ 
+diff --git a/src/plugins/platforms/cocoa/qcocoahelpers.mm b/src/plugins/platforms/cocoa/qcocoahelpers.mm
+index 9c705616..d48dc0e6 100644
+--- a/src/plugins/platforms/cocoa/qcocoahelpers.mm
++++ b/src/plugins/platforms/cocoa/qcocoahelpers.mm
+@@ -373,10 +373,6 @@ QString qt_mac_removeAmpersandEscapes(QString s)
+ 
+ // -------------------------------------------------------------------------
+ 
+-#if !defined(Q_PROCESSOR_X86_64)
+-#error "32-bit builds are not supported"
+-#endif
+-
+ QOperatingSystemVersion QMacVersion::buildSDK(VersionTarget target)
+ {
+     switch (target) {
