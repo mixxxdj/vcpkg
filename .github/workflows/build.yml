@@ -141,6 +141,7 @@ jobs:
       env:
         DESTDIR: public_html/downloads/dependencies
         OS: ${{ runner.os }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSH_HOST: downloads-hostgator.mixxx.org
         SSH_KEY: .github/downloads-hostgator.mixxx.org.key
         SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
