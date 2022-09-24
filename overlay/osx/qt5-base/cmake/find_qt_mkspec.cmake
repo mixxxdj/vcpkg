@@ -56,6 +56,12 @@ function(find_qt_mkspec TARGET_PLATFORM_MKSPEC_OUT HOST_PLATFORM_MKSPEC_OUT EXT_
         #elseif("${CMAKE_HOST_SYSTEM}" STREQUAL "Darwin")
         #    set(_tmp_host_out "macx-clang")
         #endif()
+        if(HOST_TRIPLET MATCHES "^arm64-osx")
+            # When compiling on Apple Silicon (arm64 macOS) hosts we need to
+            # set the host mkspec explicitly (since find_qt_mkspec won't do that
+            # for us and Qt 5.12's build system will default to using Rosetta otherwise).
+            set(_tmp_host_out "macx-aarch64-clang")
+        endif()
         if(DEFINED _tmp_host_out)
             message(STATUS "Host mkspec set to: ${_tmp_host_out}") 
         else()

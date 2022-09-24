@@ -9,6 +9,7 @@ include(install_qt)
 
 #########################
 ## Find Host and Target mkspec name for configure
+
 include(find_qt_mkspec)
 find_qt_mkspec(TARGET_MKSPEC HOST_MKSPEC HOST_TOOLS)
 set(QT_PLATFORM_CONFIGURE_OPTIONS TARGET_PLATFORM ${TARGET_MKSPEC})
