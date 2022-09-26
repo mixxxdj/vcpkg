@@ -111,7 +111,7 @@ jobs:
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Build packages
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }} --vcpkg-root=${{ matrix.vcpkg_path }}
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Upload GitHub Actions artifacts of build logs
