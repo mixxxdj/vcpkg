@@ -1,5 +1,3 @@
-vcpkg_fail_port_install(ON_TARGET "linux")
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO mixxxdj/hss1394
