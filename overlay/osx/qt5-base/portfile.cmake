@@ -40,7 +40,7 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                     )
 
 # Remove vendored dependencies to ensure they are not picked up by the build
-foreach(DEPENDENCY freetype harfbuzz-ng libjpeg libpng double-conversion sqlite pcre2)
+foreach(DEPENDENCY freetype libjpeg libpng double-conversion sqlite pcre2)
     if(EXISTS ${SOURCE_PATH}/src/3rdparty/${DEPENDENCY})
         file(REMOVE_RECURSE ${SOURCE_PATH}/src/3rdparty/${DEPENDENCY})
     endif()
@@ -74,9 +74,15 @@ list(APPEND CORE_OPTIONS
     -system-freetype # static builds require to also link its dependent bzip!
     -system-pcre
     -system-doubleconversion
-    -system-sqlite
-    -system-harfbuzz)
-
+    -system-sqlite)
+    
+if(VCPKG_TARGET_IS_OSX)
+    list(APPEND CORE_OPTIONS -qt-harfbuzz)
+else()
+    file(REMOVE_RECURSE ${SOURCE_PATH}/src/3rdparty/harfbuzz-ng)
+    list(APPEND CORE_OPTIONS -system-harfbuzz)
+endif()
+    
 find_library(ZLIB_RELEASE NAMES z zlib PATHS "${CURRENT_INSTALLED_DIR}/lib" NO_DEFAULT_PATH)
 find_library(ZLIB_DEBUG NAMES z zlib zd zlibd PATHS "${CURRENT_INSTALLED_DIR}/debug/lib" NO_DEFAULT_PATH)
 find_library(JPEG_RELEASE NAMES jpeg jpeg-static PATHS "${CURRENT_INSTALLED_DIR}/lib" NO_DEFAULT_PATH)
