@@ -16,7 +16,7 @@ jobs:
             vcpkg_overlay_ports: overlay/windows;overlay/ports
             vcpkg_packages_extras: angle libid3tag libmad qt5-winextras
             check_disk_space: Get-PSDrive
-          - os: macos-10.15
+          - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1012
@@ -69,7 +69,7 @@ jobs:
       VCPKG_OVERLAY_TRIPLETS: ${{ matrix.vcpkg_path }}/overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
       DEPS_BASE_NAME: mixxx-deps
-      DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
       MIXXX_VERSION: 2.4
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -92,10 +92,10 @@ jobs:
       if: runner.os == 'macOS'
       run: |
           brew update && brew install nasm automake
-          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.app/Contents/Developer"
+          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
     - name: Set up cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ matrix.vcpkg_path }}/installed
         key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
@@ -116,7 +116,7 @@ jobs:
 
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logs-${{ matrix.os }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
@@ -149,7 +149,7 @@ jobs:
         UPLOAD_ID: ${{ github.run_id }}
 
     - name: Upload GitHub Actions artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
         path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
