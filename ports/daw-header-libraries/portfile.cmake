@@ -2,8 +2,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO beached/header_libraries
-    REF 7115af99360fec13278b54662fd07f43675a78ae #v2.46.0
-    SHA512 0a760e6adb4e10ecc8f14cf83f2fd8f85ec554647b9f4eb6c35b84aa068ed4bba71fdd02bffef78e889c07f5a8589f10fbc6c71e5fe8f5d05ef8fc6e4511b5d0
+    REF d639561ff10faef04eee88a972213e611be9839e #v2.72.1
+    SHA512 ebefddb9566bfa9764ac7b6d5bf5ec6f8ed469297f7f5c600a235ded7dd71c0c3850fd4b3a3b1b0feb79635f8aa8f06d096b75e0aa2cb22446db4b5539127500
     HEAD_REF master
 )
 
