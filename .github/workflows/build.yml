@@ -99,10 +99,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ matrix.vcpkg_path }}/installed
-        key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
+        key: vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
         restore-keys: |
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}
+          vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
+          vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
