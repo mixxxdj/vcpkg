@@ -128,7 +128,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: logs-${{ matrix.os }}
+        name: logs-${{ matrix.vcpkg_triplet }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
