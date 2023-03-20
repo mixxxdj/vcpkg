@@ -8,6 +8,10 @@
       "name": "qt5-base",
       "default-features": false
     },
-    "qt5-declarative"
+    "qt5-declarative",
+    {
+      "name": "qt5-host-tools",
+      "host": true
+    }
   ]
 }

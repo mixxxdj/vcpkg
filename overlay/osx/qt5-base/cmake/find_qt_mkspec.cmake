@@ -49,6 +49,16 @@ function(find_qt_mkspec TARGET_PLATFORM_MKSPEC_OUT HOST_PLATFORM_MKSPEC_OUT EXT_
     
     ## Figure out QTs host mkspec
     if(NOT DEFINED VCPKG_QT_HOST_MKSPEC)
+        if(VCPKG_HOST_IS_OSX)
+            find_program(UNAME_EXECUTABLE uname /bin /usr/bin /usr/local/bin )
+            if(UNAME_EXECUTABLE)
+                exec_program(${UNAME_EXECUTABLE} ARGS -m OUTPUT_VARIABLE HOST_SYSTEM_PROCESSOR
+                      RETURN_VALUE val)
+                if(HOST_SYSTEM_PROCESSOR MATCHES "arm64")  
+                    set(_tmp_host_out "macx-aarch64-clang") 
+                endif()
+            endif()           
+        endif()
         #if(WIN32)
         #    set(_tmp_host_out "win32-msvc")
         #elseif("${CMAKE_HOST_SYSTEM}" STREQUAL "Linux")
