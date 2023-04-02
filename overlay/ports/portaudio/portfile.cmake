@@ -7,6 +7,7 @@ vcpkg_from_github(
         fix-library-can-not-be-found.patch
         enable_jack_on_windows.patch
         pa_initalize_recursive_guard.patch
+        wasapi_loopback.patch
 )
 
 string(COMPARE EQUAL ${VCPKG_LIBRARY_LINKAGE} dynamic PA_BUILD_SHARED)
