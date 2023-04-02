@@ -37,10 +37,10 @@ function(vcpkg_find_fortran additional_cmake_args_out)
                         113d8b3b155ea537be8b99688d454f781d70c67c810c2643bc02b83b332d99bfbf3a7fcada6b927fda67ef02cf968d4fdf930466c5909c4338bda64f1f3f483e
                         "https://repo.msys2.org/mingw/i686/mingw-w64-i686-gmp-6.2.0-1-any.pkg.tar.xz"
                         37747f3f373ebff1a493f5dec099f8cd6d5abdc2254d9cd68a103ad7ba44a81a9a97ccaba76eaee427b4d67b2becb655ee2c379c2e563c8051b6708431e3c588
-                        "https://repo.msys2.org/mingw/i686/mingw-w64-i686-libwinpthread-git-8.0.0.5906.c9a21571-1-any.pkg.tar.zst"
-                        2c3d9e6b2eee6a4c16fd69ddfadb6e2dc7f31156627d85845c523ac85e5c585d4cfa978659b1fe2ec823d44ef57bc2b92a6127618ff1a8d7505458b794f3f01c
-                        "https://repo.msys2.org/mingw/i686/mingw-w64-i686-winpthreads-git-8.0.0.5906.c9a21571-1-any.pkg.tar.zst"
-                        e87ad4f4071c6b5bba3b13a85abf6657bb494b73c57ebe65bc5a92e2cef1d9de354e6858d1338ee72809e3dc742ba69ce090aaad4560ae1d3479a61dbebf03c6
+                        "https://repo.msys2.org/mingw/i686/mingw-w64-i686-libwinpthread-git-9.0.0.6373.5be8fcd83-1-any.pkg.tar.zst"
+                        c89c27b5afe4cf5fdaaa354544f070c45ace5e9d2f2ebb4b956a148f61681f050e67976894e6f52e42e708dadbf730fee176ac9add3c9864c21249034c342810
+                        "https://repo.msys2.org/mingw/i686/mingw-w64-i686-winpthreads-git-9.0.0.6373.5be8fcd83-1-any.pkg.tar.zst"
+                        85980183879da0d0ea74b9ad1fdfb09e5ed9d2e2212877d47d0f621ce721566e205be0b1913a643d0a95b256441e0bafd803fa9c848a8203dffd7d72109e32c2
                         "https://repo.msys2.org/mingw/i686/mingw-w64-i686-mpc-1.1.0-1-any.pkg.tar.xz"
                         d236b815ec3cf569d24d96a386eca9f69a2b1e8af18e96c3f1e5a4d68a3598d32768c7fb3c92207ecffe531259822c1a421350949f2ffabd8ee813654f1af864
                         "https://repo.msys2.org/mingw/i686/mingw-w64-i686-mpfr-4.1.0-2-any.pkg.tar.zst"
@@ -75,10 +75,10 @@ function(vcpkg_find_fortran additional_cmake_args_out)
                         d17eff08c83d08ef020d999a2ead0d25036ada1c1bf6ed7c02bad9b56840ee5a3304acd790d86f52b83b09c1e788f0cecdf7254dc6760c3c7e478f65882cd32d
                         "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-gmp-6.2.0-1-any.pkg.tar.xz"
                         0b22b7363e27cec706eb79ee0c45b5fe7088a5ca69e0868e7366481ed2ea9b3f6623d340cebba0b5ed3d79e4dfc7cf15f53530eb260c6d4057bfc3d92eb8c7bc
-                        "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwinpthread-git-8.0.0.5906.c9a21571-1-any.pkg.tar.zst"
-                        a6969a5db1c55ba458c1a047d0a2a9d2db6cc24266ea47f740598b149a601995d2de734a0984ac5e57ee611d5982cbc03fd6fc0f498435e8d6401bf15724caad
-                        "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-winpthreads-git-8.0.0.5906.c9a21571-1-any.pkg.tar.zst"
-                        87ae090a8de855de5580f158f4007f88d6dad341429620685dc736be55b1f060487552040327a76003618e214a11c1f8e5105ca2c7abe164908121627449d679
+                        "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwinpthread-git-9.0.0.6373.5be8fcd83-1-any.pkg.tar.zst"
+                        a2c9e60d23b1310a6cec1fadd2b15a8c07223f3fe90d41b1579e9fc27ee2b0b408456291a55fad54a156e6a247efc20f6fcc247cc567e64fe190938aa3b672e9
+                        "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-winpthreads-git-9.0.0.6373.5be8fcd83-1-any.pkg.tar.zst"
+                        be03433e6006166e5b4794f2a01730cdb6c9f19fa96bd10a8bc50cf06ad389cbc66d44ea3eda46f53c3b2c89e2fc86aec21a372828e9527b24480c87ed88348c
                         "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-mpc-1.1.0-1-any.pkg.tar.xz"
                         db075a1406690935db5780af293660385f56699881a1b2cd25ab252183643d71d646b0dadf1e34174df8f0744d51ce8b56dccd719e049efcaf9b7e08e80a7ef6
                         "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-mpfr-4.1.0-2-any.pkg.tar.zst"
