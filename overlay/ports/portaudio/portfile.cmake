@@ -1,10 +1,9 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO PortAudio/portaudio
-    REF 147dd722548358763a8b649b3e4b41dfffbcfbb6
-    SHA512 0f56e5f5b004f51915f29771b8fc1fe886f1fef5d65ab5ea1db43f43c49917476b9eec14b36aa54d3e9fb4d8bdf61e68c79624d00b7e548d4c493395a758233a
+    REF 2dc8b6eb17ac5fda1f89722cfa0889bfc6e73434
+    SHA512 4fba8fa433f09fc742db7229607d56efbdac43adf1ca2e3c4bb095a0a09aa58783bf9cc3f390f3a0c2d3276ad6b002614d9f71efa830f737ecab4e3d63539934
     PATCHES
-        fix-library-can-not-be-found.patch
         enable_jack_on_windows.patch
         pa_initalize_recursive_guard.patch
         wasapi_loopback.patch
