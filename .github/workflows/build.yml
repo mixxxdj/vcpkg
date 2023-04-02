@@ -21,44 +21,7 @@ jobs:
             #  check_disk_space: df -h
     env:
       VCPKG_PACKAGES: >-
-        angle
-        chromaprint
-        fdk-aac
-        ffmpeg
-        fftw3
-        hidapi
-        hss1394
-        libebur128
-        libflac
-        libid3tag
-        libkeyfinder
-        libmad
-        libmodplug
-        libogg
-        libopusenc
-        libshout
-        libsndfile
-        libusb
-        libvorbis
-        lilv
-        mp3lame
-        opus
-        opusfile
         portaudio[asio]
-        portmidi
-        protobuf
-        pthreads
-        qt5-base
-        qt5-declarative
-        qt5-script
-        qt5-svg
-        qt5-translations
-        qt5-winextras
-        qtkeychain
-        rubberband
-        soundtouch
-        taglib
-        wavpack
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_OVERLAY_PORTS: overlay/ports
       DEPS_BASE_NAME: mixxx-deps
