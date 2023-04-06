@@ -12,19 +12,18 @@ set -eu -o pipefail
 [ -z "${OS}" ] && echo "Please set the OS env var." >&2 && exit 1
 [ -z "${DESTDIR}" ] && echo "Please set the DESTDIR env var." >&2 && exit 1
 
-SSH="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 DEST_PATH="${DESTDIR}/${GIT_BRANCH}/${OS}"
 TMP_PATH="${DESTDIR}/.tmp/${UPLOAD_ID}"
 
 echo "Deploying to $TMP_PATH, then to $DEST_PATH."
 
-# Remove permissions for group and other users so that ssh-keygen does not
-# complain about the key not being protected.
-chmod go-rwx "${SSH_KEY}"
+# Start SSH agent
+ssh-agent -a ${SSH_AUTH_SOCK} > /dev/null
 
-# Unlock the key by removing its password. This is easier than messing with ssh-agent.
-ssh-keygen -p -P "${SSH_PASSWORD}" -N "" -f "${SSH_KEY}"
+# Add private key to SSH agent
+ssh-add - <<< "${SSH_KEY}"
 
 # realpath does not exist on macOS
 command -v realpath >/dev/null 2>&1 || realpath() {

@@ -28,7 +28,7 @@ jobs:
       MIXXX_VERSION: 2.3
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    steps:    
+    steps:
     - name: Check out git repository
       uses: LebedevRI/checkout@issue197
       with:
@@ -48,7 +48,7 @@ jobs:
       run: brew install yasm automake
 
     - name: Set up cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ matrix.vcpkg_path }}/installed
         key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
@@ -58,24 +58,24 @@ jobs:
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
-
+      
     - name: Remove outdated packages from cache
       run: ./vcpkg remove --vcpkg-root=${{ matrix.vcpkg_path }} --outdated --recurse
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Build packages
-      run: ./vcpkg install --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logs-${{ matrix.os }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
-      run: ./vcpkg export ${{ env.VCPKG_PACKAGES }} --raw --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} ${{ env.VCPKG_PACKAGES }} --raw --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Download ${{ env.DEPS_BASE_NAME }} 
@@ -111,14 +111,15 @@ jobs:
       env:
         DESTDIR: public_html/downloads/dependencies
         OS: ${{ runner.os }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSH_HOST: downloads-hostgator.mixxx.org
-        SSH_KEY: .github/downloads-hostgator.mixxx.org.key
+        SSH_KEY: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY }}
         SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
         SSH_USER: mixxx
         UPLOAD_ID: ${{ github.run_id }}
 
     - name: Upload GitHub Actions artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
         path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
