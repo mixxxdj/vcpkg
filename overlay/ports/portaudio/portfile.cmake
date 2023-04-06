@@ -1,12 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO PortAudio/portaudio
-    REF 2dc8b6eb17ac5fda1f89722cfa0889bfc6e73434
-    SHA512 4fba8fa433f09fc742db7229607d56efbdac43adf1ca2e3c4bb095a0a09aa58783bf9cc3f390f3a0c2d3276ad6b002614d9f71efa830f737ecab4e3d63539934
-    PATCHES
-        enable_jack_on_windows.patch
-        pa_initalize_recursive_guard.patch
-        wasapi_loopback.patch
+    REF c8b9dd2dfc1c12230f172876a0117f42d32e48b2
+    SHA512 8aa489de52c40068dc87c7a6b89e5b2fd4d10f57f69b800796c6f5e2c0db71a8094a85a06b4168d6d164a79d868b28adfd525ca4e7a8d3a0193a94face569b65
 )
 
 string(COMPARE EQUAL ${VCPKG_LIBRARY_LINKAGE} dynamic PA_BUILD_SHARED)
