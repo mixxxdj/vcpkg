@@ -21,44 +21,7 @@ jobs:
             #  check_disk_space: df -h
     env:
       VCPKG_PACKAGES: >-
-        angle
-        chromaprint
-        fdk-aac
-        ffmpeg
-        fftw3
-        hidapi
-        hss1394
-        libebur128
-        libflac
-        libid3tag
-        libkeyfinder
-        libmad
-        libmodplug
-        libogg
-        libopusenc
-        libshout
-        libsndfile
-        libusb
-        libvorbis
-        lilv
-        mp3lame
-        opus
-        opusfile
         portaudio[asio]
-        portmidi
-        protobuf
-        pthreads
-        qt5-base
-        qt5-declarative
-        qt5-script
-        qt5-svg
-        qt5-translations
-        qt5-winextras
-        qtkeychain
-        rubberband
-        soundtouch
-        taglib
-        wavpack
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_OVERLAY_PORTS: overlay/ports
       DEPS_BASE_NAME: mixxx-deps
@@ -96,8 +59,8 @@ jobs:
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
-    - name: Upgrade packages in cache
-      run: ./vcpkg upgrade --no-dry-run
+    - name: Remove outdated packages from cache
+      run: ./vcpkg remove --vcpkg-root=${{ matrix.vcpkg_path }} --outdated --recurse
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Build packages
@@ -112,7 +75,24 @@ jobs:
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
-      run: ./vcpkg export ${{ env.VCPKG_PACKAGES }} --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+      run: ./vcpkg export ${{ env.VCPKG_PACKAGES }} --raw --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+      working-directory: ${{ matrix.vcpkg_path }}
+
+    - name: Download ${{ env.DEPS_BASE_NAME }} 
+      id: download-file
+      uses: carlosperate/download-file-action@v2     
+      with:
+        file-url: 'https://downloads.mixxx.org/dependencies/2.3/Windows/mixxx-deps-2.3-x64-windows-049b5ad.zip'
+        sha256: '82c49c82f54989cca0b35ab331afcb5fed486e929464beeede321583a778940a'
+
+    - name: Inegrate ${{ env.DEPS_BASE_NAME }}
+      if: ${{ steps.cache.outputs.cache-matched-key == null }} 
+      run: |
+        cmake -E tar xv ${{ steps.download-file.outputs.file-path }}
+        cmake -E copy_directory ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }} mixxx-deps-2.3-x64-windows-049b5ad  
+        cmake -E rm -r ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+        cmake -E rename mixxx-deps-2.3-x64-windows-049b5ad  ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}       
+        cmake -E tar cfv ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip --format=zip ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: "[Windows] Install additional tools"

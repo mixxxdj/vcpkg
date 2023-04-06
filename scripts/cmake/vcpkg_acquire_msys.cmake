@@ -351,8 +351,8 @@ msys_package(
         DEPS msys2-runtime
     )
     msys_package(
-        URL "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.1.6-3-x86_64.pkg.tar.xz"
-        SHA512 f094a7f4926195ef7ba015f0c5c56587b1faa94d85530f07aaaa5557a1494c3bd75257d4687c8401cbf1328d23e5586a92b05f0a872caebb1a7e941a07829776
+        URL "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.4.6-1-x86_64.pkg.tar.zst"
+        SHA512 fbdcf2572d242b14ef3b39f29a6119ee58705bad651c9da48ffd11e80637e8d767d20ed5d562f67d92eecd01f7fc3bc351af9d4f84fb9b321d2a9aff858b3619
     )
 
     msys_package(
@@ -495,13 +495,13 @@ msys_package(
         SHA512 bbd4a549efc2a5f4b1e9f1be00331e8726d80401a9c6117afa9d5dd92f4ac42a06cf2ce491a988e5c6ed7a6e536f8f1746081f4944bc6d473ccd16390fea27fe
     )
     msys_package(
-        URL "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwinpthread-git-8.0.0.5906.c9a21571-1-any.pkg.tar.zst"
+        URL "https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-libwinpthread-git-9.0.0.6373.5be8fcd83-1-any.pkg.tar.zst"
         NAME mingw-w64-x86_64-libwinpthread
-        VERSION git-8.0.0.5906.c9a21571-1
+        VERSION git-9.0.0.6373.5be8fcd83-1
         ANY
         ZST
         REPO mingw/x86_64
-        SHA512 a6969a5db1c55ba458c1a047d0a2a9d2db6cc24266ea47f740598b149a601995d2de734a0984ac5e57ee611d5982cbc03fd6fc0f498435e8d6401bf15724caad
+        SHA512 a2c9e60d23b1310a6cec1fadd2b15a8c07223f3fe90d41b1579e9fc27ee2b0b408456291a55fad54a156e6a247efc20f6fcc247cc567e64fe190938aa3b672e9
     )
 
     if(PACKAGES)
