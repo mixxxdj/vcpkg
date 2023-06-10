@@ -1,0 +1,53 @@
+From e0f8cad075e0688e7e88d42eefbaa000b2636e2f Mon Sep 17 00:00:00 2001
+From: Volker Hilsheimer <volker.hilsheimer@qt.io>
+Date: Tue, 23 Nov 2021 17:05:05 +0100
+Subject: [PATCH] Never handle scrollbars styled with box or border changes as
+ transient
+
+If scrollbars are styled with a style sheet that includes a box or
+removes off the native border, then we never treat them as transient or
+overlapping. Otherwise, the layout logic in QAbstractScrollArea will
+show them on top of the viewport, overlapping the content.
+
+The cherry-pick doesn't include the base line test from the upstream
+change, as the testing framework is not available in 6.2.
+
+Fixes: QTBUG-98289
+Change-Id: Ic53ad248b3eedd54722ac7b2fe5256a27092dbc1
+Reviewed-by: Richard Moe Gustavsen <richard.gustavsen@qt.io>
+(cherry picked from commit 56da533b45e2785e8fd54ef6fcddb7b973c665bf)
+Reviewed-by: Volker Hilsheimer <volker.hilsheimer@qt.io>
+---
+ src/widgets/styles/qstylesheetstyle.cpp | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/widgets/styles/qstylesheetstyle.cpp b/src/widgets/styles/qstylesheetstyle.cpp
+index c2c9cc9fd7e..efa79789a8e 100644
+--- a/src/widgets/styles/qstylesheetstyle.cpp
++++ b/src/widgets/styles/qstylesheetstyle.cpp
+@@ -5066,8 +5066,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const
+         if (!rule.hasNativeBorder() || rule.hasBox())
+             return 0;
+         break;
++
++    case PM_ScrollView_ScrollBarOverlap:
++        if (!rule.hasNativeBorder() || rule.hasBox())
++            return 0;
++        break;
+ #endif // QT_CONFIG(scrollbar)
+ 
++
+     case PM_ProgressBarChunkWidth:
+         subRule = renderRule(w, opt, PseudoElement_ProgressBarChunk);
+         if (subRule.hasContentsSize()) {
+@@ -5660,6 +5666,10 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
+         case SH_ItemView_PaintAlternatingRowColorsForEmptyArea: s = QLatin1String("paint-alternating-row-colors-for-empty-area"); break;
+         case SH_TitleBar_ShowToolTipsOnButtons: s = QLatin1String("titlebar-show-tooltips-on-buttons"); break;
+         case SH_Widget_Animation_Duration: s = QLatin1String("widget-animation-duration"); break;
++        case SH_ScrollBar_Transient:
++            if (!rule.hasNativeBorder() || rule.hasBox())
++                return 0;
++            break;
+         default: break;
+     }
+     if (!s.isEmpty() && rule.hasStyleHint(s)) {

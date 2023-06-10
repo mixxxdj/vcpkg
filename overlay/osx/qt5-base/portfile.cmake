@@ -38,6 +38,7 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                             patches/arm64_qcocoahelper.patch   # alow to build on arm64 
                             patches/arm64_send_super_stret.patch     # don't use qt_msgSendSuper_stret on arm64 
                             patches/replace_result_of.patch # Replace usage of std::result_of with decltype
+                            patches/scrollbars_style.patch # Never handle scrollbars styled with box or border changes as transient
                     )
 
 # Remove vendored dependencies to ensure they are not picked up by the build
