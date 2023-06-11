@@ -25,27 +25,31 @@ diff --git a/src/widgets/styles/qstylesheetstyle.cpp b/src/widgets/styles/qstyle
 index c2c9cc9fd7e..efa79789a8e 100644
 --- a/src/widgets/styles/qstylesheetstyle.cpp
 +++ b/src/widgets/styles/qstylesheetstyle.cpp
-@@ -5066,8 +5066,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const
-         if (!rule.hasNativeBorder() || rule.hasBox())
-             return 0;
+@@ -4837,11 +4837,17 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const
          break;
-+
-+    case PM_ScrollView_ScrollBarOverlap:
+ 
+     case PM_ScrollView_ScrollBarSpacing:
+-        if(!rule.hasNativeBorder() || rule.hasBox())
 +        if (!rule.hasNativeBorder() || rule.hasBox())
 +            return 0;
 +        break;
++
++    case PM_ScrollView_ScrollBarOverlap:
++        if (!proxy()->styleHint(SH_ScrollBar_Transient, opt, w))
+             return 0;
+         break;
  #endif // QT_CONFIG(scrollbar)
  
 +
      case PM_ProgressBarChunkWidth:
          subRule = renderRule(w, opt, PseudoElement_ProgressBarChunk);
          if (subRule.hasContentsSize()) {
-@@ -5660,6 +5666,10 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
+@@ -5399,6 +5405,10 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
          case SH_ItemView_PaintAlternatingRowColorsForEmptyArea: s = QLatin1String("paint-alternating-row-colors-for-empty-area"); break;
          case SH_TitleBar_ShowToolTipsOnButtons: s = QLatin1String("titlebar-show-tooltips-on-buttons"); break;
          case SH_Widget_Animation_Duration: s = QLatin1String("widget-animation-duration"); break;
 +        case SH_ScrollBar_Transient:
-+            if (!rule.hasNativeBorder() || rule.hasBox())
++            if (!rule.hasNativeBorder() || rule.hasBox() || rule.hasDrawable())
 +                return 0;
 +            break;
          default: break;
