@@ -37,6 +37,7 @@ jobs:
     env:
       VCPKG_PACKAGES: >-
         ableton
+        benchmark
         chromaprint
         fdk-aac
         ffmpeg
