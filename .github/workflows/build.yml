@@ -32,6 +32,7 @@ jobs:
         fdk-aac
         ffmpeg
         fftw3
+        grantlee
         hidapi
         hss1394
         libdjinterop
