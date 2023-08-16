@@ -49,13 +49,21 @@ jobs:
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
        
-    - name: "Authenticate to GitHub Packages"
-      if: runner.os != 'Linux'
+    - name: "Authenticate to GitHub Packages (readwrite)"
+      if: runner.os != 'Linux' && github.event_name == 'push'
       shell: bash
       run: |
         nuget sources add -Name mixxx-github-packages -Source https://nuget.pkg.github.com/mixxxdj/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }} -NonInteractive
         nuget setapikey ${{ secrets.GITHUB_TOKEN }} -Source mixxx-github-packages -NonInteractive
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
+        
+    - name: "Authenticate to GitHub Packages (read only)"
+      if: runner.os != 'Linux' && github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        nuget sources add -Name mixxx-github-packages -Source https://nuget.pkg.github.com/mixxxdj/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }} -NonInteractive
+        nuget setapikey ${{ secrets.GITHUB_TOKEN }} -Source mixxx-github-packages -NonInteractive
+        echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,read;" >> "${GITHUB_ENV}"   
 
     - name: Read sha_short
       id: vars
