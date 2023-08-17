@@ -9,7 +9,7 @@ jobs:
       matrix:
         include:
           - os: windows-2019
-            vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_path: D:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
@@ -86,9 +86,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out git repository
-      uses: LebedevRI/checkout@issue197
+      uses: actions/checkout@v3
       with:
-        path: ${{ matrix.vcpkg_path }}
+        path: mixxx-vcpkg
+      
+      # Workaround for issues https://github.com/microsoft/vcpkg/issues/8272  
+      # and https://github.com/actions/checkout/issues/197 
+      # to keep the build path short
+    - name: Move checkout
+      run: cmake -E rename ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
 
     - name: Read sha_short
       id: vars
