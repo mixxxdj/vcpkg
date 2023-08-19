@@ -42,6 +42,7 @@ jobs:
         fdk-aac
         ffmpeg
         fftw3
+        gtest
         hidapi
         hss1394
         libdjinterop
