@@ -34,6 +34,7 @@ jobs:
         ffmpeg
         fftw3
         grantlee
+        gtest
         hidapi
         hss1394
         libdjinterop
