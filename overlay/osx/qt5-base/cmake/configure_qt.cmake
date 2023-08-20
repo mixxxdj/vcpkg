@@ -75,7 +75,7 @@ function(configure_qt)
         # makefiles will be fixed to install into CURRENT_PACKAGES_DIR in install_qt
         
         if(EXISTS "${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
-            set(_manual_link_${_buildname} "-L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link")
+            set(_manual_link_${_buildname} -L ${CURRENT_INSTALLED_DIR}${_path_suffix_${_buildname}}/lib/manual-link)
         endif()
         
         set(BUILD_OPTIONS ${_csc_OPTIONS} ${_csc_OPTIONS_${_buildname}}
