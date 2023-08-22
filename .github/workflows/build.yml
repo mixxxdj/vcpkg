@@ -42,6 +42,7 @@ jobs:
         fdk-aac
         ffmpeg
         fftw3
+        gtest
         hidapi
         hss1394
         libdjinterop
@@ -98,6 +99,7 @@ jobs:
 
     - name: Read sha_short
       id: vars
+      shell: bash
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       working-directory: ${{ matrix.vcpkg_path }}
 
