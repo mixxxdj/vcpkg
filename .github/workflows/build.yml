@@ -25,6 +25,15 @@ jobs:
             vcpkg_packages_extras:
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
+          - os: macos-11
+            vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: arm64-osx-min1100
+            vcpkg_host_triplet: x64-osx-min1015
+            vcpkg_overlay_ports: overlay/osx:overlay/ports
+            vcpkg_packages_extras:
+            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
+            check_disk_space: df -h
     env:
       VCPKG_PACKAGES: >-
         ableton
