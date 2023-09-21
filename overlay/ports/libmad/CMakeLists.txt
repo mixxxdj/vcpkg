@@ -30,6 +30,11 @@ set(SOURCES
     version.h
 )
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mad.pc.in" "${PROJECT_BINARY_DIR}/mad.pc" @ONLY)
+install(
+    FILES "${PROJECT_BINARY_DIR}/mad.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+)
 add_library(
     mad
     ${SOURCES}
@@ -44,14 +49,15 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "(^i.86$)")
     target_compile_definitions(mad
         PRIVATE FPM_INTEL
     )
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64|amd64)")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64|amd64)|^(aarch64|arm64)")
     target_compile_definitions(mad
         PRIVATE FPM_64BIT
     )
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)")
-    target_compile_definitions(mad
-        PRIVATE FPM_ARM
-    )
+# This fails with "error: invalid instruction" on armv7-a 
+#elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm")
+#    target_compile_definitions(mad
+#        PRIVATE FPM_ARM
+#    )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^mips")
     target_compile_definitions(mad
         PRIVATE FPM_MIPS
@@ -78,3 +84,4 @@ install(
     FILES mad.h
     DESTINATION include
 )
+
