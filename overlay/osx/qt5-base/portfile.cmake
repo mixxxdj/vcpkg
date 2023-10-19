@@ -32,11 +32,6 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                             #patches/static_opengl.patch #Use this patch if you really want to statically link angle on windows (e.g. using -opengl es2 and -static). 
                                                          #Be carefull since it requires definining _GDI32_ for all dependent projects due to redefinition errors in the 
                                                          #the windows supplied gl.h header and the angle gl.h otherwise. 
-                            patches/nsimage_qimage.patch  # add [NSImage imageFromQImage:] (required for the QCocoaDrag patch)
-                            patches/QCocoaDrag-avoid-using-the-deprecated-API-if-possibl.patch # allow Apple SDK >= 10.14
-                            patches/arm64_qiosurfacegraphicsbuffer.patch   # allow to build on arm64
-                            patches/arm64_qcocoahelper.patch   # alow to build on arm64 
-                            patches/arm64_send_super_stret.patch     # don't use qt_msgSendSuper_stret on arm64 
                             patches/scrollbars_style.patch # Never handle scrollbars styled with box or border changes as transient
                             patches/qmake_xcode15.patch # Fix Xcode 15 (macOS 14 Sonoma) build, see https://github.com/Homebrew/homebrew-core/pull/145729
                     )

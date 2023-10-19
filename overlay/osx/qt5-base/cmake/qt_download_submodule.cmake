@@ -14,10 +14,10 @@ function(qt_download_submodule)
     qt_get_submodule_name(NAME)
 
     set(FULL_VERSION "${QT_MAJOR_MINOR_VER}.${QT_PATCH_VER}")
-    set(ARCHIVE_NAME "${NAME}-everywhere-src-${FULL_VERSION}.tar.xz")
+    set(ARCHIVE_NAME "${NAME}-everywhere-opensource-src-${FULL_VERSION}.tar.xz")
 
     vcpkg_download_distfile(ARCHIVE_FILE
-        URLS "https://download.qt.io/new_archive/qt/${QT_MAJOR_MINOR_VER}/${FULL_VERSION}/submodules/${ARCHIVE_NAME}"
+        URLS "https://download.qt.io/archive/qt/${QT_MAJOR_MINOR_VER}/${FULL_VERSION}/submodules/${ARCHIVE_NAME}"
         FILENAME ${ARCHIVE_NAME}
         SHA512 ${QT_HASH_${PORT}}
     )
