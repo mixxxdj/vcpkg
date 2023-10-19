@@ -37,7 +37,6 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                             patches/arm64_qiosurfacegraphicsbuffer.patch   # allow to build on arm64
                             patches/arm64_qcocoahelper.patch   # alow to build on arm64 
                             patches/arm64_send_super_stret.patch     # don't use qt_msgSendSuper_stret on arm64 
-                            patches/replace_result_of.patch # Replace usage of std::result_of with decltype
                             patches/scrollbars_style.patch # Never handle scrollbars styled with box or border changes as transient
                             patches/qmake_xcode15.patch # Fix Xcode 15 (macOS 14 Sonoma) build, see https://github.com/Homebrew/homebrew-core/pull/145729
                     )

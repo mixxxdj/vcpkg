@@ -1,6 +1,6 @@
 {
   "name": "qt5-host-tools",
-  "version-string": "5.12.4",
+  "version-string": "5.14.2",
   "port-version": 2,
   "description": "Export helper for Qt5 host tools"
 }

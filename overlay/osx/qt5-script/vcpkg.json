@@ -1,6 +1,6 @@
 {
   "name": "qt5-script",
-  "version-string": "5.12.5",
+  "version-string": "5.14.2",
   "port-version": 1,
   "description": "Qt5 Script Module.",
   "dependencies": [

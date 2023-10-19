@@ -26,13 +26,13 @@ Reviewed-by: Tor Arne Vestbø <tor.arne.vestbo@qt.io>
 (cherry picked from commit 8481a9f)
 Reviewed-by: Timur Pocheptsov <timur.pocheptsov@qt.io>
 ---
- src/plugins/platforms/cocoa/qcocoadrag.h      |   6 +
- src/plugins/platforms/cocoa/qcocoadrag.mm     | 105 ++++++++++++++++--
- .../platforms/cocoa/qnsview_dragging.mm       |  14 ++-
- 3 files changed, 112 insertions(+), 13 deletions(-)
+ src/plugins/platforms/cocoa/qcocoadrag.h      |   6 ++
+ src/plugins/platforms/cocoa/qcocoadrag.mm     | 101 ++++++++++++++++--
+ .../platforms/cocoa/qnsview_dragging.mm       |  13 ++-
+ 3 files changed, 109 insertions(+), 11 deletions(-)
 
 diff --git a/src/plugins/platforms/cocoa/qcocoadrag.h b/src/plugins/platforms/cocoa/qcocoadrag.h
-index 5a5b985c..975741c2 100644
+index 5a5b985c6e..975741c270 100644
 --- a/src/plugins/platforms/cocoa/qcocoadrag.h
 +++ b/src/plugins/platforms/cocoa/qcocoadrag.h
 @@ -48,6 +48,8 @@
@@ -61,7 +61,7 @@ index 5a5b985c..975741c2 100644
      QPixmap dragPixmap(QDrag *drag, QPoint &hotSpot) const;
  };
 diff --git a/src/plugins/platforms/cocoa/qcocoadrag.mm b/src/plugins/platforms/cocoa/qcocoadrag.mm
-index 09433194..ab6863a4 100644
+index 95808b8a11..5c52425246 100644
 --- a/src/plugins/platforms/cocoa/qcocoadrag.mm
 +++ b/src/plugins/platforms/cocoa/qcocoadrag.mm
 @@ -44,6 +44,9 @@
@@ -74,7 +74,7 @@ index 09433194..ab6863a4 100644
  
  QT_BEGIN_NAMESPACE
  
-@@ -128,13 +131,15 @@ Qt::DropAction QCocoaDrag::drag(QDrag *o)
+@@ -128,11 +131,13 @@ Qt::DropAction QCocoaDrag::drag(QDrag *o)
      m_drag = o;
      m_executed_drop_action = Qt::IgnoreAction;
  
@@ -89,11 +89,8 @@ index 09433194..ab6863a4 100644
 +    NSImage *dragImage = [NSImage imageFromQImage:pm.toImage()];
 +    Q_ASSERT(dragImage);
  
--    QMacPasteboard dragBoard((CFStringRef) NSDragPboard, QMacInternalPasteboardMime::MIME_DND);
-+    QMacPasteboard dragBoard(CFStringRef(NSDragPboard), QMacInternalPasteboardMime::MIME_DND);
+     QMacPasteboard dragBoard(CFStringRef(NSPasteboardNameDrag), QMacInternalPasteboardMime::MIME_DND);
      m_drag->mimeData()->setData(QLatin1String("application/x-qt-mime-type-name"), QByteArray("dummy"));
-     dragBoard.setMimeData(m_drag->mimeData(), QMacPasteboard::LazyRequest);
- 
 @@ -142,12 +147,12 @@ Qt::DropAction QCocoaDrag::drag(QDrag *o)
      NSWindow *theWindow = [m_lastEvent window];
      Q_ASSERT(theWindow);
@@ -102,8 +99,7 @@ index 09433194..ab6863a4 100644
 +    CGFloat flippedY = dragImage.size.height - hotSpot.y();
      event_location.y -= flippedY;
      NSSize mouseOffset_unused = NSMakeSize(0.0, 0.0);
--    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
-+    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+     NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
  
 -    [theWindow dragImage:nsimage
 +    [theWindow dragImage:dragImage
@@ -213,18 +209,9 @@ index 09433194..ab6863a4 100644
  {
      const QMimeData* data = drag->mimeData();
 diff --git a/src/plugins/platforms/cocoa/qnsview_dragging.mm b/src/plugins/platforms/cocoa/qnsview_dragging.mm
-index 37e972db..978d73f7 100644
+index 650612e7ff..978d73f7d9 100644
 --- a/src/plugins/platforms/cocoa/qnsview_dragging.mm
 +++ b/src/plugins/platforms/cocoa/qnsview_dragging.mm
-@@ -39,7 +39,7 @@
- 
- // This file is included from qnsview.mm, and only used to organize the code
- 
--@implementation QT_MANGLE_NAMESPACE(QNSView) (Dragging)
-+@implementation QNSView (Dragging)
- 
- -(void)registerDragTypes
- {
 @@ -150,10 +150,8 @@ static QPoint mapWindowCoordinates(QWindow *source, QWindow *target, QPoint poin
              break;
          }
@@ -248,31 +235,17 @@ index 37e972db..978d73f7 100644
      QPoint windowPoint = QPointF::fromCGPoint([self convertPoint:sender.draggingLocation fromView:nil]).toPoint();
  
      qCDebug(lcQpaMouse) << QEvent::DragLeave << self << "at" << windowPoint;
-@@ -270,6 +272,7 @@ static QPoint mapWindowCoordinates(QWindow *source, QWindow *target, QPoint poin
-         // The drag was started from within the application
-         response = QWindowSystemInterface::handleDrop(target, nativeDrag->dragMimeData(),
-                                                       point, qtAllowed, buttons, modifiers);
-+        nativeDrag->setAcceptedAction(response.acceptedAction());
-     } else {
-         QCocoaDropData mimeData(sender.draggingPasteboard);
-         response = QWindowSystemInterface::handleDrop(target, &mimeData,
-@@ -282,6 +285,7 @@ static QPoint mapWindowCoordinates(QWindow *source, QWindow *target, QPoint poin
- {
-     Q_UNUSED(session);
-     Q_UNUSED(screenPoint);
-+    Q_UNUSED(operation);
- 
-     if (!m_platformWindow)
-         return;
-@@ -291,6 +295,8 @@ static QPoint mapWindowCoordinates(QWindow *source, QWindow *target, QPoint poin
+@@ -292,7 +294,10 @@ static QPoint mapWindowCoordinates(QWindow *source, QWindow *target, QPoint poin
+     if (!target)
          return;
  
-     QCocoaDrag* nativeDrag = QCocoaIntegration::instance()->drag();
+-    QCocoaIntegration::instance()->drag();
++    QCocoaDrag* nativeDrag = QCocoaIntegration::instance()->drag();
 +    Q_ASSERT(nativeDrag);
 +    nativeDrag->exitDragLoop();
-     nativeDrag->setAcceptedAction(qt_mac_mapNSDragOperation(operation));
++    nativeDrag->setAcceptedAction(qt_mac_mapNSDragOperation(operation));
  
      // Qt starts drag-and-drop on a mouse button press event. Cococa in
+     // this case won't send the matching release event, so we have to
 -- 
-2.25.1
-
+2.42.0
