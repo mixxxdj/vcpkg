@@ -39,6 +39,7 @@ qt_download_submodule(  OUT_SOURCE_PATH SOURCE_PATH
                             patches/arm64_send_super_stret.patch     # don't use qt_msgSendSuper_stret on arm64 
                             patches/replace_result_of.patch # Replace usage of std::result_of with decltype
                             patches/scrollbars_style.patch # Never handle scrollbars styled with box or border changes as transient
+                            patches/qmake_xcode15.patch # Fix Xcode 15 (macOS 14 Sonoma) build, see https://github.com/Homebrew/homebrew-core/pull/145729
                     )
 
 # Remove vendored dependencies to ensure they are not picked up by the build
@@ -235,13 +236,13 @@ elseif(VCPKG_TARGET_IS_OSX)
     FILE(WRITE "${SOURCE_PATH}/src/corelib/configure.json" "${_tmp_contents}")
     #list(APPEND QT_PLATFORM_CONFIGURE_OPTIONS HOST_PLATFORM ${TARGET_MKSPEC})
     list(APPEND RELEASE_OPTIONS
-            "PSQL_LIBS=${PSQL_RELEASE} ${SSL_RELEASE} ${EAY_RELEASE} -ldl -lpthread"
-            "SQLITE_LIBS=${SQLITE_RELEASE} -ldl -lpthread"
+            "PSQL_LIBS=${PSQL_RELEASE} ${SSL_RELEASE} ${EAY_RELEASE}"
+            "SQLITE_LIBS=${SQLITE_RELEASE}"
             "HARFBUZZ_LIBS=${HARFBUZZ_RELEASE} -framework ApplicationServices"
         )
     list(APPEND DEBUG_OPTIONS
-            "PSQL_LIBS=${PSQL_DEBUG} ${SSL_DEBUG} ${EAY_DEBUG} -ldl -lpthread"
-            "SQLITE_LIBS=${SQLITE_DEBUG} -ldl -lpthread"
+            "PSQL_LIBS=${PSQL_DEBUG} ${SSL_DEBUG} ${EAY_DEBUG}"
+            "SQLITE_LIBS=${SQLITE_DEBUG}"
             "HARFBUZZ_LIBS=${HARFBUZZ_DEBUG} -framework ApplicationServices"
         )
 endif()
