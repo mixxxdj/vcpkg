@@ -57,16 +57,16 @@ jobs:
       if: runner.os != 'Linux' && github.event_name == 'push'
       shell: bash
       run: |
-        nuget sources add -Name mixxx-github-packages -Source https://nuget.pkg.github.com/mixxxdj/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }} -NonInteractive
-        nuget setapikey ${{ secrets.GITHUB_TOKEN }} -Source mixxx-github-packages -NonInteractive
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
         
     - name: "Authenticate to GitHub Packages (read only)"
       if: runner.os != 'Linux' && github.event_name == 'pull_request'
       shell: bash
       run: |
-        nuget sources add -Name mixxx-github-packages -Source https://nuget.pkg.github.com/mixxxdj/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }} -NonInteractive
-        nuget setapikey ${{ secrets.GITHUB_TOKEN }} -Source mixxx-github-packages -NonInteractive
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,read;" >> "${GITHUB_ENV}"   
 
     - name: Read sha_short
