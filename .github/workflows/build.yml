@@ -19,7 +19,6 @@ jobs:
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
             vcpkg_overlay_ports: overlay/windows;overlay/ports
-            vcpkg_packages_extras: libid3tag libmad
             check_disk_space: Get-PSDrive
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
@@ -27,7 +26,6 @@ jobs:
             vcpkg_triplet: x64-osx-min1015
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
-            vcpkg_packages_extras:
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
