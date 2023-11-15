@@ -103,6 +103,12 @@ jobs:
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       working-directory: ${{ matrix.vcpkg_path }}
 
+    # python3-distutils is required for fontconfig but it has been removed in Python 3.12
+    - name: Setup Python 3.11
+      uses: actions/setup-python@v4
+      with:
+          python-version: '3.11'
+
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
       working-directory: ${{ matrix.vcpkg_path }}
