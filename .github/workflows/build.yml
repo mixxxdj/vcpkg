@@ -10,6 +10,7 @@ jobs:
         include:
           - os: windows-2019
             vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_buildtrees-root: C:\build
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
@@ -18,21 +19,21 @@ jobs:
             check_disk_space: Get-PSDrive
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1015
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras:
-            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras:
-            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
       VCPKG_PACKAGES: >-
@@ -131,7 +132,7 @@ jobs:
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Build packages
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --x-buildtrees-root=${{ matrix.vcpkg_buildtrees-root }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Upload GitHub Actions artifacts of build logs
