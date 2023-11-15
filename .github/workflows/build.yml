@@ -52,19 +52,19 @@ jobs:
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
        
     - name: "Authenticate to GitHub Packages (readwrite)"
-      if: runner.os != 'Linux' && github.event_name == 'push'
+      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
       run: |
-        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
-        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "mixxx-github-packages"
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
         
     - name: "Authenticate to GitHub Packages (read only)"
-      if: runner.os != 'Linux' && github.event_name == 'pull_request'
+      if: runner.os != 'Linux' && (github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj') 
       shell: bash
       run: |
-        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
-        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "mixxx-github-packages"
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,read;" >> "${GITHUB_ENV}"   
 
     - name: Read sha_short
