@@ -26,7 +26,6 @@ jobs:
             vcpkg_triplet: x64-osx-min1015
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
-            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
@@ -77,7 +76,9 @@ jobs:
     - name: "Setup vcpkg executable cache"
       uses: actions/cache@v3
       with:
-        path: ${{ matrix.vcpkg_path }}/vcpkg${{ matrix.exe_suffix }}
+        path: |
+          ${{ matrix.vcpkg_path }}/vcpkg${{ matrix.exe_suffix }}
+          ${{ matrix.vcpkg_path }}/downloads/tools
         key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}-${{ github.run_number }}
         restore-keys: |
           key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}
