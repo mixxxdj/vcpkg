@@ -14,7 +14,6 @@ jobs:
         include:
           - os: windows-2019
             vcpkg_path: C:\mixxx-vcpkg
-            exe_suffix: .exe
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
@@ -26,7 +25,6 @@ jobs:
             vcpkg_triplet: x64-osx-min1015
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
-            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
@@ -72,16 +70,6 @@ jobs:
       shell: bash
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       working-directory: ${{ matrix.vcpkg_path }}
-
-    # Cache the vcpkg executable to avoid bootstrapping each time
-    - name: "Setup vcpkg executable cache"
-      uses: actions/cache@v3
-      with:
-        path: ${{ matrix.vcpkg_path }}/vcpkg${{ matrix.exe_suffix }}
-        key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}-${{ github.run_number }}
-        restore-keys: |
-          key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}-${{ github.ref }}
-          key: vcpkg-tool-${{ matrix.vcpkg_host_triplet }}
 
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
