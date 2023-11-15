@@ -6,7 +6,7 @@
   "license": "GPL-2.0-or-later",
   "supports": "!uwp",
   "dependencies": [
-    "ableton",
+    "ableton-link",
     "benchmark",
     "chromaprint",
     "fdk-aac",
