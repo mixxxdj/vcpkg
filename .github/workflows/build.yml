@@ -11,16 +11,16 @@ jobs:
           - os: windows-2019
             vcpkg_path: D:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
-            vcpkg_triplet: x64-windows
-            vcpkg_host_triplet: x64-windows           
+            vcpkg_triplet: x64-windows-release
+            vcpkg_host_triplet: x64-windows-release           
             vcpkg_overlay_ports: overlay/windows;overlay/ports
             vcpkg_packages_extras: angle libid3tag libmad qt5-winextras
             check_disk_space: Get-PSDrive
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-osx-min1012
-            vcpkg_host_triplet: x64-osx-min1012
+            vcpkg_triplet: x64-osx-min1012-release
+            vcpkg_host_triplet: x64-osx-min1012-release
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras: qt5-macextras
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
@@ -28,8 +28,8 @@ jobs:
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: arm64-osx-min1100
-            vcpkg_host_triplet: x64-osx-min1012
+            vcpkg_triplet: arm64-osx-min1100-release
+            vcpkg_host_triplet: x64-osx-min1012-release
             vcpkg_overlay_ports: overlay/osx:overlay/ports
             vcpkg_packages_extras: qt5-macextras
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
