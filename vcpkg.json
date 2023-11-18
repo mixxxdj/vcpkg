@@ -1,0 +1,63 @@
+{
+  "name": "mixxx",
+  "version": "2.4.0",
+  "description": "Mixxx is free cross platform DJ software",
+  "homepage": "https://mixxx.org/",
+  "license": "GPL-2.0-or-later",
+  "supports": "!uwp",
+  "dependencies": [
+    "ableton-link",
+    "benchmark",
+    "chromaprint",
+    "fdk-aac",
+    "ffmpeg",
+    "fftw3",
+    "grantlee",
+    "gtest",
+    "hidapi",
+    "hss1394",
+    "libdjinterop",
+    "libebur128",
+    "libflac",
+    {
+      "name": "libid3tag",
+      "platform": "!osx"
+    },
+    "libkeyfinder",
+    {
+      "name": "libmad",
+      "platform": "!osx"
+    },
+    "libmodplug",
+    "libogg",
+    "libopusenc",
+    {
+      "name": "libsndfile",
+      "default-features": false
+    },
+    "libusb",
+    "libvorbis",    
+    "lilv",
+    "mp3lame",
+    "ms-gsl",
+    "opus",
+    "opusfile",
+    {
+      "name": "portaudio",
+      "features": ["asio"]
+    },
+    "portmidi",
+    "protobuf",
+    "pthreads",
+    "qt5compat",
+    "qtbase",
+    "qtdeclarative",
+    "qtsvg",
+    "qttranslations",
+    "qtkeychain-qt6",
+    "rubberband",
+    "soundtouch",
+    "taglib",
+    "wavpack"
+  ]
+}

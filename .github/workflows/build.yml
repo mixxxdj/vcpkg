@@ -2,6 +2,10 @@ name: Build
 
 on: [pull_request, push]
 
+permissions:
+  contents: read # Fetch code (actions/checkout)
+  packages: write # Upload and publish packages to GitHub Packages
+
 jobs:
   build:
     strategy:
@@ -14,7 +18,6 @@ jobs:
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
             vcpkg_overlay_ports: overlay/windows;overlay/ports
-            vcpkg_packages_extras: libid3tag libmad
             check_disk_space: Get-PSDrive
           - os: macos-11
             vcpkg_path: /Users/runner/mixxx-vcpkg
@@ -22,51 +25,8 @@ jobs:
             vcpkg_triplet: x64-osx-min1015
             vcpkg_host_triplet: x64-osx-min1015
             vcpkg_overlay_ports: overlay/osx:overlay/ports
-            vcpkg_packages_extras:
-            vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
     env:
-      VCPKG_PACKAGES: >-
-        ableton-link
-        benchmark
-        chromaprint
-        fdk-aac
-        ffmpeg
-        fftw3
-        grantlee
-        gtest
-        hidapi
-        hss1394
-        libdjinterop
-        libebur128
-        libflac
-        libkeyfinder
-        libmodplug
-        libogg
-        libopusenc
-        libsndfile[core]
-        libusb
-        libvorbis
-        lilv
-        mp3lame
-        ms-gsl
-        opus
-        opusfile
-        portaudio[asio]
-        portmidi
-        protobuf
-        pthreads
-        qt5compat
-        qtbase
-        qtdeclarative
-        qtsvg
-        qttranslations
-        qtkeychain-qt6
-        rubberband
-        soundtouch
-        taglib
-        wavpack
-        ${{ matrix.vcpkg_packages_extras }}
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       # Using the relative path overlay/triplets does not work (https://github.com/microsoft/vcpkg/issues/18764)
@@ -88,6 +48,22 @@ jobs:
       # to keep the build path short and work around size limits on the windows runner D: drive 
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
+       
+    - name: "Authenticate to GitHub Packages (readwrite)"
+      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
+      shell: bash
+      run: |
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "mixxx-github-packages"
+        echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
+        
+    - name: "Authenticate to GitHub Packages (read only)"
+      if: runner.os != 'Linux' && (github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj') 
+      shell: bash
+      run: |
+        nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
+        nuget setapikey "${{ secrets.GITHUB_TOKEN }}" -Source "mixxx-github-packages"
+        echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,read;" >> "${GITHUB_ENV}"   
 
     - name: Read sha_short
       id: vars
@@ -105,24 +81,12 @@ jobs:
           brew update && brew install nasm autoconf-archive
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
-    - name: Set up cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ matrix.vcpkg_path }}/installed
-        key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
-        restore-keys: |
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
-          vcpkg-installed-${{ matrix.vcpkg_triplet }}
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
-      
-    - name: Remove outdated packages from cache
-      run: ./vcpkg remove --vcpkg-root=${{ matrix.vcpkg_path }} --outdated --recurse
-      working-directory: ${{ matrix.vcpkg_path }}
 
-    - name: Build packages
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse ${{ env.VCPKG_PACKAGES }}
+    - name: Build packages  
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Upload GitHub Actions artifacts of build logs
@@ -133,7 +97,7 @@ jobs:
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
-      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
+      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }} --output-dir=${{ matrix.vcpkg_path }}
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: "[Windows] Install additional tools"
