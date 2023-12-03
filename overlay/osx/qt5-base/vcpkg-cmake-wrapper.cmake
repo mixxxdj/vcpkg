@@ -4,8 +4,12 @@ function(add_qt_library _target)
     foreach(_lib IN LISTS ARGN)
         find_library(${_lib}_LIBRARY_DEBUG NAMES ${_lib}_debug ${_lib}d ${_lib} PATH_SUFFIXES debug/plugins/platforms)
         find_library(${_lib}_LIBRARY_RELEASE NAMES ${_lib} PATH_SUFFIXES plugins/platforms)
-        set_property(TARGET ${_target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-        \$<\$<NOT:\$<CONFIG:DEBUG>>:${${_lib}_LIBRARY_RELEASE}>\$<\$<CONFIG:DEBUG>:${${_lib}_LIBRARY_DEBUG}>)
+        if (${_lib}_LIBRARY_DEBUG STREQUAL "${_lib}_LIBRARY_DEBUG-NOTFOUND")
+            set_property(TARGET ${_target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES "${${_lib}_LIBRARY_RELEASE}")
+        else()
+            set_property(TARGET ${_target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+            \$<\$<NOT:\$<CONFIG:DEBUG>>:${${_lib}_LIBRARY_RELEASE}>\$<\$<CONFIG:DEBUG>:${${_lib}_LIBRARY_DEBUG}>)
+        endif()
     endforeach()
 endfunction()
 
