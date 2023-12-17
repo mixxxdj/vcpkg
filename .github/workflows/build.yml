@@ -80,7 +80,7 @@ jobs:
       # Using the relative path overlay/triplets does not work (https://github.com/microsoft/vcpkg/issues/18764)
       VCPKG_OVERLAY_TRIPLETS: ${{ matrix.vcpkg_path }}/overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
-      DEPS_BASE_NAME: mixxx-deps-rel
+      DEPS_BASE_NAME: mixxx-deps
       DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
       MIXXX_VERSION: 2.4
     name: ${{ matrix.vcpkg_triplet }}
@@ -124,10 +124,10 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ matrix.vcpkg_path }}/installed
-        key: vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
+        key: vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}-${{ github.run_number }}
         restore-keys: |
-          vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
-          vcpkg-installed-rel-${{ matrix.vcpkg_triplet }}
+          vcpkg-installed-${{ matrix.vcpkg_triplet }}-${{ github.ref }}
+          vcpkg-installed-${{ matrix.vcpkg_triplet }}
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
