@@ -37,5 +37,6 @@ def delete_packages(pat, user):
         else:
             print(f"Failed to delete package {package_name}: {delete_response.status_code}")
 
-delete_packages(your_token, user)
+if __name__ == "__main__":
+    delete_packages(your_token, user)
 
