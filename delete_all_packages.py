@@ -5,9 +5,10 @@
 
 import requests
 
-# Replace these variables with a Personal access token from GitHub
-your_token = 'ghp_'
-user = 'user'
+import netrc
+
+# Configure your GitHub user name and Personal Access Token (PAT) to the `.netrc` file. 
+user, _, your_token = netrc.netrc().authenticators("api.github.com")
 
 def delete_packages(pat, user):
     headers = {
