@@ -19,9 +19,7 @@ def delete_packages(pat, user):
 
     # Fetching package versions
     response = requests.get(f'https://api.github.com/users/{user}/packages?package_type=nuget', headers=headers)
-    if response.status_code != 200:
-        print(f"Failed to fetch packages: {response.status_code}")
-        return
+    response.raise_for_status()
 
     print(response.json())
 
