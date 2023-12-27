@@ -158,6 +158,26 @@ jobs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
         timeout: 600
+        
+    - name: "[Windows] Sign release plugins"
+      env:
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      if: runner.os == 'Windows' && env.AZURE_TENANT_ID
+      uses: azure/azure-code-signing-action@v0.2.22
+      with:
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        endpoint: https://weu.codesigning.azure.net/
+        code-signing-account-name: mixxx
+        certificate-profile-name: mixxx
+        files-folder: ${{ matrix.vcpkg_path }}/installed/${{ matrix.vcpkg_triplet }}/plugins
+        files-folder-filter: dll
+        files-folder-recurse: true
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+        timeout: 600
 
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
