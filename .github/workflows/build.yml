@@ -101,7 +101,7 @@ jobs:
         endpoint: https://weu.codesigning.azure.net/
         code-signing-account-name: mixxx
         certificate-profile-name: mixxx
-        files-folder: ${{ matrix.vcpkg_path }}/installed/${{ matrix.vcpkg_triplet }}/bin
+        files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/bin
         files-folder-filter: dll
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -120,7 +120,7 @@ jobs:
         endpoint: https://weu.codesigning.azure.net/
         code-signing-account-name: mixxx
         certificate-profile-name: mixxx
-        files-folder: ${{ matrix.vcpkg_path }}/installed/${{ matrix.vcpkg_triplet }}/Qt6/plugins
+        files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/Qt6/plugins
         files-folder-filter: dll
         files-folder-recurse: true
         file-digest: SHA256
@@ -140,7 +140,7 @@ jobs:
         endpoint: https://weu.codesigning.azure.net/
         code-signing-account-name: mixxx
         certificate-profile-name: mixxx
-        files-folder: ${{ matrix.vcpkg_path }}/installed/${{ matrix.vcpkg_triplet }}/Qt6/qml
+        files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/Qt6/qml
         files-folder-filter: dll
         files-folder-recurse: true
         file-digest: SHA256
