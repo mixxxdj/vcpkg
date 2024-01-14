@@ -62,7 +62,8 @@ function deployPluginsIfQt([string]$targetBinaryDir, [string]$QtPluginsDir, [str
         deployPlugins "playlistformats"
     } elseif ($targetBinaryName -match "Qt5PrintSupportd?.dll") {
         deployPlugins "printsupport"
-    } elseif ($targetBinaryName -match "Qt5Qmld?.dll") {
+    } elseif ($targetBinaryName -match "Qt5Qmld?.dll" -and $false) {
+        # qml deployment is disabled because Mixxx 2.4 use Qt5Qml.dll only for QJSEngine
         if(!(Test-Path "$targetBinaryDir\qml"))
         {
             if (Test-Path "$binDir\..\qml") {
