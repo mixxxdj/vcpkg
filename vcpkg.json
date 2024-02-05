@@ -21,7 +21,7 @@
     "libflac",
     {
       "name": "libid3tag",
-      "platform": "!osx"
+      "platform": "windows"
     },
     "libkeyfinder",
     {
