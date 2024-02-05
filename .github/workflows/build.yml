@@ -91,7 +91,7 @@ jobs:
 
     - name: "[Linux] Bootstrap vcpkg"
       if: runner.os == 'Linux'
-      run: sudo apt-get install -y autoconf-archive nasm '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+      run: sudo apt-get install -y autoconf-archive nasm '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev mesa-common-dev
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
