@@ -15,7 +15,10 @@
     "grantlee",
     "gtest",
     "hidapi",
-    "hss1394",
+    {
+      "name": "hss1394",
+      "platform": "windows | osx"
+    },
     "libdjinterop",
     "libebur128",
     "libflac",
