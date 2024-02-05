@@ -89,6 +89,10 @@ jobs:
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
 
+    - name: "[Linux] Bootstrap vcpkg"
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y autoconf-archive nasm
+
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
