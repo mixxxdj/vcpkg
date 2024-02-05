@@ -15,13 +15,16 @@
     "grantlee",
     "gtest",
     "hidapi",
-    "hss1394",
+    {
+      "name": "hss1394",
+      "platform": "windows | osx"
+    },
     "libdjinterop",
     "libebur128",
     "libflac",
     {
       "name": "libid3tag",
-      "platform": "!osx"
+      "platform": "windows"
     },
     "libkeyfinder",
     {
