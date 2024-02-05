@@ -29,8 +29,8 @@ jobs:
           - os: ubuntu-22.04
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-linux
-            vcpkg_host_triplet: x64-linux
+            vcpkg_triplet: x64-linux-release
+            vcpkg_host_triplet: x64-linux-release
             vcpkg_overlay_ports: overlay/ports
             check_disk_space: df -h
     env:
