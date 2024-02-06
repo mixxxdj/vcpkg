@@ -12,9 +12,17 @@
     "fdk-aac",
     "ffmpeg",
     "fftw3",
-    "grantlee",
+    {
+      "name": "grantlee",
+      "$comment": "On iOS: ld: Undefined symbols: _main, referenced from: user_main_trampoline() in libqios.a[arm64][6](qioseventdispatcher.mm.o)",
+      "platform": "!ios"
+    },
     "gtest",
-    "hidapi",
+    {
+      "name": "hidapi",
+      "$comment": "Not supported on iOS due to its dependency on libusb",
+      "platform": "!ios"
+    },
     {
       "name": "hss1394",
       "platform": "windows | osx"
@@ -38,7 +46,11 @@
       "name": "libsndfile",
       "default-features": false
     },
-    "libusb",
+    {
+      "name": "libusb",
+      "$comment": "Does not support iOS official (there seem to be inofficial ports, however, which could be investigated)",
+      "platform": "!ios"
+    },
     "libvorbis",    
     "lilv",
     "mp3lame",
@@ -53,12 +65,57 @@
     "protobuf",
     "pthreads",
     "qt5compat",
-    "qtbase",
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": [
+        "brotli",
+        "concurrent",
+        "dbus",
+        "default-features",
+        "doubleconversion",
+        "freetype",
+        "gui",
+        "harfbuzz",
+        "icu",
+        "jpeg",
+        "network",
+        "opengl",
+        {
+          "name": "gles3",
+          "platform": "ios"
+        },
+        {
+          "name": "openssl",
+          "platform": "!ios"
+        },
+        "pcre2",
+        "png",
+        "sql",
+        {
+          "name": "sql-psql",
+          "platform": "!ios"
+        },
+        "sql-sqlite",
+        "testlib",
+        "thread",
+        "widgets",
+        "zstd"
+      ]
+    },
     "qtdeclarative",
     "qtsvg",
     "qttranslations",
-    "qtkeychain-qt6",
-    "rubberband",
+    {
+      "name": "qtkeychain-qt6",
+      "$comment": "libgcrypt seems to be unsupported on iOS",
+      "platform": "!ios"
+    },
+    {
+      "name": "rubberband",
+      "$comment": "Skipped on iOS due to licensing issues (GPL) and build issues",
+      "platform": "!ios"
+    },
     "soundtouch",
     "taglib",
     "wavpack"
