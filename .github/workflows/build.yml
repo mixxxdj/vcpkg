@@ -30,6 +30,13 @@ jobs:
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1015-release
             check_disk_space: df -h
+          - os: macos-11
+            vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: arm64-ios-release
+            vcpkg_host_triplet: x64-osx-min1015-release
+            vcpkg_overlay_ports: overlay/osx:overlay/ports
+            check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
