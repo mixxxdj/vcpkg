@@ -5,16 +5,6 @@
   "homepage": "https://mixxx.org/",
   "license": "GPL-2.0-or-later",
   "supports": "!uwp",
-  "vcpkg-configuration": {
-    "overlay-ports": [
-      "overlay/ports",
-      "overlay/osx",
-      "overlay/windows"
-    ],
-    "overlay-triplets": [
-      "overlay/triplets"
-    ]
-  },
   "dependencies": [
     "ableton-link",
     "benchmark",

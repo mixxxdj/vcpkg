@@ -1,0 +1,10 @@
+{
+  "overlay-ports": [
+    "overlay/ports",
+    "overlay/osx",
+    "overlay/windows"
+  ],
+  "overlay-triplets": [
+    "overlay/triplets"
+  ]
+}
