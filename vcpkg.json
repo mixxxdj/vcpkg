@@ -7,6 +7,17 @@
   "supports": "!uwp",
   "default-features": ["qt6"],
   "features": {
+    "qt5": {
+      "description": "Build with Qt 5",
+      "dependencies": [
+        "qt5-base",
+        "qt5-declarative",
+        "qt5-script",
+        "qt5-svg",
+        "qt5-translations",
+        "qtkeychain"
+      ]
+    },
     "qt6": {
       "description": "Build with Qt 6",
       "dependencies": [
