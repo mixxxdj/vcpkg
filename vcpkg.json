@@ -5,6 +5,20 @@
   "homepage": "https://mixxx.org/",
   "license": "GPL-2.0-or-later",
   "supports": "!uwp",
+  "default-features": ["qt6"],
+  "features": {
+    "qt6": {
+      "description": "Build with Qt 6",
+      "dependencies": [
+        "qt5compat",
+        "qtbase",
+        "qtdeclarative",
+        "qtsvg",
+        "qttranslations",
+        "qtkeychain-qt6"
+      ]
+    }
+  },
   "dependencies": [
     "ableton-link",
     "benchmark",
@@ -52,12 +66,6 @@
     "portmidi",
     "protobuf",
     "pthreads",
-    "qt5compat",
-    "qtbase",
-    "qtdeclarative",
-    "qtsvg",
-    "qttranslations",
-    "qtkeychain-qt6",
     "rubberband",
     "soundtouch",
     "taglib",
