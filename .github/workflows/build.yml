@@ -44,6 +44,7 @@ jobs:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       DEPS_BASE_NAME: mixxx-deps
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
       MIXXX_VERSION: 2.5
     name: ${{ matrix.vcpkg_triplet }}
     runs-on: ${{ matrix.os }}
