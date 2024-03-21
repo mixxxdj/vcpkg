@@ -89,7 +89,11 @@ jobs:
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
     
-    - name: Install Emscripten SDK
+    - name: "[Linux] Set up build environment"
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y autoconf-archive nasm '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev mesa-common-dev
+
+    - name: "[Emscripten] Install SDK"
       if: startsWith(matrix.vcpkg_triplet, 'wasm32-') || startsWith(matrix.vcpkg_triplet, 'wasm64-')
       uses: mymindstorm/setup-emsdk@v14
       with:
