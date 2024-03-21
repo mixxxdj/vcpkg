@@ -22,11 +22,53 @@
       "description": "Build with Qt 6",
       "dependencies": [
         "qt5compat",
-        "qtbase",
+        {
+          "name": "qtbase",
+          "default-features": false,
+          "features": [
+            "brotli",
+            "concurrent",
+            {
+              "name": "dbus",
+              "platform": "!emscripten"
+            },
+            "default-features",
+            "doubleconversion",
+            "freetype",
+            "gui",
+            "harfbuzz",
+            "icu",
+            "jpeg",
+            "network",
+            "opengl",
+            {
+              "name": "openssl",
+              "platform": "!emscripten"
+            },
+            "pcre2",
+            "png",
+            "sql",
+            {
+              "name": "sql-psql",
+              "platform": "!emscripten"
+            },
+            "sql-sqlite",
+            "testlib",
+            "thread",
+            "widgets",
+            "zstd"
+          ]
+        },
         "qtdeclarative",
         "qtsvg",
-        "qttranslations",
-        "qtkeychain-qt6"
+        {
+          "name": "qttranslations",
+          "platform": "!emscripten"
+        },
+        {
+          "name": "qtkeychain-qt6",
+          "platform": "!emscripten"
+        }
       ]
     }
   },
