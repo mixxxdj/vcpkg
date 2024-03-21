@@ -30,6 +30,12 @@ jobs:
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1015-release
             check_disk_space: df -h
+          - os: ubuntu-latest
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: wasm32-emscripten-pthread-release
+            vcpkg_host_triplet: x64-linux-release
+            check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
@@ -82,6 +88,12 @@ jobs:
           brew update && brew install nasm autoconf-archive
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
           xcrun --show-sdk-version
+    
+    - name: Install Emscripten SDK
+      if: startsWith(matrix.vcpkg_triplet, 'wasm32-') || startsWith(matrix.vcpkg_triplet, 'wasm64-')
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: '3.1.55'
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
