@@ -35,6 +35,11 @@
             "default-features",
             "doubleconversion",
             "freetype",
+            {
+              "name": "gles2",
+              "$comment": "TODO: Use gles3 once we update the Qt port",
+              "platform": "emscripten"
+            },
             "gui",
             "harfbuzz",
             "icu",
