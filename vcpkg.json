@@ -22,24 +22,80 @@
       "description": "Build with Qt 6",
       "dependencies": [
         "qt5compat",
-        "qtbase",
+        {
+          "name": "qtbase",
+          "default-features": false,
+          "features": [
+            "brotli",
+            "concurrent",
+            {
+              "name": "dbus",
+              "platform": "!emscripten"
+            },
+            "default-features",
+            "doubleconversion",
+            "freetype",
+            {
+              "name": "gles2",
+              "$comment": "TODO: Use gles3 once we update the Qt port",
+              "platform": "emscripten"
+            },
+            "gui",
+            "harfbuzz",
+            "icu",
+            "jpeg",
+            "network",
+            "opengl",
+            {
+              "name": "openssl",
+              "platform": "!emscripten"
+            },
+            "pcre2",
+            "png",
+            "sql",
+            {
+              "name": "sql-psql",
+              "platform": "!emscripten"
+            },
+            "sql-sqlite",
+            "testlib",
+            "thread",
+            "widgets",
+            "zstd"
+          ]
+        },
         "qtdeclarative",
         "qtsvg",
-        "qttranslations",
-        "qtkeychain-qt6"
+        {
+          "name": "qttranslations",
+          "platform": "!emscripten"
+        },
+        {
+          "name": "qtkeychain-qt6",
+          "platform": "!emscripten"
+        }
       ]
     }
   },
   "dependencies": [
     "ableton-link",
     "benchmark",
-    "chromaprint",
+    {
+      "name": "chromaprint",
+      "platform": "!emscripten"
+    },
     "fdk-aac",
-    "ffmpeg",
+    {
+      "name": "ffmpeg",
+      "platform": "!emscripten"
+    },
     "fftw3",
     "grantlee",
     "gtest",
-    "hidapi",
+    {
+      "name": "hidapi",
+      "platform": "!emscripten"
+    },
     {
       "name": "hss1394",
       "platform": "windows | osx"
@@ -63,7 +119,10 @@
       "name": "libsndfile",
       "default-features": false
     },
-    "libusb",
+    {
+      "name": "libusb",
+      "platform": "!emscripten"
+    },
     "libvorbis",    
     "lilv",
     "mp3lame",
@@ -72,9 +131,23 @@
     "opusfile",
     {
       "name": "portaudio",
-      "features": ["asio"]
+      "default-features": false,
+      "features": [
+        {
+          "name": "asio",
+          "platform": "!emscripten"
+        },
+        {
+          "name": "jack",
+          "platform": "!emscripten"
+        }
+      ]
     },
-    "portmidi",
+    {
+      "name": "portmidi",
+      "$comment": "TODO: Depends on https://github.com/PortMidi/portmidi/issues/68 (alternatively libremidi might be an option)",
+      "platform": "!emscripten"
+    },
     "protobuf",
     "pthreads",
     "rubberband",
