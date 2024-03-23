@@ -59,10 +59,7 @@
     "libmodplug",
     "libogg",
     "libopusenc",
-    {
-      "name": "libsndfile",
-      "default-features": false
-    },
+    "libsndfile",
     "libusb",
     "libvorbis",    
     "lilv",
