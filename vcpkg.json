@@ -49,20 +49,17 @@
     "libflac",
     {
       "name": "libid3tag",
-      "platform": "windows"
+      "platform": "!osx & !ios"
     },
     "libkeyfinder",
     {
       "name": "libmad",
-      "platform": "!osx"
+      "platform": "!osx & !ios"
     },
     "libmodplug",
     "libogg",
     "libopusenc",
-    {
-      "name": "libsndfile",
-      "default-features": false
-    },
+    "libsndfile",
     "libusb",
     "libvorbis",    
     "lilv",

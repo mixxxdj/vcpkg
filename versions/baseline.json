@@ -3322,7 +3322,7 @@
     },
     "icu": {
       "baseline": "73.1",
-      "port-version": 0
+      "port-version": 2
     },
     "ideviceinstaller": {
       "baseline": "2023-07-21",
@@ -4186,7 +4186,7 @@
     },
     "libflac": {
       "baseline": "1.4.3",
-      "port-version": 0
+      "port-version": 2
     },
     "libfontenc": {
       "baseline": "1.1.4",
@@ -4406,7 +4406,7 @@
     },
     "libmad": {
       "baseline": "0.16.4",
-      "port-version": 1
+      "port-version": 3
     },
     "libmagic": {
       "baseline": "5.40",
@@ -4450,7 +4450,7 @@
     },
     "libmodplug": {
       "baseline": "0.8.9.0",
-      "port-version": 10
+      "port-version": 11
     },
     "libmorton": {
       "baseline": "0.2.12",
@@ -6418,7 +6418,7 @@
     },
     "pcre2": {
       "baseline": "10.42",
-      "port-version": 1
+      "port-version": 2
     },
     "pdal": {
       "baseline": "2.5.3",
@@ -7046,7 +7046,7 @@
     },
     "qtkeychain-qt6": {
       "baseline": "0.14.1",
-      "port-version": 0
+      "port-version": 1
     },
     "qtlanguageserver": {
       "baseline": "6.5.3",
@@ -7474,7 +7474,7 @@
     },
     "rubberband": {
       "baseline": "3.3.0",
-      "port-version": 0
+      "port-version": 1
     },
     "rxcpp": {
       "baseline": "4.1.1",
@@ -7914,7 +7914,7 @@
     },
     "soundtouch": {
       "baseline": "2.3.2",
-      "port-version": 1
+      "port-version": 3
     },
     "soxr": {
       "baseline": "0.1.3",
