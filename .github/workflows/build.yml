@@ -108,6 +108,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
           python-version: '3.11'
+    
+    # update cmake to 2.29.2 to work around https://github.com/microsoft/vcpkg/issues/37968   
+    - name: "[macOS] Set up cmake"
+      uses: jwlawson/actions-setup-cmake@v2.0
+      with:
+          cmake-version: "3.29.2"
 
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
