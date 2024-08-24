@@ -16,7 +16,7 @@ jobs:
             vcpkg_overlay_ports: overlay/windows;overlay/ports
             vcpkg_packages_extras: angle libid3tag libmad qt5-winextras
             check_disk_space: Get-PSDrive
-          - os: macos-11
+          - os: macos-12
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1012
@@ -25,7 +25,7 @@ jobs:
             vcpkg_packages_extras: qt5-macextras
             vcpkg_cache: /Users/runner/.cache/vcpkg/archives
             check_disk_space: df -h
-          - os: macos-11
+          - os: macos-12
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100
@@ -81,7 +81,7 @@ jobs:
       VCPKG_OVERLAY_TRIPLETS: ${{ matrix.vcpkg_path }}/overlay/triplets
       VCPKG_OVERLAY_PORTS: ${{ matrix.vcpkg_overlay_ports }}
       DEPS_BASE_NAME: mixxx-deps
-      DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_13.1.app/Contents/Developer
       MIXXX_VERSION: 2.4
     name: ${{ matrix.vcpkg_triplet }}
     runs-on: ${{ matrix.os }}
@@ -124,7 +124,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
           brew update && brew install nasm
-          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_12.4.app/Contents/Developer"
+          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_13.1.app/Contents/Developer"
           xcrun --show-sdk-version
     - name: Set up cache
       uses: actions/cache@v3
