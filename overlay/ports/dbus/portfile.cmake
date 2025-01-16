@@ -34,6 +34,7 @@ vcpkg_cmake_configure(
         -DDBUS_WITH_GLIB=OFF
         -DTHREADS_PREFER_PTHREAD_FLAG=ON
         -DXSLTPROC_EXECUTABLE=FALSE
+        -DDBUS_SESSION_SOCKET_DIR=/tmp # https://github.com/microsoft/vcpkg/issues/40031
         "-DCMAKE_INSTALL_SYSCONFDIR=${CURRENT_PACKAGES_DIR}/etc/${PORT}"
         "-DWITH_SYSTEMD_SYSTEMUNITDIR=lib/systemd/system"
         "-DWITH_SYSTEMD_USERUNITDIR=lib/systemd/user"
@@ -49,6 +50,7 @@ vcpkg_cmake_configure(
         THREADS_PREFER_PTHREAD_FLAG
         WITH_SYSTEMD_SYSTEMUNITDIR
         WITH_SYSTEMD_USERUNITDIR
+        DBUS_SESSION_SOCKET_DIR
 )
 vcpkg_cmake_install()
 vcpkg_copy_pdbs()
