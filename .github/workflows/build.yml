@@ -18,13 +18,13 @@ jobs:
             vcpkg_triplet: x64-windows
             vcpkg_host_triplet: x64-windows           
             check_disk_space: Get-PSDrive
-          - os: macos-12
+          - os: macos-13
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1100
             vcpkg_host_triplet: x64-osx-min1100
             check_disk_space: df -h
-          - os: macos-12
+          - os: macos-13
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
@@ -34,13 +34,13 @@ jobs:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       DEPS_BASE_NAME: mixxx-deps
-      DEVELOPER_DIR: /Applications/Xcode_13.1.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
       MIXXX_VERSION: 2.5
     name: ${{ matrix.vcpkg_triplet }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out git repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: mixxx-vcpkg
       
@@ -86,7 +86,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
           brew update && brew install nasm autoconf-archive
-          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_13.1.app/Contents/Developer"
+          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_14.2.app/Contents/Developer"
           xcrun --show-sdk-version
 
     - name: Check available disk space
@@ -100,7 +100,7 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.4.0
+      uses: azure/trusted-signing-action@v0.5.1
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -119,7 +119,7 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.4.0
+      uses: azure/trusted-signing-action@v0.5.1
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -139,7 +139,7 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.4.0
+      uses: azure/trusted-signing-action@v0.5.1
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
