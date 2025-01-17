@@ -45,6 +45,15 @@ file(REMOVE_RECURSE
     "${SOURCE_PATH}/rust"
 )
 
+if(${VCPKG_LIBRARY_LINKAGE} STREQUAL "static") 
+    set(protobuf_VISIBILITY_FLAGS 
+        -DCMAKE_POLICY_DEFAULT_CMP0063=NEW
+        -DCMAKE_C_VISIBILITY_PRESET=hidden
+        -DCMAKE_CXX_VISIBILITY_PRESET=hidden
+        -DCMAKE_VISIBILITY_INLINES_HIDDEN=TRUE
+    )
+endif()
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
@@ -54,6 +63,7 @@ vcpkg_cmake_configure(
         -DCMAKE_INSTALL_CMAKEDIR:STRING=share/protobuf
         -Dprotobuf_BUILD_PROTOC_BINARIES=${protobuf_BUILD_PROTOC_BINARIES}
         -Dprotobuf_BUILD_LIBPROTOC=${protobuf_BUILD_LIBPROTOC}
+        ${protobuf_VISIBILITY_FLAGS}
         -Dprotobuf_ABSL_PROVIDER=package
         -Dprotobuf_BUILD_LIBUPB=OFF
         ${FEATURE_OPTIONS}
