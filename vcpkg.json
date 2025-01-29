@@ -68,6 +68,7 @@
     "ms-gsl",
     "opus",
     "opusfile",
+    "oscpack",
     {
       "name": "portaudio",
       "features": ["asio"]
