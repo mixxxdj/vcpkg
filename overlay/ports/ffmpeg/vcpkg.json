@@ -27,6 +27,12 @@
     "swscale"
   ],
   "features": {
+    "fedora-ffmpeg-free-safe": {
+      "description": "Build with the same paranoia filters used by Fedora to ensure a patent free redistribution. See https://bugzilla.redhat.com/show_bug.cgi?id=2051008",
+      "dependencies": [
+        "fdk-aac"
+      ]
+    },
     "all": {
       "description": "Build with all allowed dependencies selected that are compatible with the lgpl license",
       "dependencies": [
