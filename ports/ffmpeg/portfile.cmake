@@ -17,7 +17,73 @@ vcpkg_from_github(
         0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch # Do not remove this patch. It is required by chromium
         0041-add-const-for-opengl-definition.patch
         0043-fix-miss-head.patch
+        # FIXME should be only applied if feature "fedora-ffmpeg-free-safe" is used
+        0099-ffmpeg-allow-fdk-aac-free.patch
 )
+
+set(OPTIONS "--enable-pic --disable-doc --enable-debug --enable-runtime-cpudetect --disable-autodetect")
+
+if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
+    set(FEDORA_FFMPEG_FREE_SAFE ON)
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/ffmpeg_free_sources" "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources")
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/enable_decoders" "${CURRENT_BUILDTREES_DIR}/enable_decoders")
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/enable_encoders" "${CURRENT_BUILDTREES_DIR}/enable_encoders")
+
+    file(STRINGS "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources" FFMPEG_SOURCE_ALLOW_LIST)
+    file(STRINGS "${CURRENT_BUILDTREES_DIR}/enable_decoders" FFMPEG_ENABLE_DECODERS_DIRTY)
+    file(STRINGS "${CURRENT_BUILDTREES_DIR}/enable_encoders" FFMPEG_ENABLE_ENCODERS_DIRTY)
+
+    set(FFMPEG_ENABLE_DECODERS "")
+    set(FFMPEG_ENABLE_ENCODERS "")
+
+    foreach(decoder_dirty IN LISTS FFMPEG_ENABLE_DECODERS_DIRTY)
+        if(decoder_dirty MATCHES "^([^#]+)#?.*$")
+            string(STRIP "${CMAKE_MATCH_1}" decoder)
+            list(APPEND FFMPEG_ENABLE_DECODERS "${decoder}")
+        endif()
+    endforeach()
+    foreach(encoder_dirty IN LISTS FFMPEG_ENABLE_ENCODERS_DIRTY)
+        if(encoder_dirty MATCHES "^([^#]+)#?.*$")
+            string(STRIP "${CMAKE_MATCH_1}" encoder)
+            list(APPEND FFMPEG_ENABLE_ENCODERS "${encoder}")
+        endif()
+    endforeach()
+
+    # Manually whitelisting some low risk sources
+    list(APPEND FFMPEG_SOURCE_ALLOW_LIST 
+        "libavcodec/file_open.c"
+        "libavdevice/file_open.c"
+        "libavfilter/file_open.c"
+        "libavformat/file_open.c"
+    )
+
+    # Filter out source files directly from filesystem to ensure they aren't accidentally included
+    file(GLOB_RECURSE FFMPEG_SOURCE_FILE RELATIVE "${SOURCE_PATH}" "${SOURCE_PATH}/*")
+    message(STATUS "Filter source that is not part of Fedora's ffmpeg-free")
+    foreach(srcfile IN LISTS FFMPEG_SOURCE_FILE)
+        if (NOT(srcfile IN_LIST FFMPEG_SOURCE_ALLOW_LIST) AND NOT(srcfile MATCHES "compat/.*"))
+            message(STATUS "-- ${srcfile} is NOT in the allowlist. Removing")
+            file(REMOVE "${SOURCE_PATH}/${srcfile}")
+        endif()
+    endforeach()
+
+    # Encoder/decoder for which the source has been blacklisted
+    list(REMOVE_ITEM FFMPEG_ENABLE_DECODERS 
+        "ac3"
+    )
+    list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS 
+        "ac3"
+    )
+
+    list(JOIN FFMPEG_ENABLE_DECODERS "," FFMPEG_ENABLE_DECODERS)
+    list(JOIN FFMPEG_ENABLE_ENCODERS "," FFMPEG_ENABLE_ENCODERS)
+    
+    string(APPEND OPTIONS " --disable-encoders --disable-decoders")
+    string(APPEND OPTIONS " --enable-encoder=\"${FFMPEG_ENABLE_ENCODERS}\"")
+    string(APPEND OPTIONS " --enable-decoder=\"${FFMPEG_ENABLE_DECODERS}\"")
+    # Option for which the source has been blacklisted
+    string(APPEND OPTIONS " --disable-indev=\"dshow,gdigrab,vfwcap\" --disable-decoder=\"h264,hevc,libxevd,vc1,vvc\" --disable-coreimage")
+endif()
 
 if(SOURCE_PATH MATCHES " ")
     message(FATAL_ERROR "Error: ffmpeg will not build with spaces in the path. Please use a directory with no spaces")
@@ -29,7 +95,6 @@ if (VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQU
     vcpkg_add_to_path("${NASM_EXE_PATH}")
 endif()
 
-set(OPTIONS "--enable-pic --disable-doc --enable-debug --enable-runtime-cpudetect --disable-autodetect")
 
 if(VCPKG_TARGET_IS_MINGW)
     if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
@@ -40,12 +105,21 @@ if(VCPKG_TARGET_IS_MINGW)
 elseif(VCPKG_TARGET_IS_LINUX)
     string(APPEND OPTIONS " --target-os=linux --enable-pthreads")
 elseif(VCPKG_TARGET_IS_UWP)
-    string(APPEND OPTIONS " --target-os=win32 --enable-w32threads --enable-d3d11va --enable-d3d12va --enable-mediafoundation")
+    string(APPEND OPTIONS " --target-os=win32 --enable-w32threads --enable-mediafoundation")
+    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
+        string(APPEND OPTIONS " --enable-d3d11va --enable-d3d12va")
+    endif()
 elseif(VCPKG_TARGET_IS_WINDOWS)
-    string(APPEND OPTIONS " --target-os=win32 --enable-w32threads --enable-d3d11va --enable-d3d12va --enable-dxva2 --enable-mediafoundation")
+    string(APPEND OPTIONS " --target-os=win32 --enable-w32threads --enable-mediafoundation")
+    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
+        string(APPEND OPTIONS " --enable-d3d11va --enable-d3d12va --enable-dxva2")
+    endif()
 elseif(VCPKG_TARGET_IS_OSX)
-    string(APPEND OPTIONS " --target-os=darwin --enable-appkit --enable-avfoundation --enable-coreimage --enable-audiotoolbox --enable-videotoolbox")
-elseif(VCPKG_TARGET_IS_IOS)
+    string(APPEND OPTIONS " --target-os=darwin --enable-appkit")
+    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
+        string(APPEND OPTIONS " --enable-avfoundation  --enable-coreimage --enable-videotoolbox --enable-audiotoolbox")
+    endif()
+elseif(VCPKG_TARGET_IS_IOS AND NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
     string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "Android")
     string(APPEND OPTIONS " --target-os=android --enable-jni --enable-mediacodec")
@@ -314,7 +388,7 @@ else()
     set(WITH_DAV1D OFF)
 endif()
 
-if("fdk-aac" IN_LIST FEATURES)
+if(("fdk-aac" IN_LIST FEATURES) OR ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
     set(OPTIONS "${OPTIONS} --enable-libfdk-aac")
     set(WITH_AAC ON)
 else()
@@ -435,11 +509,9 @@ if("openssl" IN_LIST FEATURES)
     set(OPTIONS "${OPTIONS} --enable-openssl")
 else()
     set(OPTIONS "${OPTIONS} --disable-openssl")
-    if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP)
+    if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP AND NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
         string(APPEND OPTIONS " --enable-schannel")
-    elseif(VCPKG_TARGET_IS_OSX)
-        string(APPEND OPTIONS " --enable-securetransport")
-    elseif(VCPKG_TARGET_IS_IOS)
+    elseif((VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS) AND NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
         string(APPEND OPTIONS " --enable-securetransport")
     endif()
 endif()
