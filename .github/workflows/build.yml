@@ -14,18 +14,21 @@ jobs:
         include:
           - os: windows-2019
             vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_buildtrees-root: C:\build
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
-            vcpkg_triplet: x64-windows
-            vcpkg_host_triplet: x64-windows           
+            vcpkg_triplet: x64-windows-release
+            vcpkg_host_triplet: x64-windows-release
             check_disk_space: Get-PSDrive
           - os: macos-13
             vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-osx-min1100
-            vcpkg_host_triplet: x64-osx-min1100
+            vcpkg_triplet: x64-osx-min1100-release
+            vcpkg_host_triplet: x64-osx-min1100-release
             check_disk_space: df -h
           - os: macos-13
             vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1100-release
@@ -92,8 +95,8 @@ jobs:
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
-    - name: Build packages  
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
+    - name: Build packages
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --x-buildtrees-root=${{ matrix.vcpkg_buildtrees-root }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
       
     - name: "[Windows] Sign release DLLs"
