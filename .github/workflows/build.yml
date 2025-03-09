@@ -157,7 +157,7 @@ jobs:
 
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logs-${{ matrix.vcpkg_triplet }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
@@ -190,7 +190,7 @@ jobs:
         UPLOAD_ID: ${{ github.run_id }}
 
     - name: Upload GitHub Actions artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
         path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
