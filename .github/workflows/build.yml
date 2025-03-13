@@ -1,9 +1,15 @@
 name: Build
 
-on: [pull_request, push]
+on: 
+  pull_request:
+    branch: 
+      - "[0-9].[0-9](\\-rel)?"
+  push:
+    branch: 
+      - "[0-9].[0-9](\\-rel)?"
 
 permissions:
-  contents: read # Fetch code (actions/checkout)
+  contents: write # Fetch code (actions/checkout), create release
   packages: write # Upload and publish packages to GitHub Packages
 
 jobs:
@@ -69,8 +75,14 @@ jobs:
     - name: Read sha_short
       id: vars
       shell: bash
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: |
+        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        if [[ "$REF" =~ ^refs/heads/[0-9].[0-9](\-rel)?$ ]]; then
+          echo "release_branch=true" >> $GITHUB_OUTPUT
+        fi
       working-directory: ${{ matrix.vcpkg_path }}
+      env:
+        REF: ${{ github.event.ref }}
 
     # update cmake to 2.29.2 to work around https://github.com/microsoft/vcpkg/issues/37968   
     - name: "Set up cmake"
@@ -85,7 +97,7 @@ jobs:
     - name: "[macOS] Bootstrap vcpkg"
       if: runner.os == 'macOS'
       run: |
-          brew update && brew install nasm automake autoconf-archive
+          brew update && brew install nasm automake autoconf-archive coreutils
           /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_14.2.app/Contents/Developer"
           xcrun --show-sdk-version
 
@@ -189,7 +201,62 @@ jobs:
         SSH_USER: mixxx
         UPLOAD_ID: ${{ github.run_id }}
 
+    - run: |
+        if ! gh release view --repo "${{ github.repository }}" "${RELEASE_NAME}" &> /dev/null
+        then 
+          gh release create --repo "${{ github.repository }}" "${RELEASE_NAME}" \
+            --generate-notes \
+            --latest \
+            --target "${{ github.push.after }}" ${{ !endsWith( github.event.ref, '-rel' ) && '--prerelease' || '' }}
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+      if: ${{ steps.vars.outputs.sha_short }}
+      id: ghrelease
+      shell: bash
+      name: "Creates a release in GitHub if it doesn't exist yet"
+
+    - run: |
+        vcpkgFileName="${DEPS_BASE_NAME}-${MIXXX_VERSION}-${VCPKG_TRIPLET}-${SHA_SHORT}"
+        sha256sum "${VCPKG_ASSET_PATH}" | cut -d' ' -f 1 > "${vcpkgFileName}.zip.sha256"
+        split -b1536m -d "${VCPKG_ASSET_PATH}" "${vcpkgFileName}.zip.part"
+        gh release upload --repo "${{ github.repository }}" "${RELEASE_NAME}" ${vcpkgFileName}.zip*
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
+        VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+        VCPKG_ASSET_PATH: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+      shell: bash
+      if: runner.os != 'Windows' && steps.ghrelease.outcome == 'success'
+      name: "[MacOS] Creates assets and upload to GitHub release"
+
+    - run: |
+        $stream = [System.IO.File]::OpenRead("${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}")
+        $chunkNum = 0
+        $bufSize = 1536MB
+        $barr = New-Object byte[] $bufSize
+
+        while( $bytesRead = $stream.Read($barr,0,$bufSize)){
+          $outFile = "${{ env.VCPKG_ASSET_PATH }}.part$chunkNum"
+          $ostream = [System.IO.File]::OpenWrite($outFile)
+          $ostream.Write($barr,0,$bytesRead);
+          $ostream.close();
+          echo "wrote $outFile"
+          $chunkNum += 1
+        }
+        (Get-FileHash -Algorithm SHA256 -Path "${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}").Hash | Out-File -FilePath "${{ env.VCPKG_ASSET_PATH }}.sha256"
+        gh release upload --repo "${{ github.repository }}" "${{ env.RELEASE_NAME }}" (get-item .\${{ env.VCPKG_ASSET_PATH }}.*).FullName
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+        VCPKG_ASSET_PATH: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+      if: runner.os == 'Windows' && steps.ghrelease.outcome == 'success'
+      name: "[Windows] Creates assets and upload to GitHub release"
+
     - name: Upload GitHub Actions artifacts
+      if: ${{ steps.ghrelease.outcome == 'skipped' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
