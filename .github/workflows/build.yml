@@ -1,6 +1,9 @@
 name: Build
 
-on: [pull_request, push]
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read # Fetch code (actions/checkout)
