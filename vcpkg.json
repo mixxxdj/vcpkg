@@ -22,7 +22,12 @@
       "description": "Build with Qt 6",
       "dependencies": [
         "qt5compat",
-        "qtbase",
+        {
+          "name": "qtbase",
+          "features": [
+            "shared-mime-info"
+          ]      
+        },
         "qtdeclarative",
         "qtsvg",
         "qttranslations",
