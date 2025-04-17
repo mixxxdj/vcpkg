@@ -62,7 +62,55 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
         "libavfilter/file_open.c"
         "libavformat/file_open.c"
     )
-
+    
+    if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_UWP)
+        # Manually allow Microsoft codecs, based on the reasonable assumption that they are already licensed on Microsoft OS devices.
+        list(APPEND FFMPEG_SOURCE_ALLOW_LIST
+            "libavcodec/mf_utils.c"
+            "libavcodec/mf_utils.h"
+            "libavcodec/mfenc.c"
+        )
+        list(APPEND FFMPEG_ENABLE_ENCODERS 
+            "aac_mf"
+            "ac3_mf"
+            "h262_mf"
+            "mp3_mf"
+        )
+    endif()
+        
+    if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
+        # Manually allow Apple codecs, based on the reasonable assumption that they are already licensed on Apple OS devices.
+        list(APPEND FFMPEG_SOURCE_ALLOW_LIST
+            "libavcodec/audiotoolboxdec.c"
+            "libavcodec/audiotoolboxenc.c"
+            "libavdevice/audiotoolbox.m"
+        )
+        list(APPEND FFMPEG_ENABLE_DECODERS 
+            "aac_at"
+            "ac3_at"
+            "adpcm_ima_qt_at"
+            "alac_at"
+            "amr_nb_at"
+            "eac3_at"
+            "gsm_ms_at"
+            "ilbc_at"
+            "mp1_at"
+            "mp2_at"
+            "mp3_at"
+            "pcm_alaw_at"
+            "pcm_mulaw_at"
+            "qdm2_at"
+            "qdmc_at"
+        )
+        list(APPEND FFMPEG_ENABLE_ENCODERS 
+            "aac_at"
+            "alac_at"
+            "ilbc_at"
+            "pcm_alaw_at"
+            "pcm_mulaw_at"
+        )
+    endif()
+    
     # Filter out source files directly from filesystem to ensure they aren't accidentally included
     file(GLOB_RECURSE FFMPEG_SOURCE_FILE RELATIVE "${SOURCE_PATH}" "${SOURCE_PATH}/*")
     message(STATUS "Filter source that is not part of Fedora's ffmpeg-free")
@@ -112,21 +160,39 @@ elseif(VCPKG_TARGET_IS_LINUX)
     string(APPEND OPTIONS " --target-os=linux --enable-pthreads")
 elseif(VCPKG_TARGET_IS_UWP)
     string(APPEND OPTIONS " --target-os=win32 --enable-w32threads")
+    # The MediaFoundation codec implementations are distributed by Microsoft to the end users.
+    # The distribution requires patent licensing, and we can reasonably assume Microsoft fulfills this obligation.
+    # This FFmpeg build only invokes the licensed codec implementations provided by Microsoft.
+    string(APPEND OPTIONS " --enable-mediafoundation")
     if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-        string(APPEND OPTIONS " --enable-mediafoundation --enable-d3d11va --enable-d3d12va")
+        string(APPEND OPTIONS " --enable-d3d11va --enable-d3d12va")
     endif()
 elseif(VCPKG_TARGET_IS_WINDOWS)
     string(APPEND OPTIONS " --target-os=win32 --enable-w32threads")
+    # The MediaFoundation codec implementations are distributed by Microsoft to the end users.
+    # The distribution requires patent licensing, and we can reasonably assume Microsoft fulfills this obligation.
+    # This FFmpeg build only invokes the licensed codec implementations provided by Microsoft.
+    string(APPEND OPTIONS " --enable-mediafoundation")
     if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-        string(APPEND OPTIONS " --enable-mediafoundation --enable-d3d11va --enable-d3d12va --enable-dxva2")
+        string(APPEND OPTIONS " --enable-d3d11va --enable-d3d12va --enable-dxva2")
     endif()
 elseif(VCPKG_TARGET_IS_OSX)
     string(APPEND OPTIONS " --target-os=darwin --enable-appkit")
+    # The AVFoundation/CoreImage/VideoToolbox codec implementations are distributed by Apple to the end users.
+    # The distribution requires patent licensing, and we can reasonably assume Apple fulfills this obligation.
+    # This FFmpeg build only invokes the licensed codec implementations provided by Apple.
+    string(APPEND OPTIONS " --enable-audiotoolbox")
     if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-        string(APPEND OPTIONS " --enable-avfoundation  --enable-coreimage --enable-videotoolbox --enable-audiotoolbox")
+        string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
     endif()
-elseif(VCPKG_TARGET_IS_IOS AND NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-    string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
+elseif(VCPKG_TARGET_IS_IOS)
+    # The AVFoundation/CoreImage/VideoToolbox codec implementations are distributed by Apple to the end users.
+    # The distribution requires patent licensing, and we can reasonably assume Apple fulfills this obligation.
+    # This FFmpeg build only invokes the licensed codec implementations provided by Apple.
+    string(APPEND OPTIONS " --enable-audiotoolbox")
+    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
+        string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
+    endif()
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "Android")
     string(APPEND OPTIONS " --target-os=android --enable-jni --enable-mediacodec")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "QNX")
