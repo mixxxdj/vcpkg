@@ -19,7 +19,13 @@ jobs:
             vcpkg_path: C:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows
-            vcpkg_host_triplet: x64-windows           
+            vcpkg_host_triplet: x64-windows
+            check_disk_space: Get-PSDrive
+          - os: windows-11-arm
+            vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_bootstrap: .\bootstrap-vcpkg.bat
+            vcpkg_triplet: arm64-windows
+            vcpkg_host_triplet: arm64-windows
             check_disk_space: Get-PSDrive
           - os: macos-13
             vcpkg_path: /Users/runner/mixxx-vcpkg
