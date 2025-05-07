@@ -36,8 +36,10 @@
     }
   },
   "dependencies": [
+    "7zip",
     "ableton-link",
     "benchmark",
+    "bit7z",
     "chromaprint",
     "fdk-aac",
     {
