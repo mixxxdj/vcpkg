@@ -16,33 +16,54 @@ jobs:
       matrix:
         include:
           - os: windows-2022
+            deps_name: x64-windows-rel
             vcpkg_path: C:\mixxx-vcpkg
             vcpkg_buildtrees-root: C:\build
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: x64-windows-release
             vcpkg_host_triplet: x64-windows-release
             check_disk_space: Get-PSDrive
+          - os: windows-11-arm-rel
+            deps_name: arm64-windows-rel
+            vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_bootstrap: .\bootstrap-vcpkg.bat
+            vcpkg_triplet: arm64-windows-release
+            vcpkg_host_triplet: arm64-windows-release
+            check_disk_space: Get-PSDrive
           - os: macos-13
+            deps_name: x64-osx-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1100-release
+            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
             check_disk_space: df -h
           - os: macos-13
+            deps_name: arm64-osx-cross-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1100-release
+            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
+            check_disk_space: df -h
+          - os: macos-14
+            deps_name: arm64-osx-rel
+            vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: arm64-osx-min1100-release
+            vcpkg_host_triplet: arm64-osx-min1100-release
+            developer_dir: /Applications/Xcode_15.4.app/Contents/Developer
+            brew_extra: libtool
             check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       DEPS_BASE_NAME: mixxx-deps
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: ${{ matrix.developer_dir }}
       MIXXX_VERSION: 2.6
-    name: ${{ matrix.vcpkg_triplet }}
+    name: ${{ matrix.deps_name }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out git repository
@@ -85,8 +106,8 @@ jobs:
     - name: "[macOS] Bootstrap vcpkg"
       if: runner.os == 'macOS'
       run: |
-          brew update && brew install nasm automake autoconf-archive
-          /bin/bash -c "sudo xcode-select --switch /Applications/Xcode_14.2.app/Contents/Developer"
+          brew update && brew install automake nasm autoconf-archive ${{ matrix.brew_extra }}
+          sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
 
     - name: Check available disk space
@@ -159,25 +180,35 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: logs-${{ matrix.vcpkg_triplet }}
+        name: logs-${{ matrix.deps_name }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
 
     - name: Create buildenv archive
-      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }} --output-dir=${{ matrix.vcpkg_path }}
+      run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }} --output-dir=${{ matrix.vcpkg_path }}
       working-directory: ${{ matrix.vcpkg_path }}
-
-    - name: "[Windows] Install additional tools"
-      if: runner.os == 'Windows' && env.SSH_PASSWORD != null
+      
+    - name: "[Windows x64] Install additional tools"
+      if: matrix.os == 'windows-2022' && env.SSH_PASSWORD != null
       env:
         SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
       run: |
         $Env:PATH="C:\msys64\usr\bin;$Env:PATH"
         pacman -S --noconfirm coreutils bash rsync openssh
         Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
+        
+    - name: "[Windows ARM64] Install additional tools"
+      if: matrix.os == 'windows-11-arm' && env.SSH_PASSWORD != null
+      env:
+        SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
+      run: |
+        choco install msys2 -y
+        $Env:PATH="C:\tools\msys64\usr\bin;$Env:PATH"
+        pacman -S --noconfirm coreutils bash rsync openssh
+        Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
 
     - name: "Upload build to downloads.mixxx.org"
       if: github.event_name == 'push' && env.SSH_PASSWORD != null
-      run: bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+      run: bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
       working-directory: ${{ matrix.vcpkg_path }}
       env:
         DESTDIR: public_html/downloads/dependencies
@@ -192,8 +223,8 @@ jobs:
     - name: Upload GitHub Actions artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}
-        path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+        name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}
+        path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
 
     # Workaround for https://github.com/actions/cache/issues/531
     - name: Use system tar & zstd from Chocolatey for caching
