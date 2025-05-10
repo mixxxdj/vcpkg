@@ -23,7 +23,7 @@ jobs:
             vcpkg_triplet: x64-windows-release
             vcpkg_host_triplet: x64-windows-release
             check_disk_space: Get-PSDrive
-          - os: windows-11-arm-rel
+          - os: windows-11-arm
             deps_name: arm64-windows-rel
             vcpkg_path: C:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
