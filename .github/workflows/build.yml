@@ -183,20 +183,29 @@ jobs:
     - name: Create buildenv archive
       run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }} --output-dir=${{ matrix.vcpkg_path }}
       working-directory: ${{ matrix.vcpkg_path }}
-
-    - name: "[Windows] Install additional tools"
-      if: runner.os == 'Windows' && env.SSH_PASSWORD != null
+      
+    - name: "[Windows x64] Install additional tools"
+      if: matrix.os == 'windows-2022' && env.SSH_PASSWORD != null
       env:
         SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
       run: |
-        $Env:PATH="C:\ProgramData\chocolatey\bin;$Env:PATH"
-        choco install rsync -y
+        $Env:PATH="C:\msys64\usr\bin;$Env:PATH"
+        pacman -S --noconfirm coreutils bash rsync openssh
+        Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
+        
+    - name: "[Windows ARM64] Install additional tools"
+      if: matrix.os == 'windows-11-arm' && env.SSH_PASSWORD != null
+      env:
+        SSH_PASSWORD: ${{ secrets.DOWNLOADS_HOSTGATOR_DOT_MIXXX_DOT_ORG_KEY_PASSWORD }}
+      run: |
+        choco install msys2 -y
+        $Env:PATH="C:\tools\msys64\usr\bin;$Env:PATH"
+        pacman -S --noconfirm coreutils bash rsync openssh
         Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
 
     - name: "Upload build to downloads.mixxx.org"
       if: github.event_name == 'push' && env.SSH_PASSWORD != null
-      shell: bash
-      run: .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+      run: bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
       working-directory: ${{ matrix.vcpkg_path }}
       env:
         DESTDIR: public_html/downloads/dependencies
