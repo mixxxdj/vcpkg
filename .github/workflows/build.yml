@@ -116,7 +116,16 @@ jobs:
     - name: Build packages
       run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --x-buildtrees-root=${{ matrix.vcpkg_buildtrees-root }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
-      
+
+    - name: "[Windows] Install TrustedSigning"
+      env:
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      if: runner.os == 'Windows' && env.AZURE_TENANT_ID
+      shell: 'pwsh'   
+      run: |
+        Install-Module -Name TrustedSigning -Scope CurrentUser -Force -Repository PSGallery
+        Import-Module TrustedSigning
+        
     - name: "[Windows] Sign release DLLs"
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
