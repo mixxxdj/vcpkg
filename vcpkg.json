@@ -45,7 +45,8 @@
     {
       "name": "ffmpeg",
       "features": [
-        "fedora-ffmpeg-free-safe"
+        "fedora-ffmpeg-free-safe",
+        "ffmpeg"
       ]      
     },
     "fftw3",
