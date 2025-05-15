@@ -3370,7 +3370,7 @@
     },
     "gstreamer": {
       "baseline": "1.24.12",
-      "port-version": 0
+      "port-version": 1
     },
     "gtest": {
       "baseline": "1.16.0",
@@ -4533,8 +4533,8 @@
       "port-version": 0
     },
     "libde265": {
-      "baseline": "1.0.15",
-      "port-version": 0
+      "baseline": "1.0.16",
+      "port-version": 1
     },
     "libdeflate": {
       "baseline": "1.23",
@@ -4942,7 +4942,7 @@
     },
     "libmodplug": {
       "baseline": "0.8.9.0",
-      "port-version": 14
+      "port-version": 15
     },
     "libmorton": {
       "baseline": "0.2.12",
@@ -9978,7 +9978,7 @@
     },
     "wildmidi": {
       "baseline": "0.4.6",
-      "port-version": 0
+      "port-version": 1
     },
     "wincrypt": {
       "baseline": "0.0",
