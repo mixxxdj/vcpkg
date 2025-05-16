@@ -26,6 +26,7 @@ jobs:
           - os: windows-11-arm
             deps_name: arm64-windows-rel
             vcpkg_path: C:\mixxx-vcpkg
+            vcpkg_buildtrees-root: C:\build
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
             vcpkg_triplet: arm64-windows-release
             vcpkg_host_triplet: arm64-windows-release
@@ -51,6 +52,7 @@ jobs:
           - os: macos-14
             deps_name: arm64-osx-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
+            vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: arm64-osx-min1100-release
