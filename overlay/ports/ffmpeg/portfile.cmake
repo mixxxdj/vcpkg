@@ -61,6 +61,7 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
         "libavdevice/file_open.c"
         "libavfilter/file_open.c"
         "libavformat/file_open.c"
+        "libavdevice/gdigrab.c"
     )
     
     if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_UWP)
@@ -128,6 +129,10 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
     list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS 
         "ac3"
     )
+    # Customer encoders we need, not listed by Fedora
+    list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS 
+        "bmp"
+    )
 
     list(JOIN FFMPEG_ENABLE_DECODERS "," FFMPEG_ENABLE_DECODERS)
     list(JOIN FFMPEG_ENABLE_ENCODERS "," FFMPEG_ENABLE_ENCODERS)
@@ -136,7 +141,7 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
     string(APPEND OPTIONS " --enable-encoder=\"${FFMPEG_ENABLE_ENCODERS}\"")
     string(APPEND OPTIONS " --enable-decoder=\"${FFMPEG_ENABLE_DECODERS}\"")
     # Option for which the source has been removed
-    string(APPEND OPTIONS " --disable-indev=\"dshow,gdigrab,vfwcap\" --disable-decoder=\"h264,hevc,libxevd,vc1,vvc\" --disable-coreimage")
+    string(APPEND OPTIONS " --disable-indev=\"dshow,vfwcap\" --disable-decoder=\"h264,hevc,libxevd,vc1,vvc\" --disable-coreimage")
 endif()
 
 if(SOURCE_PATH MATCHES " ")
