@@ -29,6 +29,7 @@
           ]      
         },
         "qtdeclarative",
+        "qtmultimedia",
         "qtsvg",
         "qttranslations",
         "qtkeychain-qt6"
