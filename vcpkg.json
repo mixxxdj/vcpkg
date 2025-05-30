@@ -29,7 +29,12 @@
           ]      
         },
         "qtdeclarative",
-        "qtmultimedia",
+        {
+          "name": "qtmultimedia",
+          "features": [
+            "qml"
+          ]      
+        },
         "qtsvg",
         "qttranslations",
         "qtkeychain-qt6"
