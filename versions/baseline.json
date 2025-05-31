@@ -5648,6 +5648,10 @@
       "baseline": "7.1-1.10.1",
       "port-version": 0
     },
+    "libzita": {
+      "baseline": "1.11.2",
+      "port-version": 0
+    },
     "licensepp": {
       "baseline": "2020-11-24",
       "port-version": 0
