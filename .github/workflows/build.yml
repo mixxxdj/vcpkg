@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2019
+          - os: windows-2022
             deps_name: x64-windows
             vcpkg_path: C:\mixxx-vcpkg
             vcpkg_bootstrap: .\bootstrap-vcpkg.bat
