@@ -216,6 +216,12 @@ jobs:
         pacman -S --noconfirm coreutils bash rsync openssh
         Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
 
+    - name: "Generate hash for artifacts"
+      if: github.event_name == 'push'
+      run: |
+        cd ${{ matrix.vcpkg_path }}
+        bash .github/generate_hash.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+
     - name: "Upload build to downloads.mixxx.org"
       if: github.event_name == 'push' && env.SSH_PASSWORD != null
       # Use retry loop to work around intermittent transfer issue
@@ -245,7 +251,7 @@ jobs:
           gh release create --repo "${{ github.repository }}" "${RELEASE_NAME}" \
             --generate-notes \
             --latest \
-            --target "${{ github.push.after }}" ${{ !endsWith( github.event.ref, '-rel' ) && '--prerelease' || '' }}
+            --target "${{ github.sha }}" ${{ !endsWith( github.event.ref, '-rel' ) && '--prerelease' || '' }}
         fi
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -256,17 +262,14 @@ jobs:
       name: "Creates a release in GitHub if it doesn't exist yet"
 
     - run: |
-        vcpkgFileName="${DEPS_BASE_NAME}-${MIXXX_VERSION}-${VCPKG_TRIPLET}-${SHA_SHORT}"
-        sha256sum "${VCPKG_ASSET_PATH}" | cut -d' ' -f 1 > "${vcpkgFileName}.zip.sha256"
-        split -b1536m -d "${VCPKG_ASSET_PATH}" "${vcpkgFileName}.zip.part"
-        gh release upload --repo "${{ github.repository }}" "${RELEASE_NAME}" ${vcpkgFileName}.zip*
+        split -b1536m -d "${VCPKG_FILENAME}" "${VCPKG_FILENAME}.part"
+        gh release upload --repo "${{ github.repository }}" "${RELEASE_NAME}" ${VCPKG_FILENAME}.*
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
-        VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
+        VCPKG_FILENAME: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
         RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
-        VCPKG_ASSET_PATH: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
       shell: bash
+      working-directory: ${{ matrix.vcpkg_path }}
       if: runner.os != 'Windows' && steps.ghrelease.outcome == 'success'
       name: "[MacOS] Creates assets and upload to GitHub release"
 
@@ -284,12 +287,11 @@ jobs:
           echo "wrote $outFile"
           $chunkNum += 1
         }
-        (Get-FileHash -Algorithm SHA256 -Path "${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}").Hash | Out-File -FilePath "${{ env.VCPKG_ASSET_PATH }}.sha256"
-        gh release upload --repo "${{ github.repository }}" "${{ env.RELEASE_NAME }}" (get-item .\${{ env.VCPKG_ASSET_PATH }}.*).FullName
+        gh release upload --repo "${{ github.repository }}" "${{ env.RELEASE_NAME }}" (get-item .\${{ env.VCPKG_ASSET_PATH }}.*).FullName "${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}.sha256sum"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
-        VCPKG_ASSET_PATH: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.vcpkg_triplet }}-${{ steps.vars.outputs.sha_short }}.zip
+        VCPKG_ASSET_PATH: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
       if: runner.os == 'Windows' && steps.ghrelease.outcome == 'success'
       name: "[Windows] Creates assets and upload to GitHub release"
 
@@ -298,7 +300,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}
-        path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+        path: |
+          ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+          ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip.sha256sum
 
     # Workaround for https://github.com/actions/cache/issues/531
     - name: Use system tar & zstd from Chocolatey for caching
