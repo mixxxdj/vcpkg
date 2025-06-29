@@ -22,8 +22,19 @@
       "description": "Build with Qt 6",
       "dependencies": [
         "qt5compat",
-        "qtbase",
+        {
+          "name": "qtbase",
+          "features": [
+            "shared-mime-info"
+          ]      
+        },
         "qtdeclarative",
+        {
+          "name": "qtmultimedia",
+          "features": [
+            "qml"
+          ]      
+        },
         "qtsvg",
         "qttranslations",
         "qtkeychain-qt6"
@@ -31,14 +42,17 @@
     }
   },
   "dependencies": [
+    "7zip",
     "ableton-link",
     "benchmark",
+    "bit7z",
     "chromaprint",
     "fdk-aac",
     {
       "name": "ffmpeg",
       "features": [
-        "fedora-ffmpeg-free-safe"
+        "fedora-ffmpeg-free-safe",
+        "ffmpeg"
       ]      
     },
     "fftw3",
