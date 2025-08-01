@@ -31,19 +31,19 @@ set(OPTIONS "--enable-pic --disable-doc --enable-debug --enable-runtime-cpudetec
 if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
     set(FEDORA_FFMPEG_FREE_SAFE ON)
     
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/ffmpeg_free_sources" "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources" STATUS DOWNLOAD_STATUS)
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/ffmpeg_free_sources" "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources" STATUS DOWNLOAD_STATUS)
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT ${STATUS_CODE} EQUAL 0)
         message(FATAL_ERROR "Downloading ffmpeg_free_sources failed: ${DOWNLOAD_STATUS}")
      endif()
 
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/enable_decoders" "${CURRENT_BUILDTREES_DIR}/enable_decoders")
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/enable_decoders" "${CURRENT_BUILDTREES_DIR}/enable_decoders")
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT ${STATUS_CODE} EQUAL 0)
         message(FATAL_ERROR "Downloading enable_decoders failed: ${DOWNLOAD_STATUS}")
     endif()
      
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/f41/f/enable_encoders" "${CURRENT_BUILDTREES_DIR}/enable_encoders")
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/enable_encoders" "${CURRENT_BUILDTREES_DIR}/enable_encoders")
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT ${STATUS_CODE} EQUAL 0)
         message(FATAL_ERROR "Downloading enable_encoders failed: ${DOWNLOAD_STATUS}")
