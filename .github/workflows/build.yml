@@ -1,12 +1,16 @@
 name: Build
 
-on:
-  push:
+on: 
   pull_request:
     types: [opened, synchronize, reopened, edited]
+    branch: 
+      - "[0-9].[0-9](\\-rel)?"
+  push:
+    branch: 
+      - "[0-9].[0-9](\\-rel)?"
 
 permissions:
-  contents: read # Fetch code (actions/checkout)
+  contents: write # Fetch code (actions/checkout), create release
   packages: write # Upload and publish packages to GitHub Packages
 
 jobs:
@@ -103,7 +107,7 @@ jobs:
     - name: "[macOS] Bootstrap vcpkg"
       if: runner.os == 'macOS'
       run: |
-          brew update && brew install automake nasm autoconf-archive ${{ matrix.brew_extra }}
+          brew update && brew install nasm automake autoconf-archive coreutils ${{ matrix.brew_extra }}
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
 
@@ -203,6 +207,12 @@ jobs:
         pacman -S --noconfirm coreutils bash rsync openssh
         Add-Content -Path "$Env:GITHUB_ENV" -Value "PATH=$Env:PATH"
 
+    - name: "Generate hash for artifacts"
+      if: github.event_name == 'push'
+      run: |
+        cd ${{ matrix.vcpkg_path }}
+        bash .github/generate_hash.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+
     - name: "Upload build to downloads.mixxx.org"
       if: github.event_name == 'push' && env.SSH_PASSWORD != null
       # Use retry loop to work around intermittent transfer issue
@@ -226,11 +236,64 @@ jobs:
         SSH_USER: mixxx
         UPLOAD_ID: ${{ github.run_id }}
 
+    - run: |
+        if ! gh release view --repo "${{ github.repository }}" "${RELEASE_NAME}" &> /dev/null
+        then 
+          gh release create --repo "${{ github.repository }}" "${RELEASE_NAME}" \
+            --generate-notes \
+            --latest \
+            --target "${{ github.sha }}" ${{ !endsWith( github.event.ref, '-rel' ) && '--prerelease' || '' }}
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+      if: ${{ github.event_name == 'push' }}
+      id: ghrelease
+      shell: bash
+      name: "Creates a release in GitHub if it doesn't exist yet"
+
+    - run: |
+        split -b1536m -d "${VCPKG_FILENAME}" "${VCPKG_FILENAME}.part"
+        gh release upload --repo "${{ github.repository }}" "${RELEASE_NAME}" ${VCPKG_FILENAME}.*
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VCPKG_FILENAME: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+      shell: bash
+      working-directory: ${{ matrix.vcpkg_path }}
+      if: runner.os != 'Windows' && steps.ghrelease.outcome == 'success'
+      name: "[MacOS] Creates assets and upload to GitHub release"
+
+    - run: |
+        $stream = [System.IO.File]::OpenRead("${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}")
+        $chunkNum = 0
+        $bufSize = 1536MB
+        $barr = New-Object byte[] $bufSize
+
+        while( $bytesRead = $stream.Read($barr,0,$bufSize)){
+          $outFile = "${{ env.VCPKG_ASSET_PATH }}.part$chunkNum"
+          $ostream = [System.IO.File]::OpenWrite($outFile)
+          $ostream.Write($barr,0,$bytesRead);
+          $ostream.close();
+          echo "wrote $outFile"
+          $chunkNum += 1
+        }
+        gh release upload --repo "${{ github.repository }}" "${{ env.RELEASE_NAME }}" (get-item .\${{ env.VCPKG_ASSET_PATH }}.*).FullName "${{ matrix.vcpkg_path }}/${{ env.VCPKG_ASSET_PATH }}.sha256sum"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_NAME: ${{ env.MIXXX_VERSION }}-${{ steps.vars.outputs.sha_short }}
+        VCPKG_ASSET_PATH: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+      if: runner.os == 'Windows' && steps.ghrelease.outcome == 'success'
+      name: "[Windows] Creates assets and upload to GitHub release"
+
     - name: Upload GitHub Actions artifacts
+      if: ${{ steps.ghrelease.outcome == 'skipped' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}
-        path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+        path: |
+          ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+          ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip.sha256sum
 
     # Workaround for https://github.com/actions/cache/issues/531
     - name: Use system tar & zstd from Chocolatey for caching
