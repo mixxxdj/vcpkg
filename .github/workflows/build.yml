@@ -29,29 +29,29 @@ jobs:
             vcpkg_triplet: arm64-windows
             vcpkg_host_triplet: arm64-windows
             check_disk_space: Get-PSDrive
-          - os: macos-13
+          - os: macos-15-intel
             deps_name: x64-osx
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1100
             vcpkg_host_triplet: x64-osx-min1100
-            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             check_disk_space: df -h
-          - os: macos-13
+          - os: macos-15-intel
             deps_name: arm64-osx-cross
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100
             vcpkg_host_triplet: x64-osx-min1100-release
-            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             check_disk_space: df -h
-          - os: macos-14
+          - os: macos-15
             deps_name: arm64-osx
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100
             vcpkg_host_triplet: arm64-osx-min1100
-            developer_dir: /Applications/Xcode_15.4.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             brew_extra: libtool
             check_disk_space: df -h
     env:
