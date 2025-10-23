@@ -74,6 +74,14 @@ jobs:
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
        
+  
+    - name: "[macOS] Install dependencies for nuget & vcpkg"
+      if: runner.os == 'macOS'
+      run: |
+          brew update && brew install automake nasm autoconf-archive nuget ${{ matrix.brew_extra }}
+          sudo xcode-select --switch "$DEVELOPER_DIR"
+          xcrun --show-sdk-version
+
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
@@ -99,14 +107,7 @@ jobs:
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
       working-directory: ${{ matrix.vcpkg_path }}
-
-    - name: "[macOS] Bootstrap vcpkg"
-      if: runner.os == 'macOS'
-      run: |
-          brew update && brew install automake nasm autoconf-archive ${{ matrix.brew_extra }}
-          sudo xcode-select --switch "$DEVELOPER_DIR"
-          xcrun --show-sdk-version
-
+      
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
