@@ -31,32 +31,32 @@ jobs:
             vcpkg_triplet: arm64-windows-release
             vcpkg_host_triplet: arm64-windows-release
             check_disk_space: Get-PSDrive
-          - os: macos-13
+          - os: macos-15-intel
             deps_name: x64-osx-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: x64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1100-release
-            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             check_disk_space: df -h
-          - os: macos-13
+          - os: macos-15-intel
             deps_name: arm64-osx-cross-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: x64-osx-min1100-release
-            developer_dir: /Applications/Xcode_14.2.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             check_disk_space: df -h
-          - os: macos-14
+          - os: macos-15
             deps_name: arm64-osx-rel
             vcpkg_path: /Users/runner/mixxx-vcpkg
             vcpkg_buildtrees-root: /Users/runner/mixxx-vcpkg/buildtrees
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
             vcpkg_triplet: arm64-osx-min1100-release
             vcpkg_host_triplet: arm64-osx-min1100-release
-            developer_dir: /Applications/Xcode_15.4.app/Contents/Developer
+            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             brew_extra: libtool
             check_disk_space: df -h
     env:
@@ -79,6 +79,14 @@ jobs:
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
        
+  
+    - name: "[macOS] Install dependencies for nuget & vcpkg"
+      if: runner.os == 'macOS'
+      run: |
+          brew update && brew install automake nasm autoconf-archive nuget ${{ matrix.brew_extra }}
+          sudo xcode-select --switch "$DEVELOPER_DIR"
+          xcrun --show-sdk-version
+
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
@@ -104,30 +112,14 @@ jobs:
     - name: Bootstrap vcpkg
       run: ${{ matrix.vcpkg_bootstrap }}
       working-directory: ${{ matrix.vcpkg_path }}
-
-    - name: "[macOS] Bootstrap vcpkg"
-      if: runner.os == 'macOS'
-      run: |
-          brew update && brew install automake nasm autoconf-archive ${{ matrix.brew_extra }}
-          sudo xcode-select --switch "$DEVELOPER_DIR"
-          xcrun --show-sdk-version
-
+      
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
     - name: Build packages
       run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --x-buildtrees-root=${{ matrix.vcpkg_buildtrees-root }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
-
-    - name: "[Windows] Install TrustedSigning"
-      env:
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      shell: 'pwsh'   
-      run: |
-        Install-Module -Name TrustedSigning -Scope CurrentUser -Force -Repository PSGallery
-        Import-Module TrustedSigning
-        
+      
     - name: "[Windows] Sign release DLLs"
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -223,11 +215,13 @@ jobs:
       uses: nick-fields/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68 # v3
       with:
         max_attempts: 10
-        timeout_minutes: 10
+        timeout_minutes: 20
         retry_wait_seconds: 5
         command: |
           cd ${{ matrix.vcpkg_path }}
           bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+        on_retry_command: |
+          killall ssh-agent || true
       env:
         DESTDIR: public_html/downloads/dependencies
         OS: ${{ runner.os }}
