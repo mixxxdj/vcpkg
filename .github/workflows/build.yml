@@ -78,6 +78,14 @@ jobs:
       # to keep the build path short and work around size limits on the windows runner D: drive 
     - name: Move checkout
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
+
+    - name: "Work around actions/runner-images#9966"
+      if: matrix.os == 'macos-15-intel'
+      run: |
+        brew list -1 | grep python@ | while read formula; do
+          brew unlink $formula
+          brew link --overwrite $formula
+        done
        
   
     - name: "[macOS] Install dependencies for nuget & vcpkg"
