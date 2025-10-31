@@ -2885,8 +2885,8 @@ index 85fefb2..74b7ade 100644
 +        PaIosCore_Initialize,
 +#endif
 +
- #if PA_USE_SKELETON
-         PaSkeleton_Initialize,
+ #if PA_USE_PULSEAUDIO
+         PaPulseAudio_Initialize,
  #endif
 -- 
 2.43.0
