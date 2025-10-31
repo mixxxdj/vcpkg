@@ -6,6 +6,7 @@ vcpkg_from_github(
     HEAD_REF master
     PATCHES
         "ios-support.patch" # Upstream PR: https://github.com/PortMidi/portmidi/pull/65
+        "android-support.patch"
 )
 
 if(VCPKG_CRT_LINKAGE STREQUAL static)

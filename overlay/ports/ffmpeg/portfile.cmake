@@ -92,9 +92,7 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
             "h262_mf"
             "mp3_mf"
         )
-    endif()
-        
-    if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
+    elseif(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
         # Manually allow Apple codecs, based on the reasonable assumption that they are already licensed on Apple OS devices.
         list(APPEND FFMPEG_SOURCE_ALLOW_LIST
             "libavcodec/audiotoolboxdec.c"
@@ -124,6 +122,26 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
             "ilbc_at"
             "pcm_alaw_at"
             "pcm_mulaw_at"
+        )
+    elseif(VCPKG_TARGET_IS_ANDROID)
+        list(APPEND FFMPEG_SOURCE_ALLOW_LIST 
+            "libavcodec/ffjni.c"
+            "libavcodec/ffjni.h"
+            "libavcodec/mediacodec_surface.h"
+            "libavcodec/mediacodecenc.c"
+            "libavcodec/mediacodecdec_common.h"
+            "libavcodec/mediacodec.c"
+            "libavcodec/mediacodec_wrapper.h"
+            "libavcodec/mediacodec_wrapper.c"
+            "libavcodec/mediacodecdec_common.c"
+            "libavcodec/mediacodec_sw_buffer.c"
+            "libavcodec/mediacodecdec.c"
+            "libavcodec/mediacodec_surface.c"
+            "libavcodec/mediacodec.h"
+            "libavcodec/mediacodec_sw_buffer.h"
+            "libavutil/hwcontext_mediacodec.h"
+            "libavutil/hwcontext_mediacodec.c"
+            "libavdevice/android_camera.c"
         )
     endif()
     
