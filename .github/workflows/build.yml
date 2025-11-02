@@ -78,7 +78,7 @@ jobs:
     - name: "[macOS] Install dependencies for nuget & vcpkg"
       if: runner.os == 'macOS'
       run: |
-          brew update && brew install automake nasm autoconf-archive nuget ${{ matrix.brew_extra }}
+          brew update-if-needed && brew install automake nasm autoconf-archive nuget ${{ matrix.brew_extra }}
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
 
