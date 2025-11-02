@@ -69,7 +69,7 @@ jobs:
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
       DEPS_BASE_NAME: mixxx-deps
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
-      MIXXX_VERSION: 2.6
+      MIXXX_VERSION: 2.7
     name: ${{ matrix.deps_name }}
     runs-on: ${{ matrix.os }}
     steps:
