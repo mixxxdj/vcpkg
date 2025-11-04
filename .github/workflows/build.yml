@@ -55,6 +55,13 @@ jobs:
             brew_extra: libtool
             check_disk_space: df -h
           - os: ubuntu-24.04
+            deps_name: x64-linux
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: x64-linux
+            vcpkg_host_triplet: x64-linux
+            check_disk_space: df -h
+          - os: ubuntu-24.04
             deps_name: arm64-android
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
@@ -99,6 +106,11 @@ jobs:
           brew update && brew install automake nasm autoconf-archive nuget ${{ matrix.brew_extra }}
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
+
+    - name: "[Ubuntu] Install dependencies for nuget & vcpkg"
+      if: runner.os == 'Ubuntu'
+      run: |
+          sudo apt-get update && sudo apt-get install -y automake nasm autoconf-archive
 
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
