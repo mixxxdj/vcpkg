@@ -108,7 +108,7 @@ jobs:
           xcrun --show-sdk-version
 
     - name: "[Ubuntu] Install dependencies for nuget & vcpkg"
-      if: runner.os == 'Ubuntu'
+      if: runner.os == 'Linux'
       run: |
           sudo apt-get update && sudo apt-get install -y automake nasm autoconf-archive libudev-dev
 
