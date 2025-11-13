@@ -110,7 +110,7 @@ jobs:
     - name: "[Ubuntu] Install dependencies for nuget & vcpkg"
       if: runner.os == 'Linux'
       run: |
-          sudo apt-get update && sudo apt-get install -y automake nasm autoconf-archive libudev-dev
+          sudo apt-get update && sudo apt-get install -y automake nasm autoconf-archive libudev-dev libltdl-dev
 
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
