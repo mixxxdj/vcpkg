@@ -173,9 +173,10 @@ jobs:
 
     # Remove unused pre-installed software as the runner runs out of space otherwise
     # Currently freeing up about 17.7G, ~20%
-    - name: "[android] Free up disk space"
-      if: startsWith(matrix.deps_name, 'arm64-android')
+    - name: "[ubuntu/android] Free up disk space"
+      if: runner.os == 'Linux'
       run: |
+          sudo find / -name '*nuget*'
           sudo apt-get autoremove -y && sudo apt-get clean
           sudo rm -rf /home/packer                 # Free up 677M
           sudo rm -rf /opt/az                      # Free up 649M
