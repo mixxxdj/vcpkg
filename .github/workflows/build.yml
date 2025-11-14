@@ -176,7 +176,10 @@ jobs:
     - name: "[ubuntu/android] Free up disk space"
       if: runner.os == 'Linux'
       run: |
+          dh -h
           sudo find / -name '*nuget*'
+          which -a nuget
+          file /opt/az/azcliextensions/azure-devops/azext_devops/devops_sdk/v6_0/nuget
           sudo apt-get autoremove -y && sudo apt-get clean
           sudo rm -rf /home/packer                 # Free up 677M
           sudo rm -rf /opt/az                      # Free up 649M
@@ -194,6 +197,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet            # Free up 3.4G
           sudo rm -rf /usr/share/swift             # Free up 3.2G
           sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
+          dh -h
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
