@@ -144,11 +144,11 @@ jobs:
           sudo chmod +x /usr/local/bin/nuget
           # Tweak the system to reduce memory starvation risk
           sudo sysctl vm.admin_reserve_kbytes
-          sudo sysctl vm.admin_reserve_kbytes=131072
+          sudo sysctl vm.admin_reserve_kbytes=32768
           sudo cat /proc/sys/vm/overcommit_memory
           sudo cat /proc/sys/vm/overcommit_ratio
           sudo tee /proc/sys/vm/overcommit_memory <<< "2"
-          sudo tee /proc/sys/vm/overcommit_ratio <<< "0"
+          sudo tee /proc/sys/vm/overcommit_ratio <<< "10"
           # Pre-allocate log file to prevent runner crash
           ls /home/runner/actions-runner/cached/_diag/Worker_*
           fallocate -n -l 64M /home/runner/actions-runner/cached/_diag/Worker_*
