@@ -152,6 +152,7 @@ jobs:
           # Pre-allocate log file to prevent runner crash
           ls /home/runner/actions-runner/cached/_diag/Worker_*
           fallocate -n -l 64M /home/runner/actions-runner/cached/_diag/Worker_*
+          echo "VCPKG_MAX_CONCURRENCY=4" >> "${GITHUB_ENV}"
 
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
