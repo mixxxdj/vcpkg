@@ -119,6 +119,7 @@ jobs:
             automake \
             bison \
             flex \
+            mono-complete \
             libasound2-dev \
             libegl1-mesa-dev \
             libghc-resolv-dev \
@@ -134,9 +135,15 @@ jobs:
             nasm \
             pkg-config \
             python3-jinja2
+          sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          sudo tee /usr/local/bin/nuget <<EOF
+          #!/bin/sh
+          mono /usr/local/bin/nuget.exe "\$@"
+          EOF
+          sudo chmod +x /usr/local/bin/nuget
 
     - name: "Authenticate to GitHub Packages (readwrite)"
-      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
+      if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -177,9 +184,6 @@ jobs:
       if: runner.os == 'Linux'
       run: |
           df -h
-          sudo find / -name '*nuget*'
-          which -a nuget
-          file /opt/az/azcliextensions/azure-devops/azext_devops/devops_sdk/v6_0/nuget
           sudo apt-get autoremove -y && sudo apt-get clean
           sudo rm -rf /home/packer                 # Free up 677M
           sudo rm -rf /opt/az                      # Free up 649M
@@ -203,7 +207,7 @@ jobs:
       run: ${{ matrix.check_disk_space }}
 
     - name: Build packages  
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
+      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions --keep-going
       working-directory: ${{ matrix.vcpkg_path }}
       
     - name: "[Windows] Sign release DLLs"
