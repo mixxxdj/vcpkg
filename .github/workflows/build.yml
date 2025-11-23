@@ -149,6 +149,9 @@ jobs:
           sudo cat /proc/sys/vm/overcommit_ratio
           sudo tee /proc/sys/vm/overcommit_memory <<< "2"
           sudo tee /proc/sys/vm/overcommit_ratio <<< "0"
+          # Pre-allocate log file to prevent runner crash
+          ls /home/runner/actions-runner/cached/_diag/Worker_*
+          fallocate -n -l 64M /home/runner/actions-runner/cached/_diag/Worker_*
 
     - name: "Authenticate to GitHub Packages (readwrite)"
       if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
