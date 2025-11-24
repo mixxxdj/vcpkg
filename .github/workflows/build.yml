@@ -203,13 +203,14 @@ jobs:
           sudo rm -rf /usr/share/dotnet            # Free up 3.4G
           sudo rm -rf /usr/share/swift             # Free up 3.2G
           sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
-          sudo du -h --max-depth=3 /
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
     - name: Build packages  
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions --keep-going
+      run: |
+        bash -c "while true; do df -h ${{ matrix.vcpkg_path }} && du --max-depth=1 -h . && sleep 10; done" &
+        ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions --keep-going
       working-directory: ${{ matrix.vcpkg_path }}
       
     - name: "[Windows] Sign release DLLs"
