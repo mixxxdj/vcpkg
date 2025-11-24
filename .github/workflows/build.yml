@@ -203,7 +203,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet            # Free up 3.4G
           sudo rm -rf /usr/share/swift             # Free up 3.2G
           sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
-          df -h
+          sudo du -h --max-depth=3 /
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
