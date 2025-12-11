@@ -35,6 +35,7 @@
             "qml"
           ]      
         },
+        "qtapplicationmanager",
         "qtsvg",
         "qttranslations",
         "qtkeychain-qt6"
@@ -56,7 +57,10 @@
       ]      
     },
     "fftw3",
-    "grantlee",
+    {
+      "name": "grantlee",
+      "platform": "!android"
+    },
     "gtest",
     "hidapi",
     {
