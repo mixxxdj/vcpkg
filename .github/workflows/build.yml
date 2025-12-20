@@ -15,55 +15,62 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
-            deps_name: x64-windows
-            vcpkg_path: C:\mixxx-vcpkg
-            vcpkg_bootstrap: .\bootstrap-vcpkg.bat
-            vcpkg_triplet: x64-windows
-            vcpkg_host_triplet: x64-windows
-            check_disk_space: Get-PSDrive
-          - os: windows-11-arm
-            deps_name: arm64-windows
-            vcpkg_path: C:\mixxx-vcpkg
-            vcpkg_bootstrap: .\bootstrap-vcpkg.bat
-            vcpkg_triplet: arm64-windows
-            vcpkg_host_triplet: arm64-windows
-            check_disk_space: Get-PSDrive
-          - os: macos-15-intel
-            deps_name: x64-osx
-            vcpkg_path: /Users/runner/mixxx-vcpkg
-            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: x64-osx-min1100
-            vcpkg_host_triplet: x64-osx-min1100
-            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
-            check_disk_space: df -h
-          - os: macos-15-intel
-            deps_name: arm64-osx-cross
-            vcpkg_path: /Users/runner/mixxx-vcpkg
-            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: arm64-osx-min1100
-            vcpkg_host_triplet: x64-osx-min1100-release
-            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
-            check_disk_space: df -h
-          - os: macos-15
-            deps_name: arm64-osx
-            vcpkg_path: /Users/runner/mixxx-vcpkg
-            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: arm64-osx-min1100
-            vcpkg_host_triplet: arm64-osx-min1100
-            developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
-            brew_extra: libtool
-            check_disk_space: df -h
+          # - os: windows-2022
+          #   deps_name: x64-windows
+          #   vcpkg_path: C:\mixxx-vcpkg
+          #   vcpkg_bootstrap: .\bootstrap-vcpkg.bat
+          #   vcpkg_triplet: x64-windows
+          #   vcpkg_host_triplet: x64-windows
+          #   check_disk_space: Get-PSDrive
+          # - os: windows-11-arm
+          #   deps_name: arm64-windows
+          #   vcpkg_path: C:\mixxx-vcpkg
+          #   vcpkg_bootstrap: .\bootstrap-vcpkg.bat
+          #   vcpkg_triplet: arm64-windows
+          #   vcpkg_host_triplet: arm64-windows
+          #   check_disk_space: Get-PSDrive
+          # - os: macos-15-intel
+          #   deps_name: x64-osx
+          #   vcpkg_path: /Users/runner/mixxx-vcpkg
+          #   vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+          #   vcpkg_triplet: x64-osx-min1100
+          #   vcpkg_host_triplet: x64-osx-min1100
+          #   developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
+          #   check_disk_space: df -h
+          # - os: macos-15-intel
+          #   deps_name: arm64-osx-cross
+          #   vcpkg_path: /Users/runner/mixxx-vcpkg
+          #   vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+          #   vcpkg_triplet: arm64-osx-min1100
+          #   vcpkg_host_triplet: x64-osx-min1100-release
+          #   developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
+          #   check_disk_space: df -h
+          # - os: macos-15
+          #   deps_name: arm64-osx
+          #   vcpkg_path: /Users/runner/mixxx-vcpkg
+          #   vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+          #   vcpkg_triplet: arm64-osx-min1100
+          #   vcpkg_host_triplet: arm64-osx-min1100
+          #   developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
+          #   brew_extra: libtool
+          #   check_disk_space: df -h
           - os: ubuntu-24.04
-            deps_name: arm64-android
+            deps_name: x64-linux
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: arm64-android
-            vcpkg_host_triplet: x64-linux-release
-            android_api: 35
-            android_version: 35.0.0
-            android_ndk: 27.2.12479018
+            vcpkg_triplet: x64-linux
+            vcpkg_host_triplet: x64-linux
             check_disk_space: df -h
+          # - os: ubuntu-24.04
+          #   deps_name: arm64-android
+          #   vcpkg_path: /home/runner/mixxx-vcpkg
+          #   vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+          #   vcpkg_triplet: arm64-android
+          #   vcpkg_host_triplet: x64-linux-release
+          #   android_api: 35
+          #   android_version: 35.0.0
+          #   android_ndk: 27.2.12479018
+          #   check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
@@ -100,8 +107,45 @@ jobs:
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
 
+    - name: "[Ubuntu] Install dependencies for nuget & vcpkg"
+      if: runner.os == 'Linux'
+      run: |
+          # Install all dependencies needed for the host (x64-linux-release). 
+          # Most of them are related to Qt-related ports build also include some build essentials as well as the Android SDK manager
+          sudo apt-get install -y \
+            '^libxcb.*-dev' \
+            autoconf \
+            autoconf-archive \
+            automake \
+            bison \
+            flex \
+            mono-complete \
+            libasound2-dev \
+            libegl1-mesa-dev \
+            libghc-resolv-dev \
+            libglu1-mesa-dev \
+            libltdl-dev \
+            libudev-dev \
+            libx11-xcb-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libxrender-dev \
+            linux-libc-dev \
+            nasm \
+            pkg-config \
+            python3-jinja2
+          # Install NuGET
+          sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          sudo tee /usr/local/bin/nuget <<EOF
+          #!/bin/sh
+          mono /usr/local/bin/nuget.exe "\$@"
+          EOF
+          sudo chmod +x /usr/local/bin/nuget
+          echo "VCPKG_MAX_CONCURRENCY=3" >> "${GITHUB_ENV}"
+
     - name: "Authenticate to GitHub Packages (readwrite)"
-      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
+      if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -109,7 +153,7 @@ jobs:
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
         
     - name: "Authenticate to GitHub Packages (read only)"
-      if: runner.os != 'Linux' && (github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj') 
+      if: github.event_name == 'pull_request'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -126,41 +170,22 @@ jobs:
       run: ${{ matrix.vcpkg_bootstrap }}
       working-directory: ${{ matrix.vcpkg_path }}
 
-    - name: "[android] Bootstrap vcpkg"
+    - name: "[android] Install Android SDK"
       if: startsWith(matrix.deps_name, 'arm64-android')
       run: |
-          # Install all dependencies needed for the host (x64-linux-release). 
-          # Most of them are related to Qt-related ports build also include some build essentials as well as the Android SDK manager
           sudo apt-get install -y \
-            '^libxcb.*-dev' \
-            autoconf \
-            autoconf-archive \
-            bison \
-            flex \
             google-android-cmdline-tools-13.0-installer \
-            libasound2-dev \
-            libegl1-mesa-dev \
-            libghc-resolv-dev \
-            libglu1-mesa-dev \
-            libltdl-dev \
-            libx11-xcb-dev \
-            libxi-dev \
-            libxkbcommon-dev \
-            libxkbcommon-x11-dev \
-            libxrender-dev \
-            linux-libc-dev \
-            openjdk-17-jdk \
-            pkg-config \
-            python3-jinja2
+            openjdk-17-jdk
           yes | sudo sdkmanager "platforms;android-${{ matrix.android_api }}" "platform-tools" "build-tools;${{ matrix.android_version }}" "ndk;${{ matrix.android_ndk }}"
           echo "ANDROID_NDK_HOME=/usr/lib/android-sdk/ndk/${{ matrix.android_ndk }}" >> "${GITHUB_ENV}"   
           sudo sdkmanager --list_installed
 
     # Remove unused pre-installed software as the runner runs out of space otherwise
     # Currently freeing up about 17.7G, ~20%
-    - name: "[android] Free up disk space"
-      if: startsWith(matrix.deps_name, 'arm64-android')
+    - name: "[ubuntu/android] Free up disk space"
+      if: runner.os == 'Linux'
       run: |
+          df -h
           sudo apt-get autoremove -y && sudo apt-get clean
           sudo rm -rf /home/packer                 # Free up 677M
           sudo rm -rf /opt/az                      # Free up 649M
@@ -183,7 +208,9 @@ jobs:
       run: ${{ matrix.check_disk_space }}
 
     - name: Build packages  
-      run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
+      run: |
+        bash -c "while true; do df -h ${{ matrix.vcpkg_path }} && du --max-depth=1 -h . && sleep 10; done" &
+        ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions --keep-going
       working-directory: ${{ matrix.vcpkg_path }}
       
     - name: "[Windows] Sign release DLLs"
