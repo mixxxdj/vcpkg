@@ -209,14 +209,19 @@ jobs:
       # Use retry loop to work around intermittent transfer issue
       uses: nick-fields/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68 # v3
       with:
+        shell: bash
         max_attempts: 10
         timeout_minutes: 20
         retry_wait_seconds: 5
         command: |
           cd ${{ matrix.vcpkg_path }}
-          bash .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+          .github/deploy.sh ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
         on_retry_command: |
-          killall ssh-agent || true
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            powershell -Command "Get-Process ssh-agent -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue"
+          else
+            killall ssh-agent || true
+          fi
       env:
         DESTDIR: public_html/downloads/dependencies
         OS: ${{ runner.os }}
