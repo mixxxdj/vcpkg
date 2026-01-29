@@ -60,10 +60,10 @@ jobs:
             brew_extra: libtool
             check_disk_space: df -h
           - os: ubuntu-24.04
-            deps_name: arm64-android
+            deps_name: arm64-android-rel
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
-            vcpkg_triplet: arm64-android
+            vcpkg_triplet: arm64-android-release
             vcpkg_host_triplet: x64-linux-release
             android_api: 35
             android_version: 35.0.0
