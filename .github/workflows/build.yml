@@ -105,8 +105,46 @@ jobs:
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcrun --show-sdk-version
 
+    - name: "[Ubuntu] Install dependencies for nuget & vcpkg"
+      if: runner.os == 'Linux'
+      run: |
+          # Install all dependencies needed for the host (x64-linux-release). 
+          # Most of them are related to Qt-related ports build also include some build essentials as well as the Android SDK manager
+          sudo apt-get update && \
+          sudo apt-get install -y \
+            '^libxcb.*-dev' \
+            autoconf \
+            autoconf-archive \
+            automake \
+            bison \
+            flex \
+            mono-complete \
+            libasound2-dev \
+            libegl1-mesa-dev \
+            libghc-resolv-dev \
+            libglu1-mesa-dev \
+            libltdl-dev \
+            libudev-dev \
+            libx11-xcb-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libxrender-dev \
+            linux-libc-dev \
+            nasm \
+            pkg-config \
+            python3-jinja2
+          # Install NuGET
+          sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          sudo tee /usr/local/bin/nuget <<EOF
+          #!/bin/sh
+          mono /usr/local/bin/nuget.exe "\$@"
+          EOF
+          sudo chmod +x /usr/local/bin/nuget
+          echo "VCPKG_MAX_CONCURRENCY=3" >> "${GITHUB_ENV}"
+
     - name: "Authenticate to GitHub Packages (readwrite)"
-      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
+      if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -114,7 +152,7 @@ jobs:
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
         
     - name: "Authenticate to GitHub Packages (read only)"
-      if: runner.os != 'Linux' && (github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj') 
+      if: github.event_name == 'pull_request'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -131,32 +169,12 @@ jobs:
       run: ${{ matrix.vcpkg_bootstrap }}
       working-directory: ${{ matrix.vcpkg_path }}
 
-    - name: "[android] Bootstrap vcpkg"
+    - name: "[android] Install Android SDK"
       if: startsWith(matrix.deps_name, 'arm64-android')
       run: |
-          # Install all dependencies needed for the host (x64-linux-release). 
-          # Most of them are related to Qt-related ports build also include some build essentials as well as the Android SDK manager
           sudo apt-get install -y \
-            '^libxcb.*-dev' \
-            autoconf \
-            autoconf-archive \
-            bison \
-            flex \
             google-android-cmdline-tools-13.0-installer \
-            libasound2-dev \
-            libegl1-mesa-dev \
-            libghc-resolv-dev \
-            libglu1-mesa-dev \
-            libltdl-dev \
-            libx11-xcb-dev \
-            libxi-dev \
-            libxkbcommon-dev \
-            libxkbcommon-x11-dev \
-            libxrender-dev \
-            linux-libc-dev \
-            openjdk-17-jdk \
-            pkg-config \
-            python3-jinja2
+            openjdk-17-jdk
           yes | sudo sdkmanager "platforms;android-${{ matrix.android_api }}" "platform-tools" "build-tools;${{ matrix.android_version }}" "ndk;${{ matrix.android_ndk }}"
           echo "ANDROID_NDK_HOME=/usr/lib/android-sdk/ndk/${{ matrix.android_ndk }}" >> "${GITHUB_ENV}"   
           sudo sdkmanager --list_installed
