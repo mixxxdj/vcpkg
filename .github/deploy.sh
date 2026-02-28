@@ -19,6 +19,8 @@ TMP_PATH="../../.tmp/${UPLOAD_ID}"
 
 echo "Deploying to ${TMP_PATH}, then to ${DEST_PATH}."
 
+mkdir -p $HOME/.ssh
+
 eval "$(ssh-agent -s)" >/dev/null
 
 cleanup() {
