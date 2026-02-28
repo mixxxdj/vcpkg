@@ -60,6 +60,13 @@ jobs:
             brew_extra: libtool
             check_disk_space: df -h
           - os: ubuntu-24.04
+            deps_name: x64-linux-rel
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: x64-linux-release
+            vcpkg_host_triplet: x64-linux-release
+            check_disk_space: df -h
+          - os: ubuntu-24.04
             deps_name: arm64-android-rel
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
@@ -82,11 +89,49 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: mixxx-vcpkg
+
+      # The ephemeral space doesn't seem consistent between runs. Sometimes it is available directly on the root (/), sometime on the mount folder (/mnt)
+      # If the ephemeral storage is available under a seperate drive, we bind-mount as thee `vcpkg_path`
+    - name: Move checkout and use the ephemeral storage if available
+      if: runner.os == 'Linux'
+      run: |
+        set -x
+        if [ -d /mnt ]; then
+          mntSpace=$(df --output=avail /mnt | tail -n 1)
+          rootSpace=$(df --output=avail / | tail -n 1)
+          if [ $mntSpace -gt $rootSpace ]; then
+            mkdir ${{ matrix.vcpkg_path }}
+            sudo mount -o bind /mnt ${{ matrix.vcpkg_path }}
+            sudo chown -R `id -u`:`id -g` ${{ matrix.vcpkg_path }}
+            rsync -a ${{ github.workspace }}/mixxx-vcpkg/ ${{ matrix.vcpkg_path }}
+            exit 0
+          fi
+        fi
+        # In case we cannot use the ephemeral disk space because it either doesn't 
+        # exist or is too small, we free as much as possible on the root.
+        sudo rm -rf /home/packer                 # Free up 677M
+        sudo rm -rf /opt/az                      # Free up 649M
+        sudo rm -rf /opt/google                  # Free up 378M
+        sudo rm -rf /opt/hostedtoolcache/CodeQL  # Free up 1.6G
+        sudo rm -rf /opt/hostedtoolcache/go      # Free up 808M
+        sudo rm -rf /opt/hostedtoolcache/node    # Free up 532M
+        sudo rm -rf /opt/hostedtoolcache/PyPy    # Free up 520M
+        sudo rm -rf /opt/hostedtoolcache/Python  # Free up 1.5G
+        sudo rm -rf /opt/microsoft               # Free up 781M
+        sudo rm -rf /opt/pipx                    # Free up 499M
+        sudo rm -rf /usr/lib/google-cloud-sdk    # Free up 957M
+        sudo rm -rf /usr/local/julia1.11.7       # Free up 996M
+        sudo rm -rf /usr/local/share/powershell  # Free up 1.3G
+        sudo rm -rf /usr/share/dotnet            # Free up 3.4G
+        sudo rm -rf /usr/share/swift             # Free up 3.2G
+        sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
+        rsync -a ${{ github.workspace }}/mixxx-vcpkg/ ${{ matrix.vcpkg_path }}
       
       # Workaround for issues https://github.com/microsoft/vcpkg/issues/8272  
       # and https://github.com/actions/checkout/issues/197 
       # to keep the build path short and work around size limits on the windows runner D: drive 
     - name: Move checkout
+      if: runner.os != 'Linux'
       run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
 
     - name: "Work around actions/runner-images#9966"
@@ -121,14 +166,19 @@ jobs:
             mono-complete \
             libasound2-dev \
             libegl1-mesa-dev \
+            libgl1-mesa-dev \
+            libdrm-dev \
+            libgbm-dev \
             libghc-resolv-dev \
             libglu1-mesa-dev \
             libltdl-dev \
+            libsm-dev \
             libudev-dev \
             libx11-xcb-dev \
             libxi-dev \
             libxkbcommon-dev \
             libxkbcommon-x11-dev \
+            libxrandr-dev \
             libxrender-dev \
             linux-libc-dev \
             nasm \
@@ -179,28 +229,9 @@ jobs:
           echo "ANDROID_NDK_HOME=/usr/lib/android-sdk/ndk/${{ matrix.android_ndk }}" >> "${GITHUB_ENV}"   
           sudo sdkmanager --list_installed
 
-    # Remove unused pre-installed software as the runner runs out of space otherwise
-    # Currently freeing up about 17.7G, ~20%
-    - name: "[android] Free up disk space"
-      if: startsWith(matrix.deps_name, 'arm64-android')
-      run: |
-          sudo apt-get autoremove -y && sudo apt-get clean
-          sudo rm -rf /home/packer                 # Free up 677M
-          sudo rm -rf /opt/az                      # Free up 649M
-          sudo rm -rf /opt/google                  # Free up 378M
-          sudo rm -rf /opt/hostedtoolcache/CodeQL  # Free up 1.6G
-          sudo rm -rf /opt/hostedtoolcache/go      # Free up 808M
-          sudo rm -rf /opt/hostedtoolcache/node    # Free up 532M
-          sudo rm -rf /opt/hostedtoolcache/PyPy    # Free up 520M
-          sudo rm -rf /opt/hostedtoolcache/Python  # Free up 1.5G
-          sudo rm -rf /opt/microsoft               # Free up 781M
-          sudo rm -rf /opt/pipx                    # Free up 499M
-          sudo rm -rf /usr/lib/google-cloud-sdk    # Free up 957M
-          sudo rm -rf /usr/local/julia1.11.7       # Free up 996M
-          sudo rm -rf /usr/local/share/powershell  # Free up 1.3G
-          sudo rm -rf /usr/share/dotnet            # Free up 3.4G
-          sudo rm -rf /usr/share/swift             # Free up 3.2G
-          sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
+    - name: "[ubuntu/android] Free up APT cachd"
+      if: runner.os == 'Linux'
+      run: sudo apt-get autoremove -y && sudo apt-get clean
 
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
@@ -303,6 +334,7 @@ jobs:
       # Use retry loop to work around intermittent transfer issue
       uses: nick-fields/retry@9417ab499314dfe692edb043ded2ff9b3f5f0a68 # v3
       with:
+        shell: bash
         max_attempts: 10
         timeout_minutes: 20
         retry_wait_seconds: 5
