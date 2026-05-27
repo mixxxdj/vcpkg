@@ -244,13 +244,13 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.5.11
+      uses: azure/trusted-signing-action@v2.0.0
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
         azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
         endpoint: https://weu.codesigning.azure.net/
-        trusted-signing-account-name: mixxx
+        signing-account-name: mixxx
         certificate-profile-name: mixxx
         files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/bin
         files-folder-filter: dll
@@ -263,13 +263,13 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.5.11
+      uses: azure/trusted-signing-action@v2.0.0
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
         azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
         endpoint: https://weu.codesigning.azure.net/
-        trusted-signing-account-name: mixxx
+        signing-account-name: mixxx
         certificate-profile-name: mixxx
         files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/Qt6/plugins
         files-folder-filter: dll
@@ -283,13 +283,13 @@ jobs:
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       if: runner.os == 'Windows' && env.AZURE_TENANT_ID
-      uses: azure/trusted-signing-action@v0.5.11
+      uses: azure/trusted-signing-action@v2.0.0
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
         azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
         endpoint: https://weu.codesigning.azure.net/
-        trusted-signing-account-name: mixxx
+        signing-account-name: mixxx
         certificate-profile-name: mixxx
         files-folder: ${{ matrix.vcpkg_path }}/vcpkg_installed/${{ matrix.vcpkg_triplet }}/Qt6/qml
         files-folder-filter: dll
@@ -301,10 +301,11 @@ jobs:
 
     - name: Upload GitHub Actions artifacts of build logs
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ matrix.deps_name }}
         path: ${{ matrix.vcpkg_path  }}/buildtrees/**/*.log
+        archive: true
 
     - name: Create buildenv archive
       run: ./vcpkg export --vcpkg-root=${{ matrix.vcpkg_path }} --x-all-installed --zip --output=${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }} --output-dir=${{ matrix.vcpkg_path }}
@@ -351,10 +352,11 @@ jobs:
         UPLOAD_ID: ${{ github.run_id }}
 
     - name: Upload GitHub Actions artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}
         path: ${{ matrix.vcpkg_path }}/${{ env.DEPS_BASE_NAME }}-${{ env.MIXXX_VERSION }}-${{ matrix.deps_name }}-${{ steps.vars.outputs.sha_short }}.zip
+        archive: false
 
     # Workaround for https://github.com/actions/cache/issues/531
     - name: Use system tar & zstd from Chocolatey for caching
