@@ -98,6 +98,21 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
             "libavcodec/audiotoolboxdec.c"
             "libavcodec/audiotoolboxenc.c"
             "libavdevice/audiotoolbox.m"
+            "libavdevice/avfoundation.m"
+            "libavfilter/vf_coreimage.m"
+            "libavfilter/vf_scale_vt.c"
+            "libavutil/hwcontext_videotoolbox.c"
+            "libavcodec/proresdata.c"
+            "libavcodec/proresdata.h"
+            "libavcodec/proresdec.c"
+            "libavcodec/proresdec.h"
+            "libavcodec/proresdsp.c"
+            "libavcodec/proresdsp.h"
+            "libavcodec/videotoolbox.c"
+            "libavcodec/videotoolbox_vp9.c"
+            "libavcodec/vt_internal.h"
+            "libavcodec/x86/proresdsp.asm"
+            "libavcodec/x86/proresdsp_init.c"
         )
         list(APPEND FFMPEG_ENABLE_DECODERS 
             "aac_at"
@@ -219,18 +234,12 @@ elseif(VCPKG_TARGET_IS_OSX)
     # The AVFoundation/CoreImage/VideoToolbox codec implementations are distributed by Apple to the end users.
     # The distribution requires patent licensing, and we can reasonably assume Apple fulfills this obligation.
     # This FFmpeg build only invokes the licensed codec implementations provided by Apple.
-    string(APPEND OPTIONS " --enable-audiotoolbox")
-    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-        string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
-    endif()
+    string(APPEND OPTIONS "  --enable-audiotoolbox --enable-avfoundation --enable-coreimage --enable-videotoolbox")
 elseif(VCPKG_TARGET_IS_IOS)
     # The AVFoundation/CoreImage/VideoToolbox codec implementations are distributed by Apple to the end users.
     # The distribution requires patent licensing, and we can reasonably assume Apple fulfills this obligation.
     # This FFmpeg build only invokes the licensed codec implementations provided by Apple.
-    string(APPEND OPTIONS " --enable-audiotoolbox")
-    if(NOT ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
-        string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
-    endif()
+    string(APPEND OPTIONS "  --enable-audiotoolbox --enable-avfoundation --enable-coreimage --enable-videotoolbox")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "Android")
     string(APPEND OPTIONS " --target-os=android --enable-jni --enable-mediacodec")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "QNX")
