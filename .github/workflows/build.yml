@@ -54,7 +54,7 @@ jobs:
             developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             brew_extra: libtool
             check_disk_space: df -h
-          - os: ubuntu-24.04
+          - os: ubuntu-22.04
             deps_name: x64-linux
             vcpkg_path: /home/runner/mixxx-vcpkg
             vcpkg_bootstrap: ./bootstrap-vcpkg.sh
