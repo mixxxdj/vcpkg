@@ -8,7 +8,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO ffmpeg/ffmpeg
     REF "n${VERSION}"
-    SHA512 3b273769ef1a1b63aed0691eef317a760f8c83b1d0e1c232b67bbee26db60b4864aafbc88df0e86d6bebf07185bbd057f33e2d5258fde6d97763b9994cd48b6f
+    SHA512 eddcd57e4f048f62a95ccbf4ed9ef713d56fe22d4ecaac4175ed3ad8d664c2552f547d668662be04dc469f96109872749bcbbdd2412d3c15d2fa797565028e16
     HEAD_REF master
     PATCHES
         0001-create-lib-libraries.patch
@@ -30,26 +30,19 @@ set(OPTIONS "--enable-pic --disable-doc --enable-debug --enable-runtime-cpudetec
 
 if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
     set(FEDORA_FFMPEG_FREE_SAFE ON)
-    
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/ffmpeg_free_sources" "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources" STATUS DOWNLOAD_STATUS)
-    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-    if(NOT ${STATUS_CODE} EQUAL 0)
-        message(FATAL_ERROR "Downloading ffmpeg_free_sources failed: ${DOWNLOAD_STATUS}")
-     endif()
 
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/enable_decoders" "${CURRENT_BUILDTREES_DIR}/enable_decoders")
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/c9531fe2364e99f2a1e027afaeee0d9409aa6718/f/enable_decoders" "${CURRENT_BUILDTREES_DIR}/enable_decoders" STATUS DOWNLOAD_STATUS)
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT ${STATUS_CODE} EQUAL 0)
         message(FATAL_ERROR "Downloading enable_decoders failed: ${DOWNLOAD_STATUS}")
     endif()
-     
-    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/d3e50323a84dc815e5bc3d9ac54d7f6fea42e2ca/f/enable_encoders" "${CURRENT_BUILDTREES_DIR}/enable_encoders")
+
+    file(DOWNLOAD "https://src.fedoraproject.org/rpms/ffmpeg/raw/c9531fe2364e99f2a1e027afaeee0d9409aa6718/f/enable_encoders" "${CURRENT_BUILDTREES_DIR}/enable_encoders" STATUS DOWNLOAD_STATUS)
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT ${STATUS_CODE} EQUAL 0)
         message(FATAL_ERROR "Downloading enable_encoders failed: ${DOWNLOAD_STATUS}")
     endif()
-     
-    file(STRINGS "${CURRENT_BUILDTREES_DIR}/ffmpeg_free_sources" FFMPEG_SOURCE_ALLOW_LIST)
+
     file(STRINGS "${CURRENT_BUILDTREES_DIR}/enable_decoders" FFMPEG_ENABLE_DECODERS_DIRTY)
     file(STRINGS "${CURRENT_BUILDTREES_DIR}/enable_encoders" FFMPEG_ENABLE_ENCODERS_DIRTY)
 
@@ -69,24 +62,9 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
         endif()
     endforeach()
 
-    # Manually allow some low risk sources
-    list(APPEND FFMPEG_SOURCE_ALLOW_LIST 
-        # Followings are used by "libavutil/file_open.c"
-        "libavcodec/file_open.c"
-        "libavdevice/file_open.c"
-        "libavfilter/file_open.c"
-        "libavformat/file_open.c"
-        "libavdevice/gdigrab.c"
-    )
-    
     if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_UWP)
         # Manually allow Microsoft codecs, based on the reasonable assumption that they are already licensed on Microsoft OS devices.
-        list(APPEND FFMPEG_SOURCE_ALLOW_LIST
-            "libavcodec/mf_utils.c"
-            "libavcodec/mf_utils.h"
-            "libavcodec/mfenc.c"
-        )
-        list(APPEND FFMPEG_ENABLE_ENCODERS 
+        list(APPEND FFMPEG_ENABLE_ENCODERS
             "aac_mf"
             "ac3_mf"
             "h262_mf"
@@ -94,27 +72,7 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
         )
     elseif(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
         # Manually allow Apple codecs, based on the reasonable assumption that they are already licensed on Apple OS devices.
-        list(APPEND FFMPEG_SOURCE_ALLOW_LIST
-            "libavcodec/audiotoolboxdec.c"
-            "libavcodec/audiotoolboxenc.c"
-            "libavdevice/audiotoolbox.m"
-            "libavdevice/avfoundation.m"
-            "libavfilter/vf_coreimage.m"
-            "libavfilter/vf_scale_vt.c"
-            "libavutil/hwcontext_videotoolbox.c"
-            "libavcodec/proresdata.c"
-            "libavcodec/proresdata.h"
-            "libavcodec/proresdec.c"
-            "libavcodec/proresdec.h"
-            "libavcodec/proresdsp.c"
-            "libavcodec/proresdsp.h"
-            "libavcodec/videotoolbox.c"
-            "libavcodec/videotoolbox_vp9.c"
-            "libavcodec/vt_internal.h"
-            "libavcodec/x86/proresdsp.asm"
-            "libavcodec/x86/proresdsp_init.c"
-        )
-        list(APPEND FFMPEG_ENABLE_DECODERS 
+        list(APPEND FFMPEG_ENABLE_DECODERS
             "aac_at"
             "ac3_at"
             "adpcm_ima_qt_at"
@@ -131,64 +89,31 @@ if("fedora-ffmpeg-free-safe" IN_LIST FEATURES)
             "qdm2_at"
             "qdmc_at"
         )
-        list(APPEND FFMPEG_ENABLE_ENCODERS 
+        list(APPEND FFMPEG_ENABLE_ENCODERS
             "aac_at"
             "alac_at"
             "ilbc_at"
             "pcm_alaw_at"
             "pcm_mulaw_at"
         )
-    elseif(VCPKG_TARGET_IS_ANDROID)
-        list(APPEND FFMPEG_SOURCE_ALLOW_LIST 
-            "libavcodec/ffjni.c"
-            "libavcodec/ffjni.h"
-            "libavcodec/mediacodec_surface.h"
-            "libavcodec/mediacodecenc.c"
-            "libavcodec/mediacodecdec_common.h"
-            "libavcodec/mediacodec.c"
-            "libavcodec/mediacodec_wrapper.h"
-            "libavcodec/mediacodec_wrapper.c"
-            "libavcodec/mediacodecdec_common.c"
-            "libavcodec/mediacodec_sw_buffer.c"
-            "libavcodec/mediacodecdec.c"
-            "libavcodec/mediacodec_surface.c"
-            "libavcodec/mediacodec.h"
-            "libavcodec/mediacodec_sw_buffer.h"
-            "libavutil/hwcontext_mediacodec.h"
-            "libavutil/hwcontext_mediacodec.c"
-            "libavdevice/android_camera.c"
-        )
     endif()
-    
-    # Filter out source files directly from filesystem to ensure they aren't accidentally included
-    file(GLOB_RECURSE FFMPEG_SOURCE_FILE RELATIVE "${SOURCE_PATH}" "${SOURCE_PATH}/*")
-    message(STATUS "Filter source that is not part of Fedora's ffmpeg-free")
-    foreach(srcfile IN LISTS FFMPEG_SOURCE_FILE)
-        if (NOT(srcfile IN_LIST FFMPEG_SOURCE_ALLOW_LIST) AND NOT(srcfile MATCHES "compat/.*"))
-            message(STATUS "-- ${srcfile} is NOT in the allowlist. Removing")
-            file(REMOVE "${SOURCE_PATH}/${srcfile}")
-        endif()
-    endforeach()
 
-    # Encoder/decoder for which the source has been entirely or partially removed
-    list(REMOVE_ITEM FFMPEG_ENABLE_DECODERS 
+    # Codecs that must not be part of the Free build
+    list(REMOVE_ITEM FFMPEG_ENABLE_DECODERS
         "ac3"
     )
-    list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS 
+    list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS
         "ac3"
-    )
-    # Customer encoders we need, not listed by Fedora
-    list(REMOVE_ITEM FFMPEG_ENABLE_ENCODERS 
         "bmp"
     )
 
     list(JOIN FFMPEG_ENABLE_DECODERS "," FFMPEG_ENABLE_DECODERS)
     list(JOIN FFMPEG_ENABLE_ENCODERS "," FFMPEG_ENABLE_ENCODERS)
-    
+
     string(APPEND OPTIONS " --disable-encoders --disable-decoders")
     string(APPEND OPTIONS " --enable-encoder=\"${FFMPEG_ENABLE_ENCODERS}\"")
     string(APPEND OPTIONS " --enable-decoder=\"${FFMPEG_ENABLE_DECODERS}\"")
-    # Option for which the source has been removed
+    # Codecs and input devices that must not be part of the Free build
     string(APPEND OPTIONS " --disable-indev=\"dshow,vfwcap\" --disable-decoder=\"h264,hevc,libxevd,vc1,vvc\" --disable-coreimage")
 endif()
 
