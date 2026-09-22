@@ -61,6 +61,13 @@ jobs:
             vcpkg_triplet: x64-linux
             vcpkg_host_triplet: x64-linux
             check_disk_space: df -h
+          - os: ubuntu-22.04-arm
+            deps_name: arm64-linux
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: arm64-linux
+            vcpkg_host_triplet: arm64-linux
+            check_disk_space: df -h
           - os: ubuntu-24.04
             deps_name: arm64-android
             vcpkg_path: /home/runner/mixxx-vcpkg
