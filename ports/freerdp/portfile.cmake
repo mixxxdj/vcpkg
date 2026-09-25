@@ -2,11 +2,12 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO FreeRDP/FreeRDP
     REF "${VERSION}"
-    SHA512 8ac48097de3b976e830e6f613de1b91f3003997856538742350ec6aee29156d0ec926fffd5c2fb2453904a889ada51dbaa7ce87c5f289606eaa20a2158c55005
+    SHA512 f01cbcf5504fbc609d50205e772f95bbb915caea6e87ee8d7c1d9a18a0c0f477d5ff2cec489d6e57c841a8a32232ac51b6f5df24fc8f207654fd38e501c5996d
     HEAD_REF master
     PATCHES
         dependencies.patch
         ffmpeg.diff
+        fix-aom-target.patch
         install-layout.patch
         windows-linkage.patch
 )
@@ -19,6 +20,7 @@ endif()
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
+        av1         WITH_AOM
         av1         WITH_GFX_AV1
         client      WITH_CLIENT
         ffmpeg      WITH_DSP_FFMPEG
@@ -92,7 +94,7 @@ vcpkg_cmake_configure(
         -DWITH_CUPS=OFF
         -DWITH_FUSE=OFF
         -DWITH_KRB5=OFF
-        -DWITH_LIBSYSTEMD=OFF
+        -DWITH_SYSTEMD=OFF
         -DWITH_OPUS=OFF
         -DWITH_OSS=OFF
         -DWITH_PCSC=OFF
@@ -152,4 +154,9 @@ file(REMOVE_RECURSE
     "${CURRENT_PACKAGES_DIR}/debug/share"
 )
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+vcpkg_install_copyright(
+    FILE_LIST
+        "${SOURCE_PATH}/LICENSE"
+        "${SOURCE_PATH}/winpr/libwinpr/sysinfo/cpufeatures/NOTICE"
+        "${SOURCE_PATH}/winpr/libwinpr/sysinfo/cpufeatures/cpu-features.h"
+)

@@ -1,7 +1,7 @@
 vcpkg_download_distfile(ARCHIVE
     URLS "https://github.com/getsentry/sentry-native/releases/download/${VERSION}/sentry-native.zip"
     FILENAME "sentry-native-${VERSION}.zip"
-    SHA512 33b2bfaddff75840d217359657cf8a7b5760fd1d4ee80e9ff28ecbe100067e3f62b7b09f3f1e265afa8c2fd29b524ab58f5516cb2078f2088c6aa6af495d60a9
+    SHA512 d2f56774c720db46f82b374c196cf96cfa5aaf9e3ed067e1e8aaa369f23baf322c75b3085782e9613ec419436e9484f140c07973ce9b5cd42047344b5911fde8
 )
 
 vcpkg_extract_source_archive(
@@ -38,6 +38,13 @@ if("compression" IN_LIST FEATURES)
     vcpkg_list(APPEND options "-DSENTRY_TRANSPORT_COMPRESSION=ON")
 endif()
 
+# sentry-native only looks for pkg-config on Linux, to locate the system libunwind for
+# SENTRY_LIBUNWIND_SYSTEM. Acquire it directly instead of depending on the pkgconf port.
+if(VCPKG_TARGET_IS_LINUX)
+    vcpkg_find_acquire_program(PKGCONFIG)
+    vcpkg_list(APPEND options "-DPKG_CONFIG_EXECUTABLE=${PKGCONFIG}")
+endif()
+
 if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
     set(VCPKG_CXX_FLAGS "/D_CRT_DECLARE_NONSTDC_NAMES ${VCPKG_CXX_FLAGS}")
     set(VCPKG_C_FLAGS "/D_CRT_DECLARE_NONSTDC_NAMES ${VCPKG_C_FLAGS}")
@@ -61,11 +68,31 @@ vcpkg_copy_pdbs()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+    vcpkg_replace_string(
+        "${CURRENT_PACKAGES_DIR}/include/sentry.h"
+        "#define SENTRY_H_INCLUDED"
+        "#define SENTRY_H_INCLUDED\n\n#define SENTRY_BUILD_STATIC"
+    )
+endif()
+
 vcpkg_cmake_config_fixup(PACKAGE_NAME sentry CONFIG_PATH lib/cmake/sentry)
 
 if(EXISTS "${CURRENT_PACKAGES_DIR}/bin/crashpad_handler${VCPKG_TARGET_EXECUTABLE_SUFFIX}")
     vcpkg_copy_tools(TOOL_NAMES crashpad_handler AUTO_CLEAN)
 endif()
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+vcpkg_install_copyright(
+    FILE_LIST
+        "${SOURCE_PATH}/LICENSE"
+        "${SOURCE_PATH}/vendor/mpack.h"
+        "${SOURCE_PATH}/vendor/stb_sprintf.h"
+        "${SOURCE_PATH}/external/libunwindstack-ndk/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/third_party/getopt/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/third_party/lss/lss/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/third_party/mini_chromium/mini_chromium/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/third_party/mini_chromium/mini_chromium/base/third_party/icu/LICENSE"
+        "${SOURCE_PATH}/external/crashpad/third_party/mpack/LICENSE"
+)
 file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
