@@ -2,8 +2,10 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO NVIDIA/cudnn-frontend
     REF "v${VERSION}"
-    SHA512 50af0affa160aa3df4eb5e292ca675afc518a390712d528890e66c7aaa99f8b72a5947ecace92f2bfb84a32cb687d597bc4d2f2e0ddac71143d1fd74cabc9a07
+    SHA512 234b44a437c82738dc4b6d47b377cc44506cf77cc4481f13a9534526c357f5fa17a43a77b343d388d8ef6fca0804d5a4cae8245d657f0f9a68ff7c289a243a2f
     HEAD_REF main
+    PATCHES
+        fix-dependencies.patch
 )
 file(REMOVE_RECURSE "${SOURCE_PATH}/include/cudnn_frontend/thirdparty")
 
@@ -36,4 +38,13 @@ file(REMOVE_RECURSE
     "${CURRENT_PACKAGES_DIR}/debug"
     "${CURRENT_PACKAGES_DIR}/lib"
 )
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE.txt")
+file(REMOVE "${CURRENT_PACKAGES_DIR}/include/cudnn_frontend/AGENTS.md")
+
+vcpkg_install_copyright(
+    FILE_LIST
+        "${SOURCE_PATH}/LICENSE.txt"
+        "${SOURCE_PATH}/LICENSE-MIT.txt"
+        "${SOURCE_PATH}/LICENSING.md"
+        "${SOURCE_PATH}/NOTICE"
+        "${SOURCE_PATH}/THIRD_PARTY_LICENSES.txt"
+)
