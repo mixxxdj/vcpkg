@@ -127,6 +127,14 @@ jobs:
         sudo rm -rf /usr/share/dotnet            # Free up 3.4G
         sudo rm -rf /usr/share/swift             # Free up 3.2G
         sudo rm -rf /usr/local/share/vcpkg       # Size unknown, but obvious duplicate
+        sudo rm -rf /opt/ghc                     # Free up ~2G (Haskell)
+        sudo rm -rf /usr/local/graalvm           # Free up ~1G
+        sudo rm -rf /usr/local/lib/node_modules  # Free up ~500M
+        sudo rm -rf /usr/share/postgresql        # Free up ~1G
+        sudo rm -rf /usr/share/mysql             # Free up ~800M
+        sudo rm -rf /usr/local/lib/php           # Free up ~600M
+        sudo rm -rf /opt/hostedtoolcache/Ruby    # Free up ~300M
+        sudo rm -rf /opt/hostedtoolcache/Rust    # Free up ~700M
         rsync -a ${{ github.workspace }}/mixxx-vcpkg/ ${{ matrix.vcpkg_path }}
       
       # Workaround for issues https://github.com/microsoft/vcpkg/issues/8272  
