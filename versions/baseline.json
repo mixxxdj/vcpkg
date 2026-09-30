@@ -5113,7 +5113,7 @@
       "port-version": 18
     },
     "libpq": {
-      "baseline": "16.4",
+      "baseline": "16.9",
       "port-version": 0
     },
     "libpqxx": {
@@ -8777,7 +8777,7 @@
       "port-version": 0
     },
     "soundtouch": {
-      "baseline": "2.3.3",
+      "baseline": "2.4.1",
       "port-version": 0
     },
     "soxr": {
