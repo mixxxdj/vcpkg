@@ -1,0 +1,19 @@
+{
+  "name": "upower",
+  "version": "1.91.4",
+  "description": "UPower is a system daemon for managing power devices and provides a client library, libupower-glib, for monitoring them",
+  "homepage": "https://gitlab.freedesktop.org/upower/upower",
+  "license": "GPL-2.0-or-later",
+  "supports": "linux",
+  "dependencies": [
+    "glib",
+    {
+      "name": "glib",
+      "host": true
+    },
+    {
+      "name": "vcpkg-tool-meson",
+      "host": true
+    }
+  ]
+}
