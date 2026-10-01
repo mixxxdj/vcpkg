@@ -101,6 +101,10 @@
     "rubberband",
     "soundtouch",
     "taglib",
+    {
+      "name": "upower",
+      "platform": "linux"
+    },
     "wavpack"
   ]
 }
