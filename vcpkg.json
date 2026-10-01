@@ -5,7 +5,9 @@
   "homepage": "https://mixxx.org/",
   "license": "GPL-2.0-or-later",
   "supports": "!uwp",
-  "default-features": ["qt6"],
+  "default-features": [
+    "qt6"
+  ],
   "features": {
     "qt5": {
       "description": "Build with Qt 5",
@@ -26,14 +28,14 @@
           "name": "qtbase",
           "features": [
             "shared-mime-info"
-          ]      
+          ]
         },
         "qtdeclarative",
         {
           "name": "qtmultimedia",
           "features": [
             "qml"
-          ]      
+          ]
         },
         "qtsvg",
         "qttranslations",
@@ -53,7 +55,7 @@
       "features": [
         "fedora-ffmpeg-free-safe",
         "ffmpeg"
-      ]      
+      ]
     },
     "fftw3",
     "grantlee",
@@ -81,7 +83,7 @@
     "libopusenc",
     "libsndfile",
     "libusb",
-    "libvorbis",    
+    "libvorbis",
     "lilv",
     "mp3lame",
     "ms-gsl",
@@ -89,7 +91,9 @@
     "opusfile",
     {
       "name": "portaudio",
-      "features": ["asio"]
+      "features": [
+        "asio"
+      ]
     },
     "portmidi",
     "protobuf",
@@ -97,6 +101,10 @@
     "rubberband",
     "soundtouch",
     "taglib",
+    {
+      "name": "upower",
+      "platform": "linux"
+    },
     "wavpack"
   ]
 }
