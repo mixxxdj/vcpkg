@@ -53,7 +53,24 @@ jobs:
             vcpkg_host_triplet: arm64-osx-min1100
             developer_dir: /Applications/Xcode_16.4.app/Contents/Developer
             brew_extra: libtool
+          - os: ubuntu-24.04
+            deps_name: x64-linux
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: x64-linux
+            vcpkg_host_triplet: x64-linux
+            container: rockylinux:8
             check_disk_space: df -h
+            vcpkg_max_concurrency: 2
+          - os: ubuntu-24.04-arm
+            deps_name: arm64-linux
+            vcpkg_path: /home/runner/mixxx-vcpkg
+            vcpkg_bootstrap: ./bootstrap-vcpkg.sh
+            vcpkg_triplet: arm64-linux
+            vcpkg_host_triplet: arm64-linux
+            container: rockylinux:8
+            check_disk_space: df -h
+            vcpkg_max_concurrency: 2
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg_host_triplet }}
@@ -62,6 +79,7 @@ jobs:
       MIXXX_VERSION: 2.6
     name: ${{ matrix.deps_name }}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     steps:
     - name: Check out git repository
       uses: actions/checkout@v4
@@ -71,8 +89,34 @@ jobs:
       # Workaround for issues https://github.com/microsoft/vcpkg/issues/8272  
       # and https://github.com/actions/checkout/issues/197 
       # to keep the build path short and work around size limits on the windows runner D: drive 
+    - name: "[Rocky8] Install dependencies for vcpkg"
+      if: matrix.container == 'rockylinux:8'
+      run: |
+          dnf install -y epel-release dnf-plugins-core
+          dnf config-manager --set-enabled powertools
+          dnf install -y gcc-toolset-12 libatomic cmake ninja-build git curl unzip tar perl \
+            perl-IPC-Cmd perl-Data-Dumper perl-Text-Template perl-Time-HiRes perl-Test-Harness \
+            autoconf autoconf-archive automake bison flex nasm pkgconfig \
+            python39 python39-jinja2 alsa-lib-devel mesa-libEGL-devel mesa-libGL-devel \
+            mesa-libGLU-devel libdrm-devel libSM-devel libudev-devel \
+            libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel \
+            xcb-util-keysyms-devel xcb-util-renderutil-devel xcb-util-wm-devel \
+            xcb-util-cursor-devel libXi-devel libXrandr-devel libXrender-devel \
+            libxkbcommon-devel libxkbcommon-x11-devel libtool libtool-ltdl-devel \
+            gettext gettext-devel \
+            glibc-devel kernel-headers
+          # RHEL 8's default python3 (3.6) is too old for meson; use python39.
+          alternatives --set python3 /usr/bin/python3.9
+          source /opt/rh/gcc-toolset-12/enable
+          echo "PATH=${PATH}" >> "${GITHUB_ENV}"
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> "${GITHUB_ENV}"
+          # The container has no /home/runner directory; the vcpkg_path
+          # used by the later steps lives there.
+          mkdir -p /home/runner
+
     - name: Move checkout
-      run: cmake -E copy_directory ${{ github.workspace }}/mixxx-vcpkg ${{ matrix.vcpkg_path }}
+      shell: bash
+      run: cmake -E copy_directory "$GITHUB_WORKSPACE/mixxx-vcpkg" "${{ matrix.vcpkg_path }}"
        
   
     - name: "[macOS] Install dependencies for nuget & vcpkg"
@@ -101,7 +145,7 @@ jobs:
     - name: Read sha_short
       id: vars
       shell: bash
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "sha_short=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
       working-directory: ${{ matrix.vcpkg_path }}
 
     - name: Bootstrap vcpkg
@@ -111,7 +155,17 @@ jobs:
     - name: Check available disk space
       run: ${{ matrix.check_disk_space }}
 
-    - name: Build packages  
+    # Cap the per-port build parallelism (drives the CMake/ninja -j value).
+    # qtdeclarative's debug build exhausts the memory of the Linux runners at
+    # the default core count (OOM, exit 137); -j2 keeps peak memory in check.
+    # Only set for matrix entries that opt in (vcpkg_max_concurrency), so the
+    # other platforms keep their default parallelism.
+    - name: Set vcpkg concurrency cap
+      if: matrix.vcpkg_max_concurrency
+      shell: bash
+      run: echo "VCPKG_MAX_CONCURRENCY=${{ matrix.vcpkg_max_concurrency }}" >> "${GITHUB_ENV}"
+
+    - name: Build packages
       run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
       
