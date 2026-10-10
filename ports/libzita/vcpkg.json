@@ -1,0 +1,19 @@
+{
+    "name": "libzita",
+    "version": "1.11.2",
+    "port-version": 0,
+    "description": "Zita resampler is a C++ library for resampling audio signals. It is designed to be used within a real-time processing context, to be fast, and to provide high-quality sample rate conversion.",
+    "homepage": "https://kokkinizita.linuxaudio.org/linuxaudio/zita-resampler/resampler.html",
+    "license": "BSD-2-Clause",
+    "dependencies": [
+      {
+        "name": "vcpkg-cmake",
+        "host": true
+      },
+      {
+        "name": "vcpkg-cmake-config",
+        "host": true
+      }
+    ]
+  }
+  
