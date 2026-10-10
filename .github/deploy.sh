@@ -13,7 +13,7 @@ set -Eeuo pipefail
 [ -z "${DESTDIR}" ] && echo "Please set the DESTDIR env var." >&2 && exit 1
 
 SSH="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+GIT_BRANCH="${GITHUB_REF_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
 DEST_PATH="${DESTDIR}/${GIT_BRANCH}/${OS}"
 TMP_PATH="../../.tmp/${UPLOAD_ID}"
 
