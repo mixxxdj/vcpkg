@@ -102,6 +102,7 @@ jobs:
           dnf install -y epel-release dnf-plugins-core
           dnf config-manager --set-enabled powertools
           dnf install -y gcc-toolset-12 libatomic cmake ninja-build git curl unzip tar perl \
+            rsync openssh-clients mono-complete \
             perl-IPC-Cmd perl-Data-Dumper perl-Text-Template perl-Time-HiRes perl-Test-Harness \
             autoconf autoconf-archive automake bison flex nasm pkgconfig \
             python39 python39-jinja2 alsa-lib-devel mesa-libEGL-devel mesa-libGL-devel \
@@ -120,6 +121,10 @@ jobs:
           # The container has no /home/runner directory; the vcpkg_path
           # used by the later steps lives there.
           mkdir -p /home/runner
+          # The nuget binary cache needs the nuget client; on Linux it runs under mono.
+          curl -fsSL -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          printf '#!/bin/sh\nmono /usr/local/bin/nuget.exe "$@"\n' > /usr/local/bin/nuget
+          chmod +x /usr/local/bin/nuget
 
     - name: Move checkout
       shell: bash
@@ -134,7 +139,7 @@ jobs:
           xcrun --show-sdk-version
 
     - name: "Authenticate to GitHub Packages (readwrite)"
-      if: runner.os != 'Linux' && github.event_name == 'push' && github.repository_owner == 'mixxxdj'
+      if: github.event_name == 'push' && github.repository_owner == 'mixxxdj'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
@@ -142,7 +147,7 @@ jobs:
         echo "VCPKG_BINARY_SOURCES=clear;nuget,mixxx-github-packages,readwrite;" >> "${GITHUB_ENV}"
         
     - name: "Authenticate to GitHub Packages (read only)"
-      if: runner.os != 'Linux' && (github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj') 
+      if: github.event_name == 'pull_request' || github.repository_owner != 'mixxxdj'
       shell: bash
       run: |
         nuget sources add -Name "mixxx-github-packages" -Source "https://nuget.pkg.github.com/mixxxdj/index.json" -UserName "${{ github.repository_owner }}" -Password "${{ secrets.GITHUB_TOKEN }}" -StorePasswordInClearText
