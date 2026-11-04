@@ -95,6 +95,10 @@
       "name": "portaudio",
       "features": ["asio"]
     },
+    {
+      "name": "pipewire",
+      "platform": "linux"
+    },
     "portmidi",
     "protobuf",
     "pthreads",
