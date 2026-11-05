@@ -35,7 +35,18 @@
           "name": "qtmultimedia",
           "features": [
             "qml"
-          ]
+          ],
+          "platform": "!linux"
+        },
+        {
+          "name": "qtmultimedia",
+          "default-features": false,
+          "features": [
+            "ffmpeg",
+            "qml",
+            "widgets"
+          ],
+          "platform": "linux"
         },
         "qtsvg",
         "qttranslations",
