@@ -109,6 +109,10 @@
       "name": "upower",
       "platform": "linux"
     },
+    {
+      "name": "windowsappsdk-ml-importlibs",
+      "platform": "windows & (x64 | arm64) & !static"
+    },
     "wavpack"
   ]
 }
