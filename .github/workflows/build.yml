@@ -250,6 +250,18 @@ jobs:
       run: ./vcpkg install --vcpkg-root=${{ matrix.vcpkg_path }} --clean-after-build --recurse --feature-flags="-compilertracking,manifests,registries,versions" --x-abi-tools-use-exact-versions
       working-directory: ${{ matrix.vcpkg_path }}
       
+
+    # The linux buildenvs are built on the ubuntu-22.04 floor the AppImage jobs
+    # rely on. Host tools restored from the NuGet binary cache may have been
+    # built on a newer host and need a newer glibc or libstdc++; verify them
+    # against this host's own libc/libstdc++/libgcc_s before the archive is
+    # exported, so the published buildenv always runs on the floor.
+    - name: Audit host tools against the build host ABI floor
+      if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+      shell: bash
+      working-directory: ${{ matrix.vcpkg_path }}
+      run: bash .github/check_buildenv_floor.sh "vcpkg_installed/${{ matrix.vcpkg_triplet }}/tools"
+
     - name: "[Windows] Sign release DLLs"
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
