@@ -2,11 +2,9 @@ vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 set(VCPKG_BUILD_TYPE release)
 set(VCPKG_POLICY_MISMATCHED_NUMBER_OF_BINARIES enabled) # import libraries only, the DLLs are system libraries and provided by the OS
 
-set(ML_VERSION 1.8.2223)
-
 vcpkg_download_distfile(ML_ARCHIVE
-	URLS "https://api.nuget.org/v3-flatcontainer/microsoft.windowsappsdk.ml/${ML_VERSION}/microsoft.windowsappsdk.ml.${ML_VERSION}.nupkg"
-	FILENAME "microsoft.windowsappsdk.ml.${ML_VERSION}.zip"
+	URLS "https://api.nuget.org/v3-flatcontainer/microsoft.windowsappsdk.ml/${VERSION}/microsoft.windowsappsdk.ml.${VERSION}.nupkg"
+	FILENAME "microsoft.windowsappsdk.ml.${VERSION}.zip"
 	SHA512 32E63C1C20573EC7A3AFC457B7A4186C7C1AAE5A657E00B8B57C423767378420693C0572450A7C09C422EC1C2870AD516E073A0B39E00EDF79BA80C7FD4620CD
 )
 
