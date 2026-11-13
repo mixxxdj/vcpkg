@@ -57,10 +57,6 @@
       ]      
     },
     "fftw3",
-    {
-      "name": "grantlee",
-      "platform": "!android"
-    },
     "gtest",
     "hidapi",
     {
