@@ -432,7 +432,7 @@ else()
     set(WITH_DAV1D OFF)
 endif()
 
-if(("fdk-aac" IN_LIST FEATURES) OR ("fedora-ffmpeg-free-safe" IN_LIST FEATURES))
+if("fdk-aac" IN_LIST FEATURES)
     set(OPTIONS "${OPTIONS} --enable-libfdk-aac")
     set(WITH_AAC ON)
 else()

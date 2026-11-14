@@ -1,7 +1,7 @@
 vcpkg_download_distfile(ARCHIVE
     URLS "https://github.com/getsentry/sentry-native/releases/download/${VERSION}/sentry-native.zip"
     FILENAME "sentry-native-${VERSION}.zip"
-    SHA512 d2f56774c720db46f82b374c196cf96cfa5aaf9e3ed067e1e8aaa369f23baf322c75b3085782e9613ec419436e9484f140c07973ce9b5cd42047344b5911fde8
+    SHA512 68af23e3075265c5c2a74e1967dc9bb87eef119a249bde26100db4f8d106c7424937aa15e64af3d5c50c239598633dae30d81230047e574177cc8ad530d3419a
 )
 
 vcpkg_extract_source_archive(
@@ -10,6 +10,7 @@ vcpkg_extract_source_archive(
     NO_REMOVE_ONE_LEVEL
     PATCHES
         fix-crashpad-wer.patch
+        fix-wer-define.patch
         fix-usage-runtime.patch
         fix-cmake4.patch
 )
@@ -85,6 +86,7 @@ endif()
 vcpkg_install_copyright(
     FILE_LIST
         "${SOURCE_PATH}/LICENSE"
+        "${SOURCE_PATH}/vendor/jsmn.h"
         "${SOURCE_PATH}/vendor/mpack.h"
         "${SOURCE_PATH}/vendor/stb_sprintf.h"
         "${SOURCE_PATH}/external/libunwindstack-ndk/LICENSE"
