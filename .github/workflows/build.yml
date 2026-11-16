@@ -76,7 +76,7 @@ jobs:
             vcpkg_host_triplet: x64-linux-release
             android_api: 36
             android_version: 36.0.0
-            android_ndk: 27.2.12479018
+            android_ndk: 28.0.13004108
             check_disk_space: df -h
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
