@@ -1,7 +1,6 @@
 {
   "name": "libjxl",
-  "version-semver": "0.11.2",
-  "port-version": 1,
+  "version-semver": "0.13.0",
   "description": "JPEG XL image format reference implementation",
   "homepage": "https://github.com/libjxl/libjxl",
   "license": "BSD-3-Clause",
@@ -21,8 +20,7 @@
       "dependencies": [
         "giflib",
         "libjpeg-turbo",
-        "libpng",
-        "zlib"
+        "libpng"
       ]
     }
   }
