@@ -1,0 +1,8 @@
+{
+  "name": "windowsappsdk-ml-importlibs",
+  "version": "1.8.2223",
+  "description": "Headers and import libraries only for Windows ML (Windows App SDK) incl. Onnx Runtime. No DLLs are installed; the DLLs are resolved at runtime from the operating system / Windows App Runtime framework package.",
+  "homepage": "https://learn.microsoft.com/windows/ai/new-windows-ml/overview",
+  "license": null,
+  "supports": "windows & (x64 | arm64) & !uwp & !static"
+}
