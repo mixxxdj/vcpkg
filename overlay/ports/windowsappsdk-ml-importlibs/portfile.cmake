@@ -12,8 +12,10 @@ vcpkg_extract_source_archive(ML_SOURCE ARCHIVE "${ML_ARCHIVE}" NO_REMOVE_ONE_LEV
 
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
 	set(NATIVE_ARCH arm64)
-else()
+elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
 	set(NATIVE_ARCH x64)
+else()
+	message(FATAL_ERROR "Unsupported target architecture: ${VCPKG_TARGET_ARCHITECTURE}")
 endif()
 
 # Windows ML: C API headers (e.g. WinMLEpCatalog.h, WinMLAsync.h) and the ONNX Runtime headers,
