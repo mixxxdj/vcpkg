@@ -4,14 +4,16 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO zxing-cpp/zxing-cpp
     REF "v${VERSION}"
-    SHA512 be1c60a6b433c18f8dab56619553023370bfd3eddf49b0e16548466e1ebc2f1f37b48e0b36c2e74296a7274c4f0117d7052f1ffd7d1223d23e493451a11b4a80
+    SHA512 4058641d3c5fad80862d5ad96099348cacff0a898522191d15614f57ccb3a3696546ae0d345d8be3b4447e7e67f84a40fd5abd7087a46c24afe1824b5ce9d677
     HEAD_REF master
 )
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        -DBUILD_EXAMPLES=OFF
+        -DZXING_EXAMPLES=OFF
+        -DZXING_WRITERS=OLD
+        -DZXING_C_API=OFF
 )
 
 vcpkg_cmake_install()
@@ -22,12 +24,12 @@ vcpkg_cmake_config_fixup(
     PACKAGE_NAME ZXing
 )
 
-file(READ "${CURRENT_PACKAGES_DIR}/share/ZXing/ZXingConfig.cmake" _contents)
-file(WRITE "${CURRENT_PACKAGES_DIR}/share/ZXing/ZXingConfig.cmake" "
-include(CMakeFindDependencyMacro)
-find_dependency(Threads)
-${_contents}")
-
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+vcpkg_install_copyright(
+    COMMENT "Upstream does not provide a standalone BSD-3-Clause license for libzueci. zueci.c also contains the LicenseRef-Hoehrmann-UTF-8 notice."
+    FILE_LIST
+        "${SOURCE_PATH}/LICENSE"
+        "${SOURCE_PATH}/core/src/libzueci/zueci.c"
+        "${SOURCE_PATH}/core/src/libzueci/zueci_sb.h"
+)

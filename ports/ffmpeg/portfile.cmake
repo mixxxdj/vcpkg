@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO ffmpeg/ffmpeg
     REF "n${VERSION}"
-    SHA512 21bf3fbcdfd2f41ea6edeab40433fecfe362b09ecaa177a652471b54f9357011b4f74dab18245ab1c26f1a473b94205490baecb42289afd2effd603cd0b22b59
+    SHA512 07f011a15b40b3620dddd438be595952858c10868c799a50fda2adc14dbf605a47fe2819db387d9bf6fbf960b7182b6f1648bd933b5bf62f6f6db7153a0fe822
     HEAD_REF master
     PATCHES
         0003-fix-windowsinclude.patch
@@ -14,11 +14,9 @@ vcpkg_from_github(
         0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch # Do not remove this patch. It is required by chromium
         0045-use-prebuilt-bin2c.patch
         0046-fix-msvc-detection.patch
-        0047-fix-msvc-utf8.patch
         0049-fix-twolame-pkgconfig.patch
         0050-fix-test-ld-absolute-lib-paths.patch
         0051-fix-msvc-undef-flags.patch
-        0052-fix-disable-unstable-swscale-link.patch
 )
 
 if(SOURCE_PATH MATCHES " ")
@@ -36,11 +34,12 @@ endif()
 set(OPTIONS "--enable-pic --disable-doc --enable-runtime-cpudetect --disable-autodetect")
 
 if(VCPKG_TARGET_IS_MINGW)
-    if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
+    if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "arm")
         string(APPEND OPTIONS " --target-os=mingw32")
-    elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
+    elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
         string(APPEND OPTIONS " --target-os=mingw64")
     endif()
+    string(APPEND OPTIONS " --enable-d3d11va --enable-dxva2 --enable-mediafoundation")
 elseif(VCPKG_TARGET_IS_LINUX)
     string(APPEND OPTIONS " --target-os=linux --enable-pthreads")
 elseif(VCPKG_TARGET_IS_UWP)
@@ -70,6 +69,23 @@ endif()
 
 vcpkg_cmake_get_vars(cmake_vars_file)
 include("${cmake_vars_file}")
+
+if(VCPKG_TARGET_IS_MINGW)
+    # mingw-w64 provides d3d12video.h only from v12.0.0.
+    # FFmpeg configure fails if d3d12va is requested and the header is missing.
+    find_file(D3D12VIDEO_HEADER
+        NAMES d3d12video.h
+        PATHS ${VCPKG_DETECTED_CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
+        NO_DEFAULT_PATH
+        NO_CACHE
+    )
+    if(D3D12VIDEO_HEADER)
+        string(APPEND OPTIONS " --enable-d3d12va")
+    else()
+        message(STATUS "d3d12video.h not found in the MinGW toolchain. Building without d3d12va.")
+    endif()
+endif()
+
 if(VCPKG_DETECTED_MSVC)
     set(OPTIONS "--toolchain=msvc ${OPTIONS}")
     # This is required because ffmpeg depends upon optimizations to link correctly
@@ -97,7 +113,7 @@ if(VCPKG_DETECTED_CMAKE_C_COMPILER)
     # that cannot run on the x64 build host. Disable only that unstable backend
     # for Windows ARM64; 0052 keeps the legacy swscale path linkable.
     if(VCPKG_HOST_IS_WINDOWS AND VCPKG_DETECTED_MSVC)
-        if(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
+        if(VCPKG_TARGET_ARCHITECTURE MATCHES "^arm64(ec)?$")
             string(APPEND OPTIONS " --disable-unstable")
         else()
             string(APPEND OPTIONS " --host-cc=${CC_filename}")
@@ -147,7 +163,9 @@ if(VCPKG_DETECTED_CMAKE_AR)
     get_filename_component(AR_path "${VCPKG_DETECTED_CMAKE_AR}" DIRECTORY)
     get_filename_component(AR_filename "${VCPKG_DETECTED_CMAKE_AR}" NAME)
     if(AR_filename MATCHES [[^(llvm-)?lib\.exe$]])
-        set(ENV{AR} "ar-lib ${AR_filename}")
+        if(NOT VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+            set(ENV{AR} "ar-lib ${AR_filename}")
+        endif()
         string(APPEND OPTIONS " --ar='ar-lib ${AR_filename}'")
     else()
         set(ENV{AR} "${AR_filename}")
@@ -423,12 +441,6 @@ else()
     set(WITH_OPENCL OFF)
 endif()
 
-if("opengl" IN_LIST FEATURES)
-    set(OPTIONS "${OPTIONS} --enable-opengl")
-else()
-    set(OPTIONS "${OPTIONS} --disable-opengl")
-endif()
-
 if("openh264" IN_LIST FEATURES)
     set(OPTIONS "${OPTIONS} --enable-libopenh264")
     set(WITH_OPENH264 ON)
@@ -455,15 +467,29 @@ endif()
 
 set(WITH_OPENSSL OFF)
 set(WITH_SCHANNEL OFF)
-if("openssl" IN_LIST FEATURES)
-    set(OPTIONS "${OPTIONS} --enable-openssl")
-    set(WITH_OPENSSL ON)
-else()
-    set(OPTIONS "${OPTIONS} --disable-openssl")
-    if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP)
-        string(APPEND OPTIONS " --enable-schannel")
-        set(WITH_SCHANNEL ON)
+set(WITH_SECURETRANSPORT OFF)
+if("network" IN_LIST FEATURES)
+    if("openssl" IN_LIST FEATURES)
+        set(OPTIONS "${OPTIONS} --enable-openssl")
+        set(WITH_OPENSSL ON)
+    else()
+        set(OPTIONS "${OPTIONS} --disable-openssl")
+        if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP)
+            string(APPEND OPTIONS " --enable-schannel")
+            set(WITH_SCHANNEL ON)
+        elseif(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
+            # SecureTransport is Apple's platform TLS backend, the counterpart of
+            # schannel. Autodetect is off, so it must be enabled explicitly.
+            string(APPEND OPTIONS " --enable-securetransport")
+            set(WITH_SECURETRANSPORT ON)
+        endif()
     endif()
+else()
+    # Without networking, configure drops every protocol that needs it and keeps the
+    # local ones (file, pipe, fd, ...). Also build none of the TLS backends, which
+    # exist only to secure network protocols.
+    string(APPEND OPTIONS " --disable-network")
+    string(APPEND OPTIONS " --disable-openssl --disable-schannel --disable-securetransport")
 endif()
 
 if("opus" IN_LIST FEATURES)
@@ -554,6 +580,8 @@ endif()
 
 if("vulkan" IN_LIST FEATURES)
     set(OPTIONS "${OPTIONS} --enable-vulkan")
+    # configure probes for a glslc executable to compile Vulkan shaders at build time
+    vcpkg_add_to_path(PREPEND "${CURRENT_HOST_INSTALLED_DIR}/tools/shaderc")
 else()
     set(OPTIONS "${OPTIONS} --disable-vulkan")
 endif()
@@ -645,6 +673,9 @@ endif()
 
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
     set(BUILD_ARCH "x86_64")
+elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+    set(BUILD_ARCH "aarch64")
+    string(APPEND OPTIONS " --disable-asm --extra-ldflags=-machine:arm64ec")
 else()
     set(BUILD_ARCH ${VCPKG_TARGET_ARCHITECTURE})
 endif()
@@ -691,8 +722,15 @@ if (VCPKG_TARGET_IS_IOS)
         set(simulator "-simulator")
     endif ()
 
-    set(OPTIONS "${OPTIONS} --extra-cflags=--target=${vcpkg_target_arch}-apple-ios${vcpkg_osx_deployment_target}${simulator}")
-    set(OPTIONS "${OPTIONS} --extra-ldflags=--target=${vcpkg_target_arch}-apple-ios${vcpkg_osx_deployment_target}${simulator}")
+    if (VCPKG_OSX_ARCHITECTURES)
+        list(JOIN VCPKG_OSX_ARCHITECTURES " " OSX_ARCHS)
+        list(LENGTH VCPKG_OSX_ARCHITECTURES OSX_ARCH_COUNT)
+        set(OPTIONS "${OPTIONS} --extra-cflags=-mios${simulator}-version-min=${vcpkg_osx_deployment_target}")
+        set(OPTIONS "${OPTIONS} --extra-ldflags=-mios${simulator}-version-min=${vcpkg_osx_deployment_target}")
+    else ()
+        set(OPTIONS "${OPTIONS} --extra-cflags=--target=${vcpkg_target_arch}-apple-ios${vcpkg_osx_deployment_target}${simulator}")
+        set(OPTIONS "${OPTIONS} --extra-ldflags=--target=${vcpkg_target_arch}-apple-ios${vcpkg_osx_deployment_target}${simulator}")
+    endif ()
 
     set(vcpkg_osx_sysroot "${VCPKG_OSX_SYSROOT}")
     # only on x64 for some reason you need to specify the sdk path, otherwise it will try to build with the MacOS sdk
@@ -736,9 +774,9 @@ if(VCPKG_DETECTED_MSVC)
         set(FFMPEG_CRT_PREFIX "-MD")
     endif()
     # Append Release flags
-    string(APPEND OPTIONS_RELEASE " --extra-cflags=${FFMPEG_CRT_PREFIX} --extra-cxxflags=${FFMPEG_CRT_PREFIX}")
+    string(APPEND OPTIONS_RELEASE " --extra-cflags=${FFMPEG_CRT_PREFIX}")
     # Append Debug flags (adding the 'd' suffix for the debug runtime)
-    string(APPEND OPTIONS_DEBUG " --extra-cflags=${FFMPEG_CRT_PREFIX}d --extra-cxxflags=${FFMPEG_CRT_PREFIX}d")
+    string(APPEND OPTIONS_DEBUG " --extra-cflags=${FFMPEG_CRT_PREFIX}d")
 endif()
 
 set(OPTIONS "${OPTIONS} ${OPTIONS_CROSS}")
@@ -788,10 +826,14 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     set(crsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/cflags.rsp")
     string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_C_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_C_FLAGS_RELEASE}")
     file(WRITE "${crsp}" "${VCPKG_COMBINED_C_FLAGS_RELEASE_SANITIZED}")
+    set(cxxrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/cxxflags.rsp")
+    string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_CXX_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_CXX_FLAGS_RELEASE}")
+    file(WRITE "${cxxrsp}" "${VCPKG_COMBINED_CXX_FLAGS_RELEASE_SANITIZED}")
     set(ldrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/ldflags.rsp")
     string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE}")
     file(WRITE "${ldrsp}" "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE_SANITIZED}")
     set(ENV{CFLAGS} "@${crsp}")
+    set(ENV{CXXFLAGS} "@${cxxrsp}")
     # All tools except the msvc arm{,64} assembler accept @... as response file syntax.
     # For that assembler, there is no known way to pass in flags. We must hope that not passing flags will work acceptably.
     if(NOT VCPKG_DETECTED_MSVC OR NOT VCPKG_TARGET_ARCHITECTURE MATCHES "^arm")
@@ -831,10 +873,14 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     set(crsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/cflags.rsp")
     string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_C_FLAGS_DEBUG_SANITIZED "${VCPKG_COMBINED_C_FLAGS_DEBUG}")
     file(WRITE "${crsp}" "${VCPKG_COMBINED_C_FLAGS_DEBUG_SANITIZED}")
+    set(cxxrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/cxxflags.rsp")
+    string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_CXX_FLAGS_DEBUG_SANITIZED "${VCPKG_COMBINED_CXX_FLAGS_DEBUG}")
+    file(WRITE "${cxxrsp}" "${VCPKG_COMBINED_CXX_FLAGS_DEBUG_SANITIZED}")
     set(ldrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/ldflags.rsp")
     string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_SHARED_LINKER_FLAGS_DEBUG_SANITIZED "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_DEBUG}")
     file(WRITE "${ldrsp}" "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_DEBUG_SANITIZED}")
     set(ENV{CFLAGS} "@${crsp}")
+    set(ENV{CXXFLAGS} "@${cxxrsp}")
     if(NOT VCPKG_DETECTED_MSVC OR NOT VCPKG_TARGET_ARCHITECTURE MATCHES "^arm")
         set(ENV{ASFLAGS} "@${crsp}")
     endif()
@@ -867,6 +913,8 @@ if(VCPKG_TARGET_IS_WINDOWS)
             set(LIB_MACHINE_ARG /machine:ARM)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
             set(LIB_MACHINE_ARG /machine:ARM64)
+        elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+            set(LIB_MACHINE_ARG /machine:ARM64EC)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
             set(LIB_MACHINE_ARG /machine:x86)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")

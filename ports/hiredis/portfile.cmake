@@ -2,13 +2,13 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO redis/hiredis
     REF "v${VERSION}"
-    SHA512 2f7a826032bedb85473b06684e075d9e57105068c44f21b00217f94a7ebbefaa8700c7bf4675c382060a7b00aceb01c90023fdfbe4024a412e05432b852d6dc2
+    SHA512 3322b676c7edcfa8c0cef4389b380f86a8870824bb13ccc068ef887fceb9b9f33c767ce5e1b957862126a12ea93c652d4c12e9170ca3e59d25740a5f428c753f
     HEAD_REF master
     PATCHES
         fix-timeval.patch
         support-static.patch
         fix-cmake-conf-install-dir.patch
-        fix-version.patch
+        fix-ssl-cmake-dependency.patch
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
@@ -27,6 +27,21 @@ vcpkg_cmake_configure(
 vcpkg_cmake_install()
 
 vcpkg_copy_pdbs()
+
+if("ssl" IN_LIST FEATURES)
+    vcpkg_replace_string(
+        "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/hiredis_ssl.pc"
+        "Libs.private: -lssl -lcrypto"
+        "Requires.private: openssl"
+    )
+    if(NOT VCPKG_BUILD_TYPE)
+        vcpkg_replace_string(
+            "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/hiredis_ssl.pc"
+            "Libs.private: -lssl -lcrypto"
+            "Requires.private: openssl"
+        )
+    endif()
+endif()
 
 vcpkg_fixup_pkgconfig()
 

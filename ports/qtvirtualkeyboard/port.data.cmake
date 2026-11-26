@@ -1,3 +1,3 @@
-set(qtvirtualkeyboard_HASH "c508d799a0335a8fb42837d0b52981c7bae22dc4bf7f53e989b156c31368dc9455d6a8d54b4e155fed8ce4d40606d0e4bcebdada41639e1545751a48a43e4653")
-set(qtvirtualkeyboard_URL "https://download.qt.io/archive/qt/6.11/6.11.1/submodules/qtvirtualkeyboard-everywhere-src-6.11.1.tar.xz;https://mirrors.ocf.berkeley.edu/qt/archive/qt/6.11/6.11.1/submodules/qtvirtualkeyboard-everywhere-src-6.11.1.tar.xz")
-set(qtvirtualkeyboard_FILENAME "qtvirtualkeyboard-everywhere-src-6.11.1.tar.xz")
+set(qtvirtualkeyboard_HASH "94d5219b22ff043a49f66dfc897854a2556b8b3077ffef685e9cbf64721f54334207e5b476d5a3cbec4a2341876d111ed675c5aa4f63dce0067b2ead6695c06f")
+set(qtvirtualkeyboard_URL "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtvirtualkeyboard-everywhere-src-6.12.0.tar.xz;https://mirrors.ocf.berkeley.edu/qt/archive/qt/6.12/6.12.0/submodules/qtvirtualkeyboard-everywhere-src-6.12.0.tar.xz")
+set(qtvirtualkeyboard_FILENAME "qtvirtualkeyboard-everywhere-src-6.12.0.tar.xz")

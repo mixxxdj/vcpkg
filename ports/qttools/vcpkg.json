@@ -1,9 +1,8 @@
 {
   "name": "qttools",
-  "version": "6.11.1",
-  "port-version": 1,
+  "version": "6.12.0",
   "description": "A collection of tools and utilities that come with the Qt framework to assist developers in the creation, management, and deployment of Qt applications.",
-  "homepage": "https://www.qt.io/",
+  "homepage": "https://www.qt.io",
   "license": null,
   "dependencies": [
     {
@@ -68,7 +67,8 @@
           "name": "qttools",
           "default-features": false,
           "features": [
-            "designer"
+            "designer",
+            "qml"
           ]
         }
       ]
@@ -88,7 +88,7 @@
     },
     "qdoc": {
       "description": "Build QDoc",
-      "supports": "!android",
+      "supports": "!android & !uwp & !(arm & windows)",
       "dependencies": [
         {
           "name": "llvm",
@@ -96,6 +96,13 @@
           "features": [
             "clang",
             "enable-rtti"
+          ]
+        },
+        {
+          "name": "qttools",
+          "default-features": false,
+          "features": [
+            "qml"
           ]
         }
       ]
@@ -108,6 +115,8 @@
           "default-features": false,
           "features": [
             "gui",
+            "png",
+            "thread",
             "widgets"
           ]
         },

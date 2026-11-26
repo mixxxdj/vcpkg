@@ -2,8 +2,10 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/threadweaver
     REF "v${VERSION}"
-    SHA512 08ed2223943767cb9869b88a187cd4f951e23fd9d5ad36d56bae3ec3201e676fc742c25c38738e6a34275f54be87362afa820557792fec9db5be1eae0d755793
+    SHA512 bc9d8f8a08ce2c8b5cf03aeccd0067c56feda38648fb48c80a0f1421b9c10e68e42a0f745740dcaa027688514fbb691aa8b40bc698218b52f759c3910f8cbb09
     HEAD_REF master
+    PATCHES
+        disable-examples.patch
 )
 
 # Prevent KDEClangFormat from writing to source effectively blocking parallel configure
@@ -13,6 +15,8 @@ vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DBUILD_TESTING=OFF
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
 )
 
 vcpkg_cmake_install()

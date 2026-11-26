@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/kitemmodels
     REF "v${VERSION}"
-    SHA512 52d30a19a65c23e206231d3368c2849a69f22b5c18124292746ef2829345ecfe49c3c582bfce5e444945cc9db431e1296b91c88b368c2047a1623e84e851d9e5
+    SHA512 addcb8a49fc1be6ad61418f3632fdaacd892165d684be1bcb624cf59dd64c0940414789d5487d1969a4730869144c056f076f70f893797f7eb9b5156f1e08a0d
     HEAD_REF master
 )
 
@@ -21,7 +21,9 @@ vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DBUILD_TESTING=OFF
-        -DKDE_INSTALL_QMLDIR=qml
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
+        -DKDE_INSTALL_QMLDIR=Qt6/qml
         ${FEATURE_OPTIONS}
 )
 
@@ -30,6 +32,15 @@ vcpkg_cmake_config_fixup(
     PACKAGE_NAME kf6itemmodels
     CONFIG_PATH lib/cmake/KF6ItemModels
 )
+
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static" AND "qml" IN_LIST FEATURES AND NOT VCPKG_BUILD_TYPE)
+    # The static QML module objects are installed in the QML directory, debug/Qt6/qml for the debug build
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/kf6itemmodels/KF6ItemModelsTargets-debug.cmake"
+        [[${_IMPORT_PREFIX}/Qt6/qml/]]
+        [[${_IMPORT_PREFIX}/debug/Qt6/qml/]]
+    )
+endif()
+
 vcpkg_copy_pdbs()
 
 file(REMOVE_RECURSE

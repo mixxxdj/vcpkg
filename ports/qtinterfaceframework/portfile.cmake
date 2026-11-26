@@ -13,11 +13,20 @@ if(_qis_DISABLE_NINJA)
     set(_opt DISABLE_NINJA)
 endif()
 
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+FEATURES
+    "mqtt"          CMAKE_REQUIRE_FIND_PACKAGE_Qt6Mqtt
+INVERTED_FEATURES
+    "mqtt"          CMAKE_DISABLE_FIND_PACKAGE_Qt6Mqtt
+)
+# Use the query parser shipped in the sources instead of regenerating it with a random flex
+list(APPEND FEATURE_OPTIONS -DCMAKE_DISABLE_FIND_PACKAGE_FLEX=ON)
+
 vcpkg_find_acquire_program(PKGCONFIG)
 
-x_vcpkg_get_python_packages(PYTHON_VERSION "3" 
-                            REQUIREMENTS_FILE "${CURRENT_PORT_DIR}/requirements_minimal.txt" 
-                            PACKAGES qface==2.0.5
+x_vcpkg_get_python_packages(PYTHON_VERSION "3"
+                            REQUIREMENTS_FILE "${CURRENT_PORT_DIR}/requirements_minimal.txt"
+                            PACKAGES qface==2.0.14
                             OUT_PYTHON_VAR "PYTHON3")
 
 if(VCPKG_CROSSCOMPILING)
@@ -26,9 +35,9 @@ endif()
 
 set(qt_plugindir ${QT6_DIRECTORY_PREFIX}plugins)
 set(qt_qmldir ${QT6_DIRECTORY_PREFIX}qml)
-qt_cmake_configure(${_opt} 
+qt_cmake_configure(${_opt}
                    OPTIONS ${FEATURE_OPTIONS}
-                        "-DPython3_EXECUTABLE=${PYTHON3}" # Otherwise a VS installation might be found. 
+                        "-DPython3_EXECUTABLE=${PYTHON3}" # Otherwise a VS installation might be found.
                    OPTIONS_DEBUG ${_qis_CONFIGURE_OPTIONS_DEBUG}
                    OPTIONS_RELEASE ${_qis_CONFIGURE_OPTIONS_RELEASE})
 

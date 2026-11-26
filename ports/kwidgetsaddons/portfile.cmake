@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/kwidgetsaddons
     REF "v${VERSION}"
-    SHA512 3ce3f71ab30acbe5f87be1db680908e473dd96239d82381f9c01aa66feedad9be15bea6849ffe1867dd30002e627a4ab0cc8bdcd76bf153cea9bb963bb0a21c0
+    SHA512 47714de92bbcc7d22b82cb96b5b954cfbd854a91e6e3f1bde895e2b835bac14862b837e74a4625f7311a4d8cdf0066530ca97c14c93d864e0cf97f794b0612b8
     HEAD_REF master
 )
 
@@ -21,9 +21,10 @@ vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DBUILD_TESTING=OFF
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
         -DBUILD_PYTHON_BINDINGS=OFF
-        -DKDE_INSTALL_PLUGINDIR=plugins
-        -DKDE_INSTALL_QTPLUGINDIR=plugins
+        -DKDE_INSTALL_QTPLUGINDIR=Qt6/plugins
         ${FEATURE_OPTIONS}
 )
 

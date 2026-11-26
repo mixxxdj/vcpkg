@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO SlickQuant/slick-socket
     REF "v${VERSION}"
-    SHA512 92e06ba13bdc08991b3b41b7b4d0acfa6585b478dda267ece8082b8bac11590c71fc0e3509703565048dfe97612f9ab577ca87ab1cf694ef52affe347f32a6e9
+    SHA512 a633c5d6424356993003df0b5c345d851eacdeba040c1b2b85cda56d20efe81e4b44e74a7b0685ed0e2b90e9cf5d54f7ab4c0b5f0707a87af7b9c3ea51b5104d
     HEAD_REF main
 )
 
@@ -14,13 +14,13 @@ vcpkg_cmake_configure(
     OPTIONS
         -DBUILD_SLICK_SOCKET_EXAMPLES=OFF
         -DBUILD_SLICK_SOCKET_TESTING=OFF
+        -DSLICK_SOCKET_WARNINGS_AS_ERRORS=OFF
 )
 
 vcpkg_cmake_install()
 
 # Fix up CMake config files
 vcpkg_cmake_config_fixup(
-    PACKAGE_NAME slick-socket
     CONFIG_PATH lib/cmake/slick-socket
 )
 
@@ -29,6 +29,3 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug" "${CURRENT_PACKAGES_DIR}/lib
 
 # Install license
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
-
-# Install usage
-file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")

@@ -2,11 +2,12 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO paullouisageneau/libdatachannel
     REF "v${VERSION}"
-    SHA512 694561ba5b3e08ed35e7e167330d97455ee2ef8d298c9c41e12de4d07032bbe1bb2ebec1e35126187c57ef9492e7d1c82ffd0fa3511eabcdfb77efabfd4b7d9a
+    SHA512 99eaecf794695534bd2220469b9d575bc110eb777131d158ef529acacc2812fd8793b827eb7685e2ea6f48aa224ad87633e379b83e2ccb898fca8bb91917f64c
     HEAD_REF master
     PATCHES
         dependencies.diff
         uwp-warnings.patch
+        nominmax.patch
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
@@ -33,6 +34,19 @@ if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
     vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/rtc/common.hpp" "#ifdef RTC_STATIC" "#if 1")
     vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/rtc/rtc.h" "#ifdef RTC_STATIC" "#if 1")
 endif()
+
+if("stdcall" IN_LIST FEATURES)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/rtc/rtc.h" "#ifdef CAPI_STDCALL" "#if 1")
+endif()
+
+foreach(header IN ITEMS common.hpp rtc.h)
+    if(NOT "srtp" IN_LIST FEATURES)
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/rtc/${header}" "#define RTC_ENABLE_MEDIA 1" "#define RTC_ENABLE_MEDIA 0")
+    endif()
+    if(NOT "ws" IN_LIST FEATURES)
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/rtc/${header}" "#define RTC_ENABLE_WEBSOCKET 1" "#define RTC_ENABLE_WEBSOCKET 0")
+    endif()
+endforeach()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include" "${CURRENT_PACKAGES_DIR}/debug/share")
 

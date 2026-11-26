@@ -3,7 +3,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO dpilger26/NumCpp
     REF "Version_${VERSION}"
-    SHA512 5242ba0cf0bccc77d8dc06058915c6bbf4798329cdeeb96623518642d5771d10e3559a6bd091040c02c237dee631adff77ea11bf2e8149649732fedef63dba9b
+    SHA512 0415fcf3547b047e16a21cf790b24cf90b61ac9b70a2048e8b7657fe395f188efe83631a2a4e972e124ea81857e7dcd7a629001e1bf8eb4f94e2f67afe2c0354
     HEAD_REF master
     PATCHES
         fix-boost-config.patch

@@ -1,14 +1,15 @@
 {
   "name": "qtdeclarative",
-  "version": "6.11.1",
+  "version": "6.12.0",
   "description": "Qt Declarative (Quick 2)",
-  "homepage": "https://www.qt.io/",
+  "homepage": "https://www.qt.io",
   "license": null,
   "dependencies": [
     {
       "name": "qtbase",
       "default-features": false,
       "features": [
+        "gui",
         "network",
         "testlib"
       ]
@@ -23,6 +24,11 @@
       "name": "qtshadertools",
       "default-features": false
     },
-    "qtsvg"
+    "qtsvg",
+    {
+      "name": "vcpkg-qt-android-gradle",
+      "host": true,
+      "platform": "android"
+    }
   ]
 }

@@ -1,9 +1,10 @@
 {
   "name": "kcrash",
-  "version": "6.30.0",
+  "version": "6.32.0",
   "description": "KCrash provides support for intercepting and handling application crashes.",
   "homepage": "https://invent.kde.org/frameworks/kcrash",
   "documentation": "https://api.kde.org/kcrash-index.html",
+  "license": "LGPL-2.0-or-later",
   "supports": "!android",
   "dependencies": [
     "ecm",

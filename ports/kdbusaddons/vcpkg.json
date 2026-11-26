@@ -1,9 +1,10 @@
 {
   "name": "kdbusaddons",
-  "version": "6.30.0",
+  "version": "6.32.0",
   "description": "Convenience classes for D-Bus",
   "homepage": "https://invent.kde.org/frameworks/kdbusaddons",
   "documentation": "https://api.kde.org/kdbusaddons-index.html",
+  "license": "LGPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL)",
   "supports": "!android",
   "dependencies": [
     "ecm",
@@ -13,6 +14,15 @@
       "features": [
         "dbus"
       ]
+    },
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": [
+        "gui",
+        "xcb"
+      ],
+      "platform": "linux | bsd"
     },
     {
       "name": "vcpkg-cmake",

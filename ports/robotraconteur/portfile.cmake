@@ -6,7 +6,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO robotraconteur/robotraconteur
     REF "v${VERSION}"
-    SHA512 f6876d36dbc030e638afdeb58d704f7b50aa7b7a93b46292d83558665cb871a761a1741f19c6fb7208ddc1863ece2b49279477d76f357db45aa8c47082486aec
+    SHA512 6c04f30eff43c5dcc0e0fccf27d0a159618bbe7e7dc55339a9f115623b6b468ed58944de2a034a3a2df585d324d7fb1fa0793590566a14617a6b6ea2c61d6d46
     HEAD_REF master
 )
 
@@ -22,8 +22,6 @@ vcpkg_cmake_install()
 
 vcpkg_copy_tools(TOOL_NAMES RobotRaconteurGen AUTO_CLEAN)
 
-vcpkg_copy_tool_dependencies(${CURRENT_PACKAGES_DIR}/tools/robotraconteur)
-
 vcpkg_cmake_config_fixup(
     PACKAGE_NAME RobotRaconteur
     CONFIG_PATH "lib/cmake/RobotRaconteur"
@@ -35,5 +33,3 @@ file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
 file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/share)
 
 file(INSTALL "${SOURCE_PATH}/LICENSE.txt" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
-file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
-

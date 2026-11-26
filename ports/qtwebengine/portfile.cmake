@@ -1,7 +1,7 @@
 set(SCRIPT_PATH "${CURRENT_INSTALLED_DIR}/share/qtbase")
 include("${SCRIPT_PATH}/qt_install_submodule.cmake")
 
-set(${PORT}_PATCHES 
+set(${PORT}_PATCHES
       "clang-cl.patch"
       "cross-build.diff"
       "disable-host-pkgconfig.diff"
@@ -14,6 +14,9 @@ set(${PORT}_PATCHES
       "rpath.diff"
       "include-dir-order.diff"
       "node-wrapper-diagnostics.diff"
+      "dav1d-msvc-stdatomic.patch" # https://github.com/videolan/dav1d/commit/a34e0685b9111b9eb1d7835ea7bea5b425dced73
+      "cookie-store-projection.patch" # Call unique_ptr::operator* instead of taking its address (MSVC 19.52).
+      "msvc-pack-shadowing.patch" # Rename lambda parameter packs that shadow an enclosing pack (MSVC 19.52 C3528).
 )
 
 set(qtwebengine_target "${VCPKG_TARGET_TRIPLET}-${VCPKG_CMAKE_SYSTEM_NAME}")
@@ -80,7 +83,7 @@ endif()
 # webengine-extensions
 # webengine-printing-and-pdf
 # webengine-pepper-plugins
-set(deactivated_features   webengine_webrtc_pipewire)
+set(deactivated_features   webengine_rust_build webengine_webrtc_pipewire)
 foreach(_feat IN LISTS deactivated_features)
     list(APPEND FEATURE_OPTIONS "-DFEATURE_${_feat}=OFF")
 endforeach()
@@ -98,7 +101,7 @@ if(NOT VCPKG_TARGET_IS_WINDOWS)
     if(NOT VCPKG_TARGET_IS_IOS AND NOT VCPKG_TARGET_IS_OSX)
         list(APPEND system_libs icu)
     endif()
-    if("pdfium" IN_LIST FEATURES)
+    if("pdf" IN_LIST FEATURES)
         list(APPEND system_libs lcms2 libopenjpeg2)
     endif()
     if("webengine" IN_LIST FEATURES)
@@ -199,11 +202,6 @@ if(buildtree_length GREATER 22 AND VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_
     file(MAKE_DIRECTORY "${CURRENT_BUILDTREES_DIR}")
 endif()
 
-set(qtwebengine_install_options ADD_BIN_TO_PATH)
-if(VCPKG_TARGET_IS_WINDOWS)
-    # The outer CMake build invokes a parallel Chromium Ninja build.
-    list(APPEND qtwebengine_install_options DISABLE_PARALLEL)
-endif()
 set(ENV{QTWEBENGINE_GN_THREADS} "${VCPKG_CONCURRENCY}")
 set(ENV{NINJAFLAGS} "-j${VCPKG_CONCURRENCY} $ENV{NINJAFLAGS}")
 
@@ -257,7 +255,7 @@ if(NOT VCPKG_BUILD_TYPE)
         file(APPEND "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/src/core/Debug/${target_args_gn}" "\ngcc_target_rpath=\"\\\${ORIGIN}:${CURRENT_INSTALLED_DIR}/debug/lib\"\n")
     endif()
     vcpkg_host_path_list(PREPEND ENV{PKG_CONFIG_PATH} "${CURRENT_INSTALLED_DIR}/debug/lib/pkgconfig" "${CURRENT_INSTALLED_DIR}/share/pkgconfig")
-    vcpkg_cmake_install(${qtwebengine_install_options})
+    vcpkg_cmake_install(ADD_BIN_TO_PATH)
     endblock()
 endif()
 vcpkg_restore_env_variables(VARS PKG_CONFIG_PATH)
@@ -267,7 +265,7 @@ if(VCPKG_TARGET_IS_LINUX AND EXISTS "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}
     file(APPEND "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/src/core/Release/${target_args_gn}" "\ngcc_target_rpath=\"\\\${ORIGIN}:${CURRENT_INSTALLED_DIR}/lib\"\n")
 endif()
 vcpkg_host_path_list(PREPEND ENV{PKG_CONFIG_PATH} "${CURRENT_INSTALLED_DIR}/lib/pkgconfig" "${CURRENT_INSTALLED_DIR}/share/pkgconfig")
-vcpkg_cmake_install(${qtwebengine_install_options})
+vcpkg_cmake_install(ADD_BIN_TO_PATH)
 endblock()
 vcpkg_restore_env_variables(VARS PKG_CONFIG_PATH)
 

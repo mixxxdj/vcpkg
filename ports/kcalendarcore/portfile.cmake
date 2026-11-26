@@ -1,0 +1,57 @@
+vcpkg_from_github(
+    OUT_SOURCE_PATH SOURCE_PATH
+    REPO KDE/kcalendarcore
+    REF "v${VERSION}"
+    SHA512 f1c9d170053444da3b0103d4fd53b9745c0575b1a2f7aa8e558abe5dc20d48c41876d37f1fd2dbcf5791f07ec9582c1a7786a30156137322120208097170dab7
+    HEAD_REF master
+    PATCHES
+        use-libical-config.patch
+)
+
+# Prevent KDEClangFormat from writing to source effectively blocking parallel configure
+file(WRITE "${SOURCE_PATH}/.clang-format" "DisableFormat: true\nSortIncludes: false\n")
+
+vcpkg_check_features(
+    OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    FEATURES
+        qml          USE_QML
+    INVERTED_FEATURES
+        translations KF_SKIP_PO_PROCESSING
+)
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        -DBUILD_TESTING=OFF
+        -DBUILD_PYTHON_BINDINGS=OFF
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
+        -DKDE_INSTALL_QMLDIR=Qt6/qml
+        "-DECM_PKGCONFIG_INSTALL_DIR:PATH=${CURRENT_PACKAGES_DIR}/discard_pkgconfig"
+        ${FEATURE_OPTIONS}
+    MAYBE_UNUSED_VARIABLES
+        BUILD_PYTHON_BINDINGS
+        ECM_PKGCONFIG_INSTALL_DIR
+)
+
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(PACKAGE_NAME kf6calendarcore CONFIG_PATH lib/cmake/KF6CalendarCore)
+
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static" AND "qml" IN_LIST FEATURES AND NOT VCPKG_BUILD_TYPE)
+    # The static QML module objects are installed in the QML directory, debug/Qt6/qml for the debug build
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/kf6calendarcore/KF6CalendarCoreTargets-debug.cmake"
+        [[${_IMPORT_PREFIX}/Qt6/qml/]]
+        [[${_IMPORT_PREFIX}/debug/Qt6/qml/]]
+    )
+endif()
+
+vcpkg_copy_pdbs()
+
+file(REMOVE_RECURSE
+    "${CURRENT_PACKAGES_DIR}/debug/include"
+    "${CURRENT_PACKAGES_DIR}/debug/share"
+    "${CURRENT_PACKAGES_DIR}/discard_pkgconfig"
+)
+
+file(GLOB LICENSE_FILES "${SOURCE_PATH}/LICENSES/*")
+vcpkg_install_copyright(FILE_LIST ${LICENSE_FILES})

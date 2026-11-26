@@ -11,90 +11,90 @@ endif()
 
 set(ARCHIVE NOTFOUND)
 set(DEBUG_INFO_ARCHIVE NOTFOUND)
-# For convenient updates, use 
-# vcpkg install shader-slang --cmake-args=-DVCPKG_SHADER_SLANG_UPDATE=1
-if(key STREQUAL "windows-x64" OR VCPKG_SHADER_SLANG_UPDATE)
+# For convenient updates, update the version in vcpkg.json
+# and then run update_shas.py
+if(key STREQUAL "windows-x64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-windows-x86_64.zip"
 		FILENAME "slang-${VERSION}-windows-x86_64.zip"
-		SHA512 4da48e55dc21f87b7f290898dc03fbc4cfdac23b81fbbd4e0b6b36659065fcfaf955763d8feee6f9fcdbc69dd7b16bff1ccdf7b1d6327e5056cafda80495cf19
+		SHA512 8f5bf4dd1bc0c6886f920445938c922f59b797b835b11b8c94727ceb01e24d2a4ac3b6cd090f4bfdcf7c787f6db074dd8582aad8db074aa042fffcf325d9de36
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-windows-x86_64-debug-info.zip"
 		FILENAME "slang-${VERSION}-windows-x86_64-debug-info.zip"
-		SHA512 1919f223ef02f5f3c940be2901567b1912d25b9c117dba3d131050692a57eb4843bbdb874aa404bbf872d07465df1551028762ab273c0ee1065860fdd25f15a9
+		SHA512 8c06bbf5dc756e0eb7673347d7b2904dcfe17f7a1dc447b59230546dba5b33d642fd3db0ba6ec950e9ada271f4fa8018e021a2ce599db49465e41c49e53ee541
 	)
 endif()
-if(key STREQUAL "windows-arm64" OR VCPKG_SHADER_SLANG_UPDATE)
+if(key STREQUAL "windows-arm64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-windows-aarch64.zip"
 		FILENAME "slang-${VERSION}-windows-aarch64.zip"
-		SHA512 548cf9ab1b45ffc59cc0b48f2898ad63a8984673d2f34224fd48dd9d4553705d0469f1bcf8d2892ee4fbb3019bc647dfcea75beaea64059d7aab739816bdc5f5
+		SHA512 3a9a052df25319535de9f61f158411fd5a2006093132f71dda48c47c95120988d6ce995d9e9ee6d6ca683a414b68180bf6afedecbdf689d2c7502a40feec262c
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-windows-aarch64-debug-info.zip"
 		FILENAME "slang-${VERSION}-windows-aarch64-debug-info.zip"
-		SHA512 e67cdca3b45f4880b1e6ba1bb64c42da48ace75c800a6c14539f636099100a0a403c941ebe3730f31802fc445933e65a4ed5e632b5bfb67093a98d4c7387af65
+		SHA512 a9b4471d6614c1ee72a5ca38089d239a8e025541a129177c58133aa41a74d4b2764d958b89923eecbb1713f8f4c35d21d7ac3f24b816e066b14591b3cf81060f
 	)
 endif()
-if(key STREQUAL "macosx-x64" OR VCPKG_SHADER_SLANG_UPDATE)
+if(key STREQUAL "macosx-x64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-macos-x86_64.zip"
 		FILENAME "slang-${VERSION}-macos-x86_64.zip"
-		SHA512 02aecc4ae500012e8d93d992bb9788b6a785283d1bce0be13b90775c87e4193658fb0c5fcab072c4d88bd4663b35bd2e8b5ee545daf3d5a922e68cdbf0b1862f
+		SHA512 7736a0ed0c97244c43dea976803aff7988cea0d125d9f2980f5cc613df5acb662c11ed3b4ffabeb28df5025077fb02a52aa8faf7da4d8edb5362770ad8b55bca
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-macos-x86_64-debug-info.zip"
 		FILENAME "slang-${VERSION}-macos-x86_64-debug-info.zip"
-		SHA512 5711d6603e3f04be63ac6365b6e90c6258fd0ec015ae16409e01eb2d01013ea8d4362cc75875e8840e2a9abec296f6c1c4989bcf337a7cc3cf3abaf321d1bd56
+		SHA512 8cdadcb25c4871717ea4182659fcbcee317ff98539dc892c2b70d8ebaa10fdef1c419a7df07115a6f93ee8df17c45c2187177764ac3fce1cf30b718dce15f50e
 	)
 endif()
-if(key STREQUAL "macosx-arm64" OR VCPKG_SHADER_SLANG_UPDATE)
+if(key STREQUAL "macosx-arm64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-macos-aarch64.zip"
 		FILENAME "slang-${VERSION}-macos-aarch64.zip"
-		SHA512 4b52f75fb41f11eefdd897e12c46096c2e7517418243451beb9421942f227097edc7b626e8d82b0e07330781b6e74390f1a7adaba7d8ff5fbf02b461651d7d06
+		SHA512 7131736a8c6f92b142f2f8bc70bc9d2df54ea3ff117584dd5c61dee064dbd0dd8ae9b33804bee25d0e97518135f76cae247fdf3c343e23d8f9a46f522fcb0eea
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-macos-aarch64-debug-info.zip"
 		FILENAME "slang-${VERSION}-macos-aarch64-debug-info.zip"
-		SHA512 eac1cf3e0b477d4b495f114b307c8b34a1cc010147431fd5183f69d35d26ac04f69f193804aaab0a4eebfa16daf317f1c978821e59dbd4132972ebb3e0ca6ac5
+		SHA512 37839208a842358facd1580043f695ff8d80af245fd355412f426ddcef8672dadc90e6cd059fe64e426a146b2d307f30e0e5b2657a51fa861b15a8c37c460fcc
 	)
 endif()
-if(key STREQUAL "linux-x64" OR VCPKG_SHADER_SLANG_UPDATE)
+if(key STREQUAL "linux-x64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-linux-x86_64.zip"
 		FILENAME "slang-${VERSION}-linux-x86_64.zip"
-		SHA512 b0a2bfdf7d604f4feaeaba97a152910dfd8c80d7752d0ae1e7df7c1e55e420eff1483d3a0e61ff0571e1f9ef2fe329e63d5d7525c5b4c6b04928dfc962de84a2
+		SHA512 7b88bca079e52b64a05d6d3b3d2d568b52cdd0d008d0f5aae28d2d64d89f819bf77e12fe51747fb262e8ebbda47087682d7c872c547194636a0a8263b05c4d84
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-linux-x86_64-debug-info.zip"
 		FILENAME "slang-${VERSION}-linux-x86_64-debug-info.zip"
-		SHA512 403c86e1d548fbb408acc3f8cbd2afdc4c53b6f6d21e426155462879aec42d18cf122cb6771649fbdb986f5195d2083bbe6a20002c3d3c632f2c558ba0a37683
+		SHA512 8aa699c86dc85c737cc28fc70c3efb132c90e674d745730cff10b4e773dc0cd4086e18e7dddc85c09e4b55bce55acc910f86d8afdbda7e2154ae5975c2e68318
 	)
 endif()
-if(key STREQUAL "linux-arm64" OR VCPKG_SHADER_SLANG_UPDATE)
+if(key STREQUAL "linux-arm64")
 	vcpkg_download_distfile(
 		ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-linux-aarch64.zip"
 		FILENAME "slang-${VERSION}-linux-aarch64.zip"
-		SHA512 b33bcb083c660b7f6edd61ec1fd75189b62fcb930a22d38b6f8565ffb5f3508f497c0325b7ea67092888a2f37404845198a9b5791720d231d600618ba4db8269
+		SHA512 28fe99c2aa1e6449364c889c054a33f09231e5e21e614110981b2de4de2e064a930c0904e0018a054dfe407c7659e0938dbc890539c107432cb53b954019f9ab
 	)
 	vcpkg_download_distfile(
 		DEBUG_INFO_ARCHIVE
 		URLS "https://github.com/shader-slang/slang/releases/download/v${VERSION}/slang-${VERSION}-linux-aarch64-debug-info.zip"
 		FILENAME "slang-${VERSION}-linux-aarch64-debug-info.zip"
-		SHA512 1bfa6c2ad2921fa07f4af757ab7563db7012f38b26bc8fc304ae34d8a5292fee003bf52f9d7f6716685587bf6fae62d43af92be4d9bf0626795ca416a1668ea1
+		SHA512 f962af37f4f4a17bfc3a9a8c0d42f2e9da499e73212b64166ffbbb9893d62f193b8dda505e3e1dd56d9dd716bd160d0b96fb1eca466fce3360318b969da0b34a
 	)
 endif()
 if(NOT ARCHIVE)
@@ -113,11 +113,6 @@ if(DEBUG_INFO_ARCHIVE)
 		ARCHIVE "${DEBUG_INFO_ARCHIVE}"
 		NO_REMOVE_ONE_LEVEL
 	)
-endif()
-
-if(VCPKG_SHADER_SLANG_UPDATE)
-	message(STATUS "All downloads are up-to-date.")
-	message(FATAL_ERROR "Stopping due to VCPKG_SHADER_SLANG_UPDATE being enabled.")
 endif()
 
 file(GLOB libs
@@ -181,7 +176,7 @@ if(NOT VCPKG_BUILD_TYPE)
 endif()
 
 # On macos, slang has signed their binaries
-# vcpkg wants to be helpful and update the rpath as it moves binaries around but this 
+# vcpkg wants to be helpful and update the rpath as it moves binaries around but this
 # breaks the code signature and makes the binaries useless
 # Removing the signature is rude so instead we will disable rpath fixup
 if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
@@ -213,15 +208,17 @@ block(SCOPE_FOR VARIABLES)
 	)
 	vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/slang/slangConfigVersion.cmake"
 		[[if("${CMAKE_SIZEOF_VOID_P}" STREQUAL ""]]
-		[[if(#[=[ host tool ]=] "TRUE"]] 
+		[[if(#[=[ host tool ]=] "TRUE"]]
 	)
 endblock()
 
 file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 
+file(GLOB third_party_notices LIST_DIRECTORIES false "${BINDIST_PATH}/third-party-notices/*")
 vcpkg_install_copyright(
 	FILE_LIST
 		"${BINDIST_PATH}/LICENSE"
+		${third_party_notices}
 		"${BINDIST_PATH}/LICENSES/Apache-2.0.txt"
 		"${BINDIST_PATH}/LICENSES/BSL-1.0.txt"
 		"${BINDIST_PATH}/LICENSES/CC-BY-4.0.txt"

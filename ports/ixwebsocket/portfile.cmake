@@ -4,16 +4,19 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO machinezone/IXWebSocket
     REF "v${VERSION}"
-    SHA512 ef8fa2732d8f59cd335cb97306d05cd7f2373aa6686aab6c4eebdf687301ce51728fc01b06632bfc616aeaadc61c7eb4fcc4100fbc38fce6b6abed189c7a3579
+    SHA512 e4b25527397da6cab6f92568bc09263e25dda0f18e219443503eed9cf5b03ca52256f09bc1ca98c7c305b8933a8ab55f93d4a170e94d8911a5c280f3fe8a5c72
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
+        zlib      USE_ZLIB
         openssl   USE_OPEN_SSL
         mbedtls   USE_MBED_TLS
         sectransp USE_SECURE_TRANSPORT
 )
 
+# Compression does not select a TLS backend.
+list(REMOVE_ITEM FEATURES "zlib")
 string(COMPARE NOTEQUAL "${FEATURES}" "core" USE_TLS)
 
 list(REMOVE_ITEM FEATURES "ssl")

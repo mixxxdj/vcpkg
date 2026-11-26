@@ -1,0 +1,15 @@
+diff --git a/KF6IconThemesConfig.cmake.in b/KF6IconThemesConfig.cmake.in
+index 79b2004..495bfe6 100644
+--- a/KF6IconThemesConfig.cmake.in
++++ b/KF6IconThemesConfig.cmake.in
+@@ -15,6 +15,10 @@ if (NOT @BUILD_SHARED_LIBS@)
+     find_dependency(KF6I18n "@KF_DEP_VERSION@")
+     find_dependency(KF6WidgetsAddons "@KF_DEP_VERSION@")
+     find_dependency(KF6ColorScheme "@KF_DEP_VERSION@")
++    if (@KICONTHEMES_USE_QTQUICK@)
++        find_dependency(Qt6Qml "@REQUIRED_QT_VERSION@")
++        find_dependency(Qt6Quick "@REQUIRED_QT_VERSION@")
++    endif()
+ 
+     if (@USE_BreezeIcons@)
+         find_package(KF6BreezeIcons "@KF_DEP_VERSION@")

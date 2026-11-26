@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/solid
     REF "v${VERSION}"
-    SHA512 b3e35e1b25fb044a281e1f8c7a0c7741fa740bbd4a0a3d0abe84ce2d0412257852765b46771dd6db962c5768cc000fc72ed6eec999f8c5eb406d733dad9c4b06
+    SHA512 438d34d336b902e463a5e1bc4977cf47db7b726481a8b1a71086873da59ce4a7e8aa43e1c47f771677631e6d6d8dba1533ff6b7bb5e55200989dccd17c229776
     HEAD_REF master
     PATCHES
         001_fix_imobile.patch
@@ -48,11 +48,18 @@ vcpkg_check_features(
         translations KF_SKIP_PO_PROCESSING
 )
 
+if(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_BSD)
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=ON)
+else()
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=OFF)
+endif()
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DBUILD_TESTING=OFF
-        -DKDE_INSTALL_QMLDIR=qml
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
         ${FEATURE_OPTIONS}
 )
 
