@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO ffmpeg/ffmpeg
     REF "n${VERSION}"
-    SHA512 21bf3fbcdfd2f41ea6edeab40433fecfe362b09ecaa177a652471b54f9357011b4f74dab18245ab1c26f1a473b94205490baecb42289afd2effd603cd0b22b59
+    SHA512 07f011a15b40b3620dddd438be595952858c10868c799a50fda2adc14dbf605a47fe2819db387d9bf6fbf960b7182b6f1648bd933b5bf62f6f6db7153a0fe822
     HEAD_REF master
     PATCHES
         0003-fix-windowsinclude.patch
@@ -14,11 +14,9 @@ vcpkg_from_github(
         0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch # Do not remove this patch. It is required by chromium
         0045-use-prebuilt-bin2c.patch
         0046-fix-msvc-detection.patch
-        0047-fix-msvc-utf8.patch
         0049-fix-twolame-pkgconfig.patch
         0050-fix-test-ld-absolute-lib-paths.patch
         0051-fix-msvc-undef-flags.patch
-        0052-fix-disable-unstable-swscale-link.patch
 )
 
 if(SOURCE_PATH MATCHES " ")
@@ -115,7 +113,7 @@ if(VCPKG_DETECTED_CMAKE_C_COMPILER)
     # that cannot run on the x64 build host. Disable only that unstable backend
     # for Windows ARM64; 0052 keeps the legacy swscale path linkable.
     if(VCPKG_HOST_IS_WINDOWS AND VCPKG_DETECTED_MSVC)
-        if(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
+        if(VCPKG_TARGET_ARCHITECTURE MATCHES "^arm64(ec)?$")
             string(APPEND OPTIONS " --disable-unstable")
         else()
             string(APPEND OPTIONS " --host-cc=${CC_filename}")
@@ -165,7 +163,9 @@ if(VCPKG_DETECTED_CMAKE_AR)
     get_filename_component(AR_path "${VCPKG_DETECTED_CMAKE_AR}" DIRECTORY)
     get_filename_component(AR_filename "${VCPKG_DETECTED_CMAKE_AR}" NAME)
     if(AR_filename MATCHES [[^(llvm-)?lib\.exe$]])
-        set(ENV{AR} "ar-lib ${AR_filename}")
+        if(NOT VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+            set(ENV{AR} "ar-lib ${AR_filename}")
+        endif()
         string(APPEND OPTIONS " --ar='ar-lib ${AR_filename}'")
     else()
         set(ENV{AR} "${AR_filename}")
@@ -441,12 +441,6 @@ else()
     set(WITH_OPENCL OFF)
 endif()
 
-if("opengl" IN_LIST FEATURES)
-    set(OPTIONS "${OPTIONS} --enable-opengl")
-else()
-    set(OPTIONS "${OPTIONS} --disable-opengl")
-endif()
-
 if("openh264" IN_LIST FEATURES)
     set(OPTIONS "${OPTIONS} --enable-libopenh264")
     set(WITH_OPENH264 ON)
@@ -679,6 +673,9 @@ endif()
 
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
     set(BUILD_ARCH "x86_64")
+elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+    set(BUILD_ARCH "aarch64")
+    string(APPEND OPTIONS " --disable-asm --extra-ldflags=-machine:arm64ec")
 else()
     set(BUILD_ARCH ${VCPKG_TARGET_ARCHITECTURE})
 endif()
@@ -916,6 +913,8 @@ if(VCPKG_TARGET_IS_WINDOWS)
             set(LIB_MACHINE_ARG /machine:ARM)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
             set(LIB_MACHINE_ARG /machine:ARM64)
+        elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64ec")
+            set(LIB_MACHINE_ARG /machine:ARM64EC)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
             set(LIB_MACHINE_ARG /machine:x86)
         elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")

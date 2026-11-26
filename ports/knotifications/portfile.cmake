@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/knotifications
     REF "v${VERSION}"
-    SHA512 f5529180d1a6bc06a4f68ab1318667d4af637576f39ee3a83d2a6dc71f59e4f6c2e559bf9fad7f7c94912a92f64e7b45272412a93b4f168ffe941c40557da801
+    SHA512 5168cae0c2de69d88d8452cf9b4140a1723d608705ef17dfe07a9856e7400dcf20023e89f9c9332b7366e6f3f6656038b0c864361a2f8dc6507b8e6915bc7379
     HEAD_REF master
     PATCHES
         export-qml-modules.patch
@@ -20,6 +20,12 @@ vcpkg_check_features(
 
 # Prevent KDEClangFormat from writing to source effectively blocking parallel configure
 file(WRITE "${SOURCE_PATH}/.clang-format" "DisableFormat: true\nSortIncludes: false\n")
+
+if(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_BSD)
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=ON)
+else()
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=OFF)
+endif()
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"

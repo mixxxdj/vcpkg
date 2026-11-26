@@ -28,7 +28,6 @@
             "avdevice",
             "avfilter",
             "avformat",
-            "avresample",
             "bzip2",
             "freetype",
             "gpl",
@@ -180,14 +179,6 @@
             "tesseract"
           ],
           "platform": "!(windows & arm) & !static & !uwp"
-        },
-        {
-          "name": "ffmpeg",
-          "default-features": false,
-          "features": [
-            "opengl"
-          ],
-          "platform": "!uwp & !(arm64 & windows) & !android"
         },
         {
           "name": "ffmpeg",

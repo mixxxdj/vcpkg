@@ -2,12 +2,18 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/kcrash
     REF "v${VERSION}"
-    SHA512 6b13e9e6e492bce210c6dbe277a9da946fb5b1d8c9b87b7826748ab455050aa06bd847ac1e289b99bbbb784b2098fe646c598a0ec1dafd71460803eaba5316d4
+    SHA512 15f9f63d8f845f3b7cd4dcbc1d1e052cc67826f8cebfe6f5b7c1de296a52cb3fc53335bacb6ee0dee598a4120aaaff88107a598c34d62f8446b5d570a59ba98a
     HEAD_REF master
 )
 
 # Prevent KDEClangFormat from writing to source effectively blocking parallel configure
 file(WRITE "${SOURCE_PATH}/.clang-format" "DisableFormat: true\nSortIncludes: false\n")
+
+if(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_BSD)
+    list(APPEND FEATURE_OPTIONS -DWITH_X11=ON)
+else()
+    list(APPEND FEATURE_OPTIONS -DWITH_X11=OFF)
+endif()
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
@@ -15,6 +21,9 @@ vcpkg_cmake_configure(
         -DBUILD_TESTING=OFF
         -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
         -DCMAKE_DISABLE_FIND_PACKAGE_Qt6ToolsTools=ON
+        ${FEATURE_OPTIONS}
+    MAYBE_UNUSED_VARIABLES
+        WITH_X11
 )
 
 vcpkg_cmake_install()

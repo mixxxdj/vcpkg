@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/kguiaddons
     REF "v${VERSION}"
-    SHA512 d5cd94a532ba2ec529048aaf94bd64fbead53330fd7e9d6b95b58c37e055af77970067cdbbca5db5a0b127c992470614d711d6d1ad4e310a3aaa8474a94ff6b0
+    SHA512 24aee1d8a8c04340db8342a176a625e2c6c01963355565af274e3e560c6a540f614387ccedd07a9e1d39aaa80dcc409ec688ceef992e7202de25e805e1e0dee5
     HEAD_REF master
 )
 
@@ -11,6 +11,17 @@ file(WRITE "${SOURCE_PATH}/.clang-format" "DisableFormat: true\nSortIncludes: fa
 
 if(NOT "qml" IN_LIST FEATURES)
   list(APPEND FEATURE_OPTIONS "-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Qml=ON")
+endif()
+
+if(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_BSD)
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=ON -DWITH_X11=ON)
+else()
+    list(APPEND FEATURE_OPTIONS -DUSE_DBUS=OFF -DWITH_X11=OFF)
+endif()
+if(VCPKG_TARGET_IS_LINUX)
+    list(APPEND FEATURE_OPTIONS -DWITH_WAYLAND=ON)
+else()
+    list(APPEND FEATURE_OPTIONS -DWITH_WAYLAND=OFF)
 endif()
 
 vcpkg_cmake_configure(
@@ -22,6 +33,9 @@ vcpkg_cmake_configure(
         -DKDE_INSTALL_QMLDIR=Qt6/qml
         -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Tools=ON
         ${FEATURE_OPTIONS}
+    MAYBE_UNUSED_VARIABLES
+        WITH_WAYLAND
+        WITH_X11
 )
 
 vcpkg_cmake_install()
