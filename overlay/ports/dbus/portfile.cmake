@@ -14,6 +14,10 @@ vcpkg_from_gitlab(
         libsystemd.patch
 )
 
+# The systemd feature stays opt-in. It only affects dbus-daemon, adding
+# at_console checks through logind, socket activation, sd_notify and the
+# systemd unit files. Mixxx only uses libdbus as a session bus client and
+# never ships or runs dbus-daemon.
 vcpkg_check_features(OUT_FEATURE_OPTIONS options
     FEATURES
         systemd ENABLE_SYSTEMD
